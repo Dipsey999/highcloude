@@ -29,17 +29,21 @@ export async function signPluginToken(userId: string): Promise<string> {
 
 /**
  * Verify a plugin JWT and return the userId.
- * Throws if invalid or expired.
+ * Returns null if invalid or expired.
  */
-export async function verifyPluginToken(token: string): Promise<string> {
-  const { payload } = await jwtVerify(token, getSecret(), {
-    issuer: ISSUER,
-    audience: AUDIENCE,
-  });
+export async function verifyPluginToken(token: string): Promise<string | null> {
+  try {
+    const { payload } = await jwtVerify(token, getSecret(), {
+      issuer: ISSUER,
+      audience: AUDIENCE,
+    });
 
-  if (!payload.sub) {
-    throw new Error('Invalid token: missing subject');
+    if (!payload.sub) {
+      return null;
+    }
+
+    return payload.sub;
+  } catch {
+    return null;
   }
-
-  return payload.sub;
 }

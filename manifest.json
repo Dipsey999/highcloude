@@ -9,7 +9,7 @@
     "allowedDomains": [
       "https://api.anthropic.com",
       "https://api.github.com",
-      "https://claude-bridge.vercel.app"
+      "https://web-pied-iota-65.vercel.app"
     ]
   },
   "permissions": ["currentuser"],

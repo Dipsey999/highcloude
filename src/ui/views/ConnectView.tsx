@@ -7,7 +7,7 @@ import { StatusBadge } from '../components/StatusBadge';
 import { SyncConfigPanel } from '../components/SyncConfigPanel';
 import { showToast } from '../components/Toast';
 
-const BRIDGE_API_URL = 'https://claude-bridge.vercel.app';
+const BRIDGE_API_URL = 'https://web-pied-iota-65.vercel.app';
 
 type AuthTab = 'manual' | 'bridge';
 
@@ -260,7 +260,7 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
                 />
                 {bridgeError && <span class="form-error">{bridgeError}</span>}
                 <span class="form-hint">
-                  Get your token at claude-bridge.vercel.app/dashboard/plugin-token
+                  Get your token at web-pied-iota-65.vercel.app/dashboard/plugin-token
                 </span>
               </div>
               <button
@@ -305,7 +305,7 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
 
               {bridgeProjects.length === 0 && (
                 <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
-                  No projects found. Create one at claude-bridge.vercel.app/dashboard
+                  No projects found. Create one at web-pied-iota-65.vercel.app/dashboard
                 </p>
               )}
 
