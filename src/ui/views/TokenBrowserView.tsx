@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'preact/hooks';
-import type { CredentialPayload, RawExtractionResult, DesignTokensDocument, RawFigmaVariable } from '../../types/messages';
+import type { CredentialPayload, RawExtractionResult, DesignTokensDocument, RawFigmaVariable, SyncConfig } from '../../types/messages';
 import { sendToCode, onCodeMessage } from '../../utils/message-bus';
 import { SearchInput } from '../components/SearchInput';
 import { TokenTree } from '../components/TokenTree';
@@ -12,6 +12,7 @@ interface TokenBrowserViewProps {
   tokensDocument: DesignTokensDocument | null;
   credentials: CredentialPayload;
   extractionProgress: { stage: string; percent: number } | null;
+  syncConfig?: SyncConfig | null;
 }
 
 export function TokenBrowserView({
@@ -19,6 +20,7 @@ export function TokenBrowserView({
   tokensDocument,
   credentials,
   extractionProgress,
+  syncConfig,
 }: TokenBrowserViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeModeId, setActiveModeId] = useState<string | undefined>(undefined);
@@ -153,6 +155,7 @@ export function TokenBrowserView({
           credentials={credentials}
           rawData={rawData}
           extractionProgress={extractionProgress}
+          syncConfig={syncConfig}
         />
       )}
     </div>

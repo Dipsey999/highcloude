@@ -146,6 +146,14 @@ export function App() {
           // Handled by BatchActionsMenu directly
           break;
 
+        // Phase 7: Multi-File & Team Sync
+        case 'SYNC_CONFIG_LOADED':
+          // Handled by DashboardView directly
+          break;
+        case 'SYNC_CONFIG_SAVED':
+          // Handled by DashboardView directly
+          break;
+
         case 'ERROR': {
           showToast(msg.message, 'error');
           setExtractionProgress(null);

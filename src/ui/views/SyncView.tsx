@@ -7,14 +7,23 @@ import type {
   TokenDiffResult,
   SyncHistoryEntry,
   SyncHistoryChange,
+  SyncConfig,
 } from '../../types/messages';
 import { sendToCode, onCodeMessage } from '../../utils/message-bus';
 import { transformToDocument, computeSummary } from '../../core/token-transformer';
 import { readFileFromRepo, writeFileToRepo } from '../../api/github-client';
+import {
+  commitMultipleFiles,
+  createBranch,
+  getBranchSha,
+  createPullRequest,
+} from '../../api/github-git-api';
 import { diffTokenDocuments } from '../../core/diff-engine';
 import { buildUpdateInstructions } from '../../core/token-applier';
 import { TokenCard } from '../components/TokenCard';
 import { DiffViewer } from '../components/DiffViewer';
+import { PRListPanel } from '../components/PRListPanel';
+import { MultiFileSyncView } from './MultiFileSyncView';
 import { showToast } from '../components/Toast';
 
 type SyncState =
@@ -32,9 +41,36 @@ interface SyncViewProps {
   credentials: CredentialPayload;
   rawData: RawExtractionResult | null;
   extractionProgress: { stage: string; percent: number } | null;
+  syncConfig?: SyncConfig | null;
 }
 
-export function SyncView({ credentials, rawData, extractionProgress }: SyncViewProps) {
+export function SyncView({ credentials, rawData, extractionProgress, syncConfig }: SyncViewProps) {
+  // If multi-file mode, delegate to MultiFileSyncView
+  if (syncConfig?.syncMode === 'multi') {
+    return (
+      <>
+        <MultiFileSyncView
+          credentials={credentials}
+          syncConfig={syncConfig}
+          rawData={rawData}
+          extractionProgress={extractionProgress}
+        />
+        {syncConfig.pushMode === 'pr' && (
+          <PRListPanel credentials={credentials} />
+        )}
+      </>
+    );
+  }
+
+  return <SingleFileSyncView
+    credentials={credentials}
+    rawData={rawData}
+    extractionProgress={extractionProgress}
+    syncConfig={syncConfig}
+  />;
+}
+
+function SingleFileSyncView({ credentials, rawData, extractionProgress, syncConfig }: SyncViewProps) {
   const [syncState, setSyncState] = useState<SyncState>('idle');
   const [localDocument, setLocalDocument] = useState<DesignTokensDocument | null>(null);
   const [remoteDocument, setRemoteDocument] = useState<DesignTokensDocument | null>(null);
@@ -177,29 +213,54 @@ export function SyncView({ credentials, rawData, extractionProgress }: SyncViewP
 
     try {
       const [owner, repo] = credentials.githubRepo.split('/');
-      const branch = credentials.githubBranch ?? 'main';
+      const baseBranch = syncConfig?.baseBranch || credentials.githubBranch || 'main';
       const filePath = credentials.githubFilePath ?? 'tokens.json';
       const content = JSON.stringify(localDocument, null, 2);
+      let resultSha: string;
 
-      // Use cached SHA if available, otherwise fetch
-      let sha = remoteSha;
-      if (!sha) {
-        const existing = await readFileFromRepo(
-          credentials.githubToken, owner, repo, filePath, branch,
+      if (syncConfig?.pushMode === 'pr') {
+        // PR workflow for single-file mode
+        const baseSha = await getBranchSha(credentials.githubToken, owner, repo, baseBranch);
+        const branchName = `claude-bridge/sync-${Date.now()}`;
+
+        await createBranch(credentials.githubToken, owner, repo, branchName, baseSha);
+
+        const commitResult = await commitMultipleFiles(
+          credentials.githubToken, owner, repo, branchName,
+          [{ path: filePath, content }],
+          'chore: sync design tokens from Figma via Claude Bridge',
         );
-        sha = existing?.sha ?? null;
+        resultSha = commitResult.commitSha;
+
+        const pr = await createPullRequest(
+          credentials.githubToken, owner, repo, branchName, baseBranch,
+          'Sync design tokens from Figma',
+          `## Token Sync\n\nPushed \`${filePath}\` from Claude Bridge.`,
+        );
+
+        showToast(`PR #${pr.number} created`, 'success');
+      } else {
+        // Direct push (existing behavior)
+        let sha = remoteSha;
+        if (!sha) {
+          const existing = await readFileFromRepo(
+            credentials.githubToken, owner, repo, filePath, baseBranch,
+          );
+          sha = existing?.sha ?? null;
+        }
+
+        const result = await writeFileToRepo(
+          credentials.githubToken, owner, repo, filePath, baseBranch,
+          content, sha ?? undefined,
+          'chore: sync design tokens from Figma via Claude Bridge',
+        );
+        resultSha = result.sha;
+        showToast('Tokens pushed to GitHub', 'success');
       }
 
-      const result = await writeFileToRepo(
-        credentials.githubToken, owner, repo, filePath, branch,
-        content, sha ?? undefined,
-        'chore: sync design tokens from Figma via Claude Bridge',
-      );
-
-      setRemoteSha(result.sha);
+      setRemoteSha(resultSha);
       setLastSynced(new Date().toISOString());
       setSyncState('synced');
-      showToast('Tokens pushed to GitHub', 'success');
 
       // Save sync history entry
       if (diffResult) {
@@ -207,7 +268,7 @@ export function SyncView({ credentials, rawData, extractionProgress }: SyncViewP
           id: `push-${Date.now()}`,
           timestamp: new Date().toISOString(),
           direction: 'push',
-          commitSha: result.sha,
+          commitSha: resultSha,
           changes: diffResult.entries
             .filter((e) => e.changeType !== 'unchanged')
             .map((e): SyncHistoryChange => ({
@@ -227,7 +288,7 @@ export function SyncView({ credentials, rawData, extractionProgress }: SyncViewP
         'error',
       );
     }
-  }, [localDocument, credentials, remoteSha, diffResult]);
+  }, [localDocument, credentials, remoteSha, diffResult, syncConfig]);
 
   const handlePull = useCallback(() => {
     if (!remoteDocument) return;
@@ -394,6 +455,11 @@ export function SyncView({ credentials, rawData, extractionProgress }: SyncViewP
         }}>
           Last synced: {new Date(lastSynced).toLocaleString()}
         </div>
+      )}
+
+      {/* PR List (when push mode is PR) */}
+      {syncConfig?.pushMode === 'pr' && (
+        <PRListPanel credentials={credentials} />
       )}
     </div>
   );

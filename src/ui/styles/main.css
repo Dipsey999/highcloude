@@ -1734,3 +1734,307 @@ select.form-input {
 .batch-dropdown-item + .batch-dropdown-item {
   border-top: 1px solid var(--color-border);
 }
+
+/* ========================================
+   Phase 7: Multi-File & Team Sync
+   ======================================== */
+
+/* Sync Config Panel */
+.sync-config-panel {
+  padding: var(--spacing-md);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.sync-config-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin-bottom: var(--spacing-md);
+}
+
+.sync-config-section {
+  margin-bottom: var(--spacing-md);
+}
+
+.sync-config-radios {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.sync-config-radio {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+}
+
+.sync-config-radio:hover {
+  background: var(--color-bg);
+}
+
+.sync-config-radio input[type="radio"] {
+  margin-top: 2px;
+}
+
+.sync-config-radio strong {
+  display: block;
+}
+
+.sync-config-radio .form-hint {
+  display: block;
+  margin-top: 2px;
+}
+
+/* File Mapping Table */
+.file-mapping-table {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.file-mapping-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.file-mapping-collection {
+  flex: 0 0 100px;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-mapping-input {
+  flex: 1;
+  font-size: var(--font-size-xs) !important;
+  padding: var(--spacing-xs) var(--spacing-sm) !important;
+}
+
+/* File Sync Card */
+.file-sync-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-sm);
+  overflow: hidden;
+}
+
+.file-sync-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  cursor: pointer;
+  user-select: none;
+}
+
+.file-sync-card-header:hover {
+  background: var(--color-bg-secondary);
+}
+
+.file-sync-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.file-sync-card-collection {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.file-sync-card-path {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-sync-card-status-area {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.file-sync-status-badge {
+  font-size: var(--font-size-xs);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.status-badge-synced {
+  background: rgba(20, 174, 92, 0.1);
+  color: var(--color-success);
+}
+
+.status-badge-local {
+  background: rgba(13, 153, 255, 0.1);
+  color: var(--color-brand);
+}
+
+.status-badge-remote {
+  background: rgba(102, 102, 102, 0.1);
+  color: var(--color-text-secondary);
+}
+
+.status-badge-modified {
+  background: rgba(255, 205, 41, 0.15);
+  color: #b8900a;
+}
+
+.status-badge-conflict {
+  background: rgba(242, 72, 34, 0.1);
+  color: var(--color-error);
+}
+
+.file-sync-card-expand {
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+}
+
+.file-sync-card-commit-info {
+  padding: 0 var(--spacing-md) var(--spacing-xs);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+.file-sync-card-diff {
+  border-top: 1px solid var(--color-border);
+  padding: var(--spacing-sm);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.file-sync-card-no-diff {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  text-align: center;
+  padding: var(--spacing-sm);
+}
+
+.file-sync-card-conflict-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+  background: rgba(242, 72, 34, 0.03);
+}
+
+.file-sync-card-conflict-actions .btn {
+  flex: 1;
+  font-size: var(--font-size-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+/* Multi-File Sync View */
+.multi-file-sync-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.multi-file-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+}
+
+.multi-file-mode-badge {
+  font-size: var(--font-size-xs);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-brand);
+  color: white;
+  font-weight: 500;
+}
+
+.multi-file-cards {
+  display: flex;
+  flex-direction: column;
+}
+
+/* PR List Panel */
+.pr-list-panel {
+  margin-top: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.pr-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-bg-secondary);
+}
+
+.pr-list-header h3 {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.pr-list-loading,
+.pr-list-empty {
+  padding: var(--spacing-md);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+.pr-list-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.pr-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.pr-list-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.pr-list-item-title {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pr-list-item-meta {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+.btn-sm {
+  font-size: var(--font-size-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+}

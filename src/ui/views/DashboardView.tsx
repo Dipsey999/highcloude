@@ -1,9 +1,8 @@
-import { useState, useMemo } from 'preact/hooks';
-import type { ConnectionState, CredentialPayload, RawExtractionResult, DesignTokensDocument } from '../../types/messages';
-import { sendToCode } from '../../utils/message-bus';
+import { useState, useMemo, useEffect } from 'preact/hooks';
+import type { ConnectionState, CredentialPayload, RawExtractionResult, DesignTokensDocument, SyncConfig } from '../../types/messages';
+import { sendToCode, onCodeMessage } from '../../utils/message-bus';
 import { transformToDocument } from '../../core/token-transformer';
 import { StatusBadge } from '../components/StatusBadge';
-import { SyncView } from './SyncView';
 import { BuildView } from './BuildView';
 import { TokenBrowserView } from './TokenBrowserView';
 import { HistoryView } from './HistoryView';
@@ -27,6 +26,23 @@ export function DashboardView({
   extractionProgress,
 }: DashboardViewProps) {
   const [activeTab, setActiveTab] = useState<DashboardTab>('tokens');
+  const [syncConfig, setSyncConfig] = useState<SyncConfig | null>(null);
+
+  // Load sync config on mount
+  useEffect(() => {
+    sendToCode({ type: 'LOAD_SYNC_CONFIG' });
+
+    const unsubscribe = onCodeMessage((msg) => {
+      if (msg.type === 'SYNC_CONFIG_LOADED') {
+        setSyncConfig(msg.config);
+      }
+      if (msg.type === 'SYNC_CONFIG_SAVED') {
+        // Reload after save
+        sendToCode({ type: 'LOAD_SYNC_CONFIG' });
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   // Compute tokens document from raw data
   const tokensDocument = useMemo<DesignTokensDocument | null>(() => {
@@ -42,6 +58,11 @@ export function DashboardView({
     sendToCode({ type: 'CLEAR_CREDENTIALS' });
     onDisconnect();
   };
+
+  // Format sync mode display
+  const syncModeLabel = syncConfig
+    ? `${syncConfig.syncMode === 'multi' ? 'Multi-file' : 'Single file'} · ${syncConfig.pushMode === 'pr' ? 'PR mode' : 'Direct push'}`
+    : null;
 
   return (
     <div class="plugin-body">
@@ -75,9 +96,14 @@ export function DashboardView({
           <div style={{ marginBottom: 'var(--spacing-xs)' }}>
             <strong>Branch:</strong> {credentials.githubBranch ?? 'main'}
           </div>
-          <div>
+          <div style={{ marginBottom: 'var(--spacing-xs)' }}>
             <strong>File:</strong> {credentials.githubFilePath ?? 'tokens.json'}
           </div>
+          {syncModeLabel && (
+            <div>
+              <strong>Sync:</strong> {syncModeLabel}
+            </div>
+          )}
         </div>
       )}
 
@@ -116,6 +142,7 @@ export function DashboardView({
           tokensDocument={tokensDocument}
           credentials={credentials}
           extractionProgress={extractionProgress}
+          syncConfig={syncConfig}
         />
       )}
 

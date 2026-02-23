@@ -8,6 +8,7 @@ import type {
   DTCGTokenType,
   DTCGValue,
   TokenExtractionSummary,
+  FileMapping,
 } from '../types/messages';
 
 /**
@@ -266,4 +267,123 @@ function effectStyleToToken(style: RawFigmaEffectStyle): DTCGToken {
   };
 
   return token;
+}
+
+// ========================================
+// Multi-Document Splitting (Phase 7)
+// ========================================
+
+/**
+ * Transform a RawExtractionResult into multiple documents, one per collection.
+ * Text styles go into a "typography" document, effect styles into a "shadows" document.
+ */
+export function transformToMultiDocument(
+  raw: RawExtractionResult,
+): Map<string, DesignTokensDocument> {
+  const result = new Map<string, DesignTokensDocument>();
+
+  // Group variables by collectionName
+  const variablesByCollection = new Map<string, RawFigmaVariable[]>();
+  for (const variable of raw.variables) {
+    const coll = variable.collectionName || 'default';
+    if (!variablesByCollection.has(coll)) {
+      variablesByCollection.set(coll, []);
+    }
+    variablesByCollection.get(coll)!.push(variable);
+  }
+
+  // Create one document per collection
+  for (const [collectionName, variables] of variablesByCollection) {
+    const doc: DesignTokensDocument = {
+      metadata: {
+        source: 'claude-bridge',
+        figmaFileName: raw.figmaFileName,
+        figmaFileKey: raw.figmaFileKey,
+        lastSynced: new Date().toISOString(),
+        version: '1.0.0',
+      },
+    };
+
+    for (const variable of variables) {
+      const token = variableToToken(variable);
+      setNestedToken(doc, variable.name, token);
+    }
+
+    result.set(collectionName, doc);
+  }
+
+  // Add text styles to a "typography" document
+  if (raw.textStyles.length > 0) {
+    const doc: DesignTokensDocument = {
+      metadata: {
+        source: 'claude-bridge',
+        figmaFileName: raw.figmaFileName,
+        figmaFileKey: raw.figmaFileKey,
+        lastSynced: new Date().toISOString(),
+        version: '1.0.0',
+      },
+    };
+    for (const style of raw.textStyles) {
+      const token = textStyleToToken(style);
+      const path = style.name.startsWith('typography/')
+        ? style.name
+        : `typography/${style.name}`;
+      setNestedToken(doc, path, token);
+    }
+    result.set('typography', doc);
+  }
+
+  // Add effect styles to a "shadows" document
+  if (raw.effectStyles.length > 0) {
+    const doc: DesignTokensDocument = {
+      metadata: {
+        source: 'claude-bridge',
+        figmaFileName: raw.figmaFileName,
+        figmaFileKey: raw.figmaFileKey,
+        lastSynced: new Date().toISOString(),
+        version: '1.0.0',
+      },
+    };
+    for (const style of raw.effectStyles) {
+      const token = effectStyleToToken(style);
+      const path = style.name.startsWith('shadow/')
+        ? style.name
+        : `shadow/${style.name}`;
+      setNestedToken(doc, path, token);
+    }
+    result.set('shadows', doc);
+  }
+
+  return result;
+}
+
+/**
+ * Convert a collection name to a URL-safe slug.
+ * "My Cool Colors" → "my-cool-colors"
+ */
+export function slugifyCollectionName(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/**
+ * Generate a default file mapping from collection names.
+ * "Primitives" + dir "tokens/" → { "Primitives": "tokens/primitives.json" }
+ */
+export function generateDefaultFileMapping(
+  collectionNames: string[],
+  directory: string = 'tokens/',
+): FileMapping {
+  const dir = directory.endsWith('/') ? directory : `${directory}/`;
+  const mapping: FileMapping = {};
+
+  for (const name of collectionNames) {
+    const slug = slugifyCollectionName(name);
+    mapping[name] = `${dir}${slug}.json`;
+  }
+
+  return mapping;
 }
