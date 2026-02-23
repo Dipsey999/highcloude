@@ -7,7 +7,25 @@ export type UIMessage =
   | { type: 'CLEAR_CREDENTIALS' }
   | { type: 'EXTRACT_TOKENS' }
   | { type: 'GET_SELECTION' }
-  | { type: 'APPLY_TOKENS'; instructions: VariableUpdateInstruction[] };
+  | { type: 'APPLY_TOKENS'; instructions: VariableUpdateInstruction[] }
+  | { type: 'CREATE_DESIGN'; spec: DesignSpecNode }
+  | { type: 'EXPORT_SELECTION' }
+  | { type: 'AUTO_MAP_TOKENS' }
+  | { type: 'APPLY_TOKEN_BINDINGS'; bindings: TokenBindingInstruction[] }
+  // Phase 6: Token Browser
+  | { type: 'GET_TOKEN_USAGE'; variableId: string }
+  | { type: 'UPDATE_TOKEN_VALUE'; variableId: string; modeId: string; newValue: string | number | boolean }
+  | { type: 'GET_VARIABLE_MODES'; collectionId: string }
+  // Phase 6: Sync History
+  | { type: 'LOAD_SYNC_HISTORY' }
+  | { type: 'SAVE_SYNC_ENTRY'; entry: SyncHistoryEntry }
+  | { type: 'REVERT_TO_SYNC'; entryId: string }
+  | { type: 'CLEAR_SYNC_HISTORY' }
+  // Phase 6: Batch Operations
+  | { type: 'BATCH_AUTO_MAP_ALL_PAGES' }
+  | { type: 'VALIDATE_TOKENS_DTCG' }
+  | { type: 'FIND_UNUSED_TOKENS' }
+  | { type: 'FIND_ORPHANED_VALUES'; pageIds?: string[] };
 
 export interface CredentialPayload {
   claudeApiKey: string;
@@ -29,7 +47,29 @@ export type CodeMessage =
   | { type: 'SELECTION_DATA'; data: SelectionExport }
   | { type: 'ERROR'; message: string }
   | { type: 'TOKENS_APPLIED'; result: ApplyTokensResult }
-  | { type: 'APPLY_PROGRESS'; stage: string; percent: number };
+  | { type: 'APPLY_PROGRESS'; stage: string; percent: number }
+  | { type: 'DESIGN_CREATED'; result: CreateDesignResult }
+  | { type: 'DESIGN_CREATION_PROGRESS'; stage: string; percent: number }
+  | { type: 'SELECTION_EXPORTED'; result: SelectionExportResult }
+  | { type: 'EXPORT_PROGRESS'; stage: string; percent: number }
+  | { type: 'AUTO_MAP_RESULT'; result: AutoMapResult }
+  | { type: 'AUTO_MAP_PROGRESS'; stage: string; percent: number }
+  | { type: 'BINDINGS_APPLIED'; result: ApplyBindingsResult }
+  // Phase 6: Token Browser
+  | { type: 'TOKEN_USAGE_RESULT'; variableId: string; count: number; nodeNames: string[] }
+  | { type: 'TOKEN_VALUE_UPDATED'; variableId: string; success: boolean; error?: string }
+  | { type: 'VARIABLE_MODES_RESULT'; collectionId: string; modes: Array<{ modeId: string; modeName: string }> }
+  // Phase 6: Sync History
+  | { type: 'SYNC_HISTORY_LOADED'; entries: SyncHistoryEntry[] }
+  | { type: 'SYNC_ENTRY_SAVED' }
+  | { type: 'REVERT_COMPLETE'; result: ApplyTokensResult }
+  | { type: 'SYNC_HISTORY_CLEARED' }
+  // Phase 6: Batch Operations
+  | { type: 'BATCH_AUTO_MAP_ALL_RESULT'; result: AutoMapResult }
+  | { type: 'BATCH_AUTO_MAP_ALL_PROGRESS'; stage: string; percent: number }
+  | { type: 'DTCG_VALIDATION_RESULT'; result: DTCGValidationResult }
+  | { type: 'UNUSED_TOKENS_RESULT'; result: UnusedTokensResult }
+  | { type: 'ORPHANED_VALUES_RESULT'; result: OrphanedValuesResult };
 
 // ========================================
 // Connection Status
@@ -219,4 +259,223 @@ export interface ApplyTokensResult {
   updatedCount: number;
   skippedCount: number;
   errors: string[];
+}
+
+// ========================================
+// Design Spec Types (Claude AI Generation)
+// ========================================
+
+export type DesignNodeType =
+  | 'FRAME'
+  | 'TEXT'
+  | 'RECTANGLE'
+  | 'ELLIPSE'
+  | 'COMPONENT'
+  | 'INSTANCE'
+  | 'IMAGE'
+  | 'VECTOR';
+
+export interface DesignSpecPadding {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
+
+export interface DesignSpecNode {
+  type: DesignNodeType;
+  name?: string;
+  width?: number;
+  height?: number;
+  x?: number;
+  y?: number;
+  fill?: string;
+  stroke?: string;
+  strokeWidth?: number;
+  opacity?: number;
+  cornerRadius?: number;
+  layoutMode?: 'HORIZONTAL' | 'VERTICAL' | 'NONE';
+  padding?: DesignSpecPadding;
+  itemSpacing?: number;
+  primaryAxisAlignItems?: 'MIN' | 'CENTER' | 'MAX' | 'SPACE_BETWEEN';
+  counterAxisAlignItems?: 'MIN' | 'CENTER' | 'MAX';
+  characters?: string;
+  fontSize?: number;
+  fontWeight?: number;
+  fontFamily?: string;
+  textAlignHorizontal?: 'LEFT' | 'CENTER' | 'RIGHT' | 'JUSTIFIED';
+  lineHeight?: number | string;
+  letterSpacing?: number;
+  componentKey?: string;
+  children?: DesignSpecNode[];
+}
+
+export interface CreateDesignResult {
+  nodeId: string;
+  nodeName: string;
+  childCount: number;
+  errors: string[];
+}
+
+// ========================================
+// Selection Export Types (Reverse Sync)
+// ========================================
+
+export interface ExportedNode {
+  type: DesignNodeType;
+  name: string;
+  nodeId: string;
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+  fill?: string;
+  stroke?: string;
+  strokeWidth?: number;
+  opacity?: number;
+  cornerRadius?: number;
+  layoutMode?: 'HORIZONTAL' | 'VERTICAL' | 'NONE';
+  padding?: DesignSpecPadding;
+  itemSpacing?: number;
+  primaryAxisAlignItems?: 'MIN' | 'CENTER' | 'MAX' | 'SPACE_BETWEEN';
+  counterAxisAlignItems?: 'MIN' | 'CENTER' | 'MAX';
+  characters?: string;
+  fontSize?: number;
+  fontWeight?: number;
+  fontFamily?: string;
+  textAlignHorizontal?: 'LEFT' | 'CENTER' | 'RIGHT' | 'JUSTIFIED';
+  lineHeight?: number | string;
+  letterSpacing?: number;
+  boundVariables?: Record<string, string>;
+  children?: ExportedNode[];
+}
+
+export interface SelectionExportResult {
+  root: ExportedNode;
+  nodeCount: number;
+  boundVariableCount: number;
+  warnings: string[];
+}
+
+// ========================================
+// Token Auto-Mapping Types
+// ========================================
+
+export type AutoMapPropertyType =
+  | 'fill'
+  | 'stroke'
+  | 'fontSize'
+  | 'cornerRadius'
+  | 'itemSpacing'
+  | 'paddingTop'
+  | 'paddingRight'
+  | 'paddingBottom'
+  | 'paddingLeft'
+  | 'opacity'
+  | 'strokeWidth'
+  | 'letterSpacing'
+  | 'lineHeight';
+
+export interface TokenSuggestion {
+  variableId: string;
+  variableName: string;
+  collectionName: string;
+  currentValue: string | number;
+  tokenValue: string | number;
+  confidence: number;
+  matchType: 'exact' | 'close' | 'approximate';
+  deltaE?: number;
+}
+
+export interface AutoMapNodeResult {
+  nodeId: string;
+  nodeName: string;
+  nodeType: string;
+  property: AutoMapPropertyType;
+  currentValue: string | number;
+  suggestions: TokenSuggestion[];
+}
+
+export interface AutoMapResult {
+  mappings: AutoMapNodeResult[];
+  totalHardCoded: number;
+  totalSuggestions: number;
+  scanDuration: number;
+}
+
+export interface TokenBindingInstruction {
+  nodeId: string;
+  property: AutoMapPropertyType;
+  variableId: string;
+}
+
+export interface ApplyBindingsResult {
+  boundCount: number;
+  skippedCount: number;
+  errors: string[];
+}
+
+// ========================================
+// Sync History Types (Feature 7)
+// ========================================
+
+export interface SyncHistoryEntry {
+  id: string;
+  timestamp: string;
+  direction: 'push' | 'pull';
+  commitSha?: string;
+  user?: string;
+  changes: SyncHistoryChange[];
+  tokenDocumentSnapshot?: string;
+}
+
+export interface SyncHistoryChange {
+  path: string;
+  changeType: DiffChangeType;
+  oldValue?: string;
+  newValue?: string;
+}
+
+// ========================================
+// Chat Types (Feature 8)
+// ========================================
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+}
+
+// ========================================
+// Batch Operations Types (Feature 9)
+// ========================================
+
+export interface DTCGValidationResult {
+  valid: boolean;
+  errors: Array<{ path: string; message: string }>;
+  warnings: Array<{ path: string; message: string }>;
+  totalChecked: number;
+}
+
+export interface UnusedTokensResult {
+  unusedTokens: Array<{
+    variableId: string;
+    variableName: string;
+    collectionName: string;
+    type: string;
+  }>;
+  totalScanned: number;
+  scanDuration: number;
+}
+
+export interface OrphanedValuesResult {
+  orphanedValues: Array<{
+    nodeId: string;
+    nodeName: string;
+    property: string;
+    value: string | number;
+  }>;
+  totalScanned: number;
+  scanDuration: number;
 }

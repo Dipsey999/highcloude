@@ -5,6 +5,8 @@ import type {
   DesignTokensDocument,
   TokenExtractionSummary,
   TokenDiffResult,
+  SyncHistoryEntry,
+  SyncHistoryChange,
 } from '../../types/messages';
 import { sendToCode, onCodeMessage } from '../../utils/message-bus';
 import { transformToDocument, computeSummary } from '../../core/token-transformer';
@@ -55,13 +57,32 @@ export function SyncView({ credentials, rawData, extractionProgress }: SyncViewP
             (r.errors.length > 0 ? `, ${r.errors.length} errors` : ''),
           r.errors.length > 0 ? 'info' : 'success',
         );
+
+        // Save sync history entry for pull
+        if (remoteDocument && diffResult) {
+          const historyEntry: SyncHistoryEntry = {
+            id: `pull-${Date.now()}`,
+            timestamp: new Date().toISOString(),
+            direction: 'pull',
+            changes: diffResult.entries
+              .filter((e) => e.changeType !== 'unchanged')
+              .map((e): SyncHistoryChange => ({
+                path: e.path,
+                changeType: e.changeType,
+                oldValue: e.localToken ? JSON.stringify(e.localToken.$value) : undefined,
+                newValue: e.remoteToken ? JSON.stringify(e.remoteToken.$value) : undefined,
+              })),
+            tokenDocumentSnapshot: JSON.stringify(remoteDocument),
+          };
+          sendToCode({ type: 'SAVE_SYNC_ENTRY', entry: historyEntry });
+        }
       }
       if (msg.type === 'APPLY_PROGRESS') {
         setApplyProgress({ stage: msg.stage, percent: msg.percent });
       }
     });
     return unsubscribe;
-  }, []);
+  }, [remoteDocument, diffResult]);
 
   // Transform raw data when it arrives from code.ts
   useEffect(() => {
@@ -179,6 +200,26 @@ export function SyncView({ credentials, rawData, extractionProgress }: SyncViewP
       setLastSynced(new Date().toISOString());
       setSyncState('synced');
       showToast('Tokens pushed to GitHub', 'success');
+
+      // Save sync history entry
+      if (diffResult) {
+        const historyEntry: SyncHistoryEntry = {
+          id: `push-${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          direction: 'push',
+          commitSha: result.sha,
+          changes: diffResult.entries
+            .filter((e) => e.changeType !== 'unchanged')
+            .map((e): SyncHistoryChange => ({
+              path: e.path,
+              changeType: e.changeType,
+              oldValue: e.remoteToken ? JSON.stringify(e.remoteToken.$value) : undefined,
+              newValue: e.localToken ? JSON.stringify(e.localToken.$value) : undefined,
+            })),
+          tokenDocumentSnapshot: JSON.stringify(localDocument),
+        };
+        sendToCode({ type: 'SAVE_SYNC_ENTRY', entry: historyEntry });
+      }
     } catch (err) {
       setSyncState('error');
       showToast(
@@ -186,7 +227,7 @@ export function SyncView({ credentials, rawData, extractionProgress }: SyncViewP
         'error',
       );
     }
-  }, [localDocument, credentials, remoteSha]);
+  }, [localDocument, credentials, remoteSha, diffResult]);
 
   const handlePull = useCallback(() => {
     if (!remoteDocument) return;
