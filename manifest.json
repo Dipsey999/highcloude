@@ -8,7 +8,8 @@
   "networkAccess": {
     "allowedDomains": [
       "https://api.anthropic.com",
-      "https://api.github.com"
+      "https://api.github.com",
+      "https://claude-bridge.vercel.app"
     ]
   },
   "permissions": ["currentuser"],

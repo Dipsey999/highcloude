@@ -1,5 +1,5 @@
 import { sendToUI, onUIMessage } from './utils/message-bus';
-import { saveCredentials, loadCredentials, clearCredentials } from './utils/storage';
+import { saveCredentials, loadCredentials, clearCredentials, saveSyncConfig, loadSyncConfig, saveBridgeToken, loadBridgeToken, clearBridgeToken } from './utils/storage';
 import { logger } from './utils/logger';
 import { extractAllTokens } from './core/variable-extractor';
 import { applyVariableUpdates } from './core/variable-writer';
@@ -354,6 +354,73 @@ onUIMessage(async (msg: UIMessage) => {
           message: `Find orphaned failed: ${err instanceof Error ? err.message : 'Unknown error'}`,
         });
       }
+      break;
+    }
+
+    // ========================================
+    // Phase 7: Multi-File & Team Sync handlers
+    // ========================================
+
+    case 'SAVE_SYNC_CONFIG': {
+      try {
+        await saveSyncConfig(msg.config);
+        sendToUI({ type: 'SYNC_CONFIG_SAVED' });
+      } catch {
+        sendToUI({ type: 'ERROR', message: 'Failed to save sync config' });
+      }
+      break;
+    }
+
+    case 'LOAD_SYNC_CONFIG': {
+      try {
+        const config = await loadSyncConfig();
+        sendToUI({ type: 'SYNC_CONFIG_LOADED', config });
+      } catch (err) {
+        logger.error('Load sync config failed:', err);
+        sendToUI({ type: 'SYNC_CONFIG_LOADED', config: null });
+      }
+      break;
+    }
+
+    // ========================================
+    // Phase 8: Web Bridge handlers
+    // ========================================
+
+    case 'SAVE_BRIDGE_TOKEN': {
+      try {
+        await saveBridgeToken(msg.token);
+        sendToUI({ type: 'BRIDGE_TOKEN_SAVED' });
+      } catch {
+        sendToUI({ type: 'ERROR', message: 'Failed to save bridge token' });
+      }
+      break;
+    }
+
+    case 'LOAD_BRIDGE_TOKEN': {
+      const token = await loadBridgeToken();
+      sendToUI({ type: 'BRIDGE_TOKEN_LOADED', token });
+      break;
+    }
+
+    case 'CLEAR_BRIDGE_TOKEN': {
+      try {
+        await clearBridgeToken();
+        sendToUI({ type: 'BRIDGE_TOKEN_CLEARED' });
+      } catch {
+        sendToUI({ type: 'ERROR', message: 'Failed to clear bridge token' });
+      }
+      break;
+    }
+
+    case 'FETCH_BRIDGE_CONFIG': {
+      // Config is fetched from UI side directly (has network access)
+      // This case is handled in the UI iframe
+      break;
+    }
+
+    case 'FETCH_BRIDGE_KEYS': {
+      // Keys are fetched from UI side directly (has network access)
+      // This case is handled in the UI iframe
       break;
     }
 

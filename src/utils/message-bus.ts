@@ -77,6 +77,15 @@ const UI_MESSAGE_TYPES: Set<string> = new Set([
   'VALIDATE_TOKENS_DTCG',
   'FIND_UNUSED_TOKENS',
   'FIND_ORPHANED_VALUES',
+  // Phase 7
+  'SAVE_SYNC_CONFIG',
+  'LOAD_SYNC_CONFIG',
+  // Phase 8: Web Bridge
+  'SAVE_BRIDGE_TOKEN',
+  'LOAD_BRIDGE_TOKEN',
+  'CLEAR_BRIDGE_TOKEN',
+  'FETCH_BRIDGE_CONFIG',
+  'FETCH_BRIDGE_KEYS',
 ]);
 
 const CODE_MESSAGE_TYPES: Set<string> = new Set([
@@ -109,6 +118,15 @@ const CODE_MESSAGE_TYPES: Set<string> = new Set([
   'DTCG_VALIDATION_RESULT',
   'UNUSED_TOKENS_RESULT',
   'ORPHANED_VALUES_RESULT',
+  // Phase 7
+  'SYNC_CONFIG_LOADED',
+  'SYNC_CONFIG_SAVED',
+  // Phase 8: Web Bridge
+  'BRIDGE_TOKEN_LOADED',
+  'BRIDGE_TOKEN_SAVED',
+  'BRIDGE_TOKEN_CLEARED',
+  'BRIDGE_CONFIG_RESULT',
+  'BRIDGE_KEYS_RESULT',
 ]);
 
 function isUIMessage(msg: unknown): msg is UIMessage {

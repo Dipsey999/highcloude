@@ -25,7 +25,16 @@ export type UIMessage =
   | { type: 'BATCH_AUTO_MAP_ALL_PAGES' }
   | { type: 'VALIDATE_TOKENS_DTCG' }
   | { type: 'FIND_UNUSED_TOKENS' }
-  | { type: 'FIND_ORPHANED_VALUES'; pageIds?: string[] };
+  | { type: 'FIND_ORPHANED_VALUES'; pageIds?: string[] }
+  // Phase 7: Multi-File & Team Sync
+  | { type: 'SAVE_SYNC_CONFIG'; config: SyncConfig }
+  | { type: 'LOAD_SYNC_CONFIG' }
+  // Phase 8: Web Bridge
+  | { type: 'SAVE_BRIDGE_TOKEN'; token: string }
+  | { type: 'LOAD_BRIDGE_TOKEN' }
+  | { type: 'CLEAR_BRIDGE_TOKEN' }
+  | { type: 'FETCH_BRIDGE_CONFIG' }
+  | { type: 'FETCH_BRIDGE_KEYS' };
 
 export interface CredentialPayload {
   claudeApiKey: string;
@@ -69,7 +78,16 @@ export type CodeMessage =
   | { type: 'BATCH_AUTO_MAP_ALL_PROGRESS'; stage: string; percent: number }
   | { type: 'DTCG_VALIDATION_RESULT'; result: DTCGValidationResult }
   | { type: 'UNUSED_TOKENS_RESULT'; result: UnusedTokensResult }
-  | { type: 'ORPHANED_VALUES_RESULT'; result: OrphanedValuesResult };
+  | { type: 'ORPHANED_VALUES_RESULT'; result: OrphanedValuesResult }
+  // Phase 7: Multi-File & Team Sync
+  | { type: 'SYNC_CONFIG_LOADED'; config: SyncConfig | null }
+  | { type: 'SYNC_CONFIG_SAVED' }
+  // Phase 8: Web Bridge
+  | { type: 'BRIDGE_TOKEN_LOADED'; token: string | null }
+  | { type: 'BRIDGE_TOKEN_SAVED' }
+  | { type: 'BRIDGE_TOKEN_CLEARED' }
+  | { type: 'BRIDGE_CONFIG_RESULT'; projects: BridgeProject[] }
+  | { type: 'BRIDGE_KEYS_RESULT'; claudeApiKey?: string; githubToken?: string };
 
 // ========================================
 // Connection Status
@@ -427,6 +445,7 @@ export interface SyncHistoryEntry {
   user?: string;
   changes: SyncHistoryChange[];
   tokenDocumentSnapshot?: string;
+  filePath?: string;
 }
 
 export interface SyncHistoryChange {
@@ -478,4 +497,71 @@ export interface OrphanedValuesResult {
   }>;
   totalScanned: number;
   scanDuration: number;
+}
+
+// ========================================
+// Multi-File & Team Sync Types (Feature 10)
+// ========================================
+
+export type SyncMode = 'single' | 'multi';
+export type PushMode = 'direct' | 'pr';
+export type FileMapping = Record<string, string>; // collectionName -> filePath
+
+export interface SyncConfig {
+  syncMode: SyncMode;
+  pushMode: PushMode;
+  fileMapping: FileMapping;
+  defaultDirectory: string;
+  baseBranch: string;
+}
+
+export type FileSyncStatus = 'in-sync' | 'local-only' | 'remote-only' | 'modified' | 'conflict';
+
+export interface FileSyncInfo {
+  collectionName: string;
+  filePath: string;
+  status: FileSyncStatus;
+  localDocument: DesignTokensDocument | null;
+  remoteDocument: DesignTokensDocument | null;
+  remoteSha: string | null;
+  diffResult: TokenDiffResult | null;
+  lastCommitBy?: string;
+  lastCommitSha?: string;
+}
+
+export interface GitHubPRInfo {
+  number: number;
+  title: string;
+  htmlUrl: string;
+  headBranch: string;
+  createdAt: string;
+  mergeable: boolean | null;
+  user: string;
+}
+
+export type ConflictResolution = 'keep-local' | 'keep-remote';
+
+export interface MultiFilePushResult {
+  branchName?: string;
+  commitSha: string;
+  prNumber?: number;
+  prUrl?: string;
+  filesWritten: number;
+  errors: string[];
+}
+
+// ========================================
+// Web Bridge Types (Phase 8)
+// ========================================
+
+export interface BridgeProject {
+  id: string;
+  name: string;
+  githubRepo: string;
+  githubBranch: string;
+  githubFilePath: string;
+  syncMode: SyncMode;
+  pushMode: PushMode;
+  fileMapping: FileMapping;
+  defaultDirectory: string;
 }
