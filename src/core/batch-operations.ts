@@ -41,7 +41,7 @@ export async function batchAutoMapAllPages(): Promise<AutoMapResult> {
     const { variable, collectionName, defaultValue } = item;
     if (variable.resolvedType === 'COLOR' && defaultValue && typeof defaultValue === 'object') {
       const color = defaultValue as { r: number; g: number; b: number };
-      const hex = rgbToHex(color.r, color.g, color.b);
+      const hex = rgbToHex(color);
       const lab = hexToLab(hex);
       if (lab) {
         colorTokens.push({ variableId: variable.id, variableName: variable.name, collectionName, hex, lab });
@@ -145,7 +145,7 @@ export async function findOrphanedValues(): Promise<OrphanedValuesResult> {
   for (const item of variablesWithMeta) {
     if (item.variable.resolvedType === 'COLOR' && item.defaultValue && typeof item.defaultValue === 'object') {
       const color = item.defaultValue as { r: number; g: number; b: number };
-      colorTokenHexes.push(rgbToHex(color.r, color.g, color.b));
+      colorTokenHexes.push(rgbToHex(color));
     }
   }
 
@@ -164,7 +164,7 @@ export async function findOrphanedValues(): Promise<OrphanedValuesResult> {
         if (Array.isArray(fills) && fills.length > 0 && fills[0].type === 'SOLID') {
           const solid = fills[0] as SolidPaint;
           if (!isPropertyBound(node, 'fills')) {
-            const hex = rgbToHex(solid.color.r, solid.color.g, solid.color.b);
+            const hex = rgbToHex(solid.color);
             const lab = hexToLab(hex);
             if (lab) {
               const hasClose = colorLabs.some((tLab) => deltaE2000(lab, tLab) < 12);
@@ -201,7 +201,7 @@ function scanNodeForHardCoded(
     if (Array.isArray(fills) && fills.length > 0 && fills[0].type === 'SOLID') {
       if (!isPropertyBound(node, 'fills')) {
         const solid = fills[0] as SolidPaint;
-        const hex = rgbToHex(solid.color.r, solid.color.g, solid.color.b);
+        const hex = rgbToHex(solid.color);
         const suggestions = matchColor(hex, colorTokens);
         if (suggestions.length > 0) {
           results.push({

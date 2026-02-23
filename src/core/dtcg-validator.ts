@@ -116,7 +116,7 @@ function validateValueShape(
       if (typeof $value !== 'object' || $value === null) {
         errors.push({ path, message: 'Typography value must be an object' });
       } else {
-        const typo = $value as Record<string, unknown>;
+        const typo = $value as unknown as Record<string, unknown>;
         if (!typo.fontFamily) errors.push({ path, message: 'Typography missing fontFamily' });
         if (!typo.fontSize) errors.push({ path, message: 'Typography missing fontSize' });
       }
@@ -126,7 +126,7 @@ function validateValueShape(
       if (typeof $value !== 'object' || $value === null) {
         errors.push({ path, message: 'Shadow value must be an object' });
       } else {
-        const shadow = $value as Record<string, unknown>;
+        const shadow = $value as unknown as Record<string, unknown>;
         if (!shadow.color) errors.push({ path, message: 'Shadow missing color' });
         if (shadow.offsetX === undefined) errors.push({ path, message: 'Shadow missing offsetX' });
         if (shadow.offsetY === undefined) errors.push({ path, message: 'Shadow missing offsetY' });
