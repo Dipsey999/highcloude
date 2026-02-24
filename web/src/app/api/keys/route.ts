@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionUserId } from '@/lib/session';
 import { prisma } from '@/lib/db';
-import { encrypt, decrypt, getHint } from '@/lib/encryption';
+import { encrypt, getHint } from '@/lib/encryption';
 
 // GET /api/keys — return hints (never raw keys)
 export async function GET() {
@@ -15,17 +15,16 @@ export async function GET() {
   });
 
   if (!apiKeys) {
-    return NextResponse.json({ hasKeys: false, claudeHint: null, githubHint: null });
+    return NextResponse.json({ hasKeys: false, githubHint: null });
   }
 
   return NextResponse.json({
     hasKeys: true,
-    claudeHint: apiKeys.claudeKeyHint,
     githubHint: apiKeys.githubTokenHint,
   });
 }
 
-// POST /api/keys — save encrypted keys
+// POST /api/keys — save encrypted GitHub token
 export async function POST(req: NextRequest) {
   const userId = await getSessionUserId();
   if (!userId) {
@@ -33,33 +32,24 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { claudeApiKey, githubToken } = body;
+  const { githubToken } = body;
 
-  if (!claudeApiKey && !githubToken) {
-    return NextResponse.json({ error: 'At least one key is required' }, { status: 400 });
+  if (!githubToken) {
+    return NextResponse.json({ error: 'GitHub token is required' }, { status: 400 });
   }
 
-  // Check if keys already exist (for merging partial updates)
-  const existing = await prisma.apiKeys.findUnique({ where: { userId } });
-
-  const claudeEnc = claudeApiKey ? encrypt(claudeApiKey) : (existing?.claudeKeyEnc ?? '');
-  const githubEnc = githubToken ? encrypt(githubToken) : (existing?.githubTokenEnc ?? '');
-  const claudeHintVal = claudeApiKey ? getHint(claudeApiKey) : (existing?.claudeKeyHint ?? null);
-  const githubHintVal = githubToken ? getHint(githubToken) : (existing?.githubTokenHint ?? null);
+  const githubEnc = encrypt(githubToken);
+  const githubHintVal = getHint(githubToken);
 
   await prisma.apiKeys.upsert({
     where: { userId },
     update: {
-      claudeKeyEnc: claudeEnc,
       githubTokenEnc: githubEnc,
-      claudeKeyHint: claudeHintVal,
       githubTokenHint: githubHintVal,
     },
     create: {
       userId,
-      claudeKeyEnc: claudeEnc,
       githubTokenEnc: githubEnc,
-      claudeKeyHint: claudeHintVal,
       githubTokenHint: githubHintVal,
     },
   });

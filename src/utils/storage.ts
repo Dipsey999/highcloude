@@ -24,7 +24,7 @@ export async function saveCredentials(
 export async function loadCredentials(): Promise<CredentialPayload | null> {
   try {
     const data = await figma.clientStorage.getAsync(STORAGE_KEYS.CREDENTIALS);
-    if (data && typeof data === 'object' && 'claudeApiKey' in data) {
+    if (data && typeof data === 'object' && ('githubToken' in data || 'claudeApiKey' in data)) {
       logger.info('Credentials loaded from client storage');
       return data as CredentialPayload;
     }

@@ -37,7 +37,7 @@ export type UIMessage =
   | { type: 'FETCH_BRIDGE_KEYS' };
 
 export interface CredentialPayload {
-  claudeApiKey: string;
+  claudeApiKey?: string;
   githubToken: string;
   githubRepo?: string;
   githubBranch?: string;
@@ -95,7 +95,6 @@ export type CodeMessage =
 export type ConnectionStatus = 'disconnected' | 'validating' | 'connected' | 'error';
 
 export interface ConnectionState {
-  claude: ConnectionStatus;
   github: ConnectionStatus;
 }
 

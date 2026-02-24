@@ -8,7 +8,7 @@ import { showToast } from '../components/Toast';
 type GenerateState = 'idle' | 'generating' | 'complete' | 'error';
 
 interface GenerateViewProps {
-  apiKey: string;
+  apiKey?: string;
   tokensDocument: DesignTokensDocument | null;
 }
 
@@ -65,6 +65,10 @@ export function GenerateView({ apiKey, tokensDocument }: GenerateViewProps) {
   const handleGenerate = useCallback(() => {
     if (!prompt.trim()) {
       showToast('Enter a design prompt', 'info');
+      return;
+    }
+    if (!apiKey) {
+      showToast('No Claude API key. Use Claude MCP for free AI design.', 'info');
       return;
     }
 

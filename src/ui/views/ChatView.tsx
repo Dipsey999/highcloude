@@ -5,7 +5,7 @@ import { buildChatSystemPrompt, flattenTokensForPrompt } from '../../api/prompt-
 import { ChatBubble } from '../components/ChatBubble';
 
 interface ChatViewProps {
-  apiKey: string;
+  apiKey?: string;
   tokensDocument: DesignTokensDocument | null;
 }
 
@@ -38,7 +38,7 @@ export function ChatView({ apiKey, tokensDocument }: ChatViewProps) {
     const trimmed = input.trim();
     if (!trimmed || streaming) return;
     if (!apiKey) {
-      setError('No API key configured. Connect Claude API first.');
+      setError('Use Claude MCP for free AI chat — connect Claude to Figma via MCP server.');
       return;
     }
 
@@ -135,6 +135,27 @@ export function ChatView({ apiKey, tokensDocument }: ChatViewProps) {
     inputRef.current?.focus();
   }, [streaming]);
 
+  // If no API key, show MCP guidance
+  if (!apiKey) {
+    return (
+      <div class="chat-view">
+        <div class="chat-header">
+          <span class="chat-title">Design Chat</span>
+        </div>
+        <div class="chat-messages">
+          <div class="chat-empty">
+            <div class="chat-empty-icon">&#10024;</div>
+            <div style={{ fontWeight: 600, marginBottom: '8px' }}>Chat with Claude via MCP (Free)</div>
+            <div class="chat-empty-hint" style={{ lineHeight: '1.6' }}>
+              Talk to Claude about your design system using Figma's free MCP integration.
+              Connect Claude Desktop or claude.ai to Figma via the MCP server — no API key needed.
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div class="chat-view">
       {/* Header */}
@@ -143,7 +164,7 @@ export function ChatView({ apiKey, tokensDocument }: ChatViewProps) {
         <div class="chat-header-actions">
           {tokensDocument && (
             <span class="chat-context-badge" title="Tokens loaded as context">
-              🎨 Tokens
+              Tokens
             </span>
           )}
           <button class="btn-filter" onClick={handleNewChat}>
@@ -156,7 +177,7 @@ export function ChatView({ apiKey, tokensDocument }: ChatViewProps) {
       <div class="chat-messages">
         {messages.length === 0 && !streaming && (
           <div class="chat-empty">
-            <div class="chat-empty-icon">💬</div>
+            <div class="chat-empty-icon">&#128172;</div>
             <div>Ask Claude about your design system</div>
             <div class="chat-empty-hint">
               Your design tokens are automatically included as context
@@ -217,7 +238,7 @@ export function ChatView({ apiKey, tokensDocument }: ChatViewProps) {
             <button
               class="btn btn-primary chat-send-btn"
               onClick={handleSend}
-              disabled={!input.trim() || !apiKey}
+              disabled={!input.trim()}
             >
               Send
             </button>

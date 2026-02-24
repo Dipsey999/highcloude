@@ -61,7 +61,7 @@ export function DashboardView({
 
   // Format sync mode display
   const syncModeLabel = syncConfig
-    ? `${syncConfig.syncMode === 'multi' ? 'Multi-file' : 'Single file'} · ${syncConfig.pushMode === 'pr' ? 'PR mode' : 'Direct push'}`
+    ? `${syncConfig.syncMode === 'multi' ? 'Multi-file' : 'Single file'} \u00b7 ${syncConfig.pushMode === 'pr' ? 'PR mode' : 'Direct push'}`
     : null;
 
   return (
@@ -77,7 +77,6 @@ export function DashboardView({
 
       {/* Connection Status */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-md)' }}>
-        <StatusBadge status={connectionState.claude} label="Claude API" />
         <StatusBadge status={connectionState.github} label="GitHub" />
       </div>
 

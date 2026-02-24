@@ -22,7 +22,7 @@ type ScanState = 'idle' | 'scanning' | 'scanned' | 'error';
 type ModifyState = 'idle' | 'generating' | 'complete' | 'error';
 
 interface InspectViewProps {
-  apiKey: string;
+  apiKey?: string;
   tokensDocument: DesignTokensDocument | null;
 }
 
@@ -156,6 +156,10 @@ export function InspectView({ apiKey, tokensDocument }: InspectViewProps) {
       showToast('Enter a modification prompt', 'info');
       return;
     }
+    if (!apiKey) {
+      showToast('No Claude API key. Use Claude MCP for free AI modifications.', 'info');
+      return;
+    }
 
     setModifyState('generating');
     setStreamOutput('');
@@ -276,9 +280,12 @@ export function InspectView({ apiKey, tokensDocument }: InspectViewProps) {
     setSelectedBindings(new Map());
   }, []);
 
+  const hasApiKey = !!apiKey;
+
   return (
     <div class="inspect-view">
-      {/* Section A — Reverse Sync */}
+      {/* Section A — Reverse Sync (only with API key) */}
+      {hasApiKey && (
       <div class="inspect-section">
         <div class="inspect-section-header">
           <h3>Reverse Sync</h3>
@@ -397,6 +404,7 @@ export function InspectView({ apiKey, tokensDocument }: InspectViewProps) {
           </div>
         )}
       </div>
+      )}
 
       {/* Section B — Auto-Mapping */}
       <div class="inspect-section">

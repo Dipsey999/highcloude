@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 
 interface KeysData {
   hasKeys: boolean;
-  claudeHint: string | null;
   githubHint: string | null;
 }
 
@@ -169,7 +168,7 @@ export function KeysForm() {
       if (!res.ok) throw new Error('Failed to delete');
 
       setMessage({ type: 'success', text: 'Token deleted' });
-      setKeysData({ hasKeys: false, claudeHint: null, githubHint: null });
+      setKeysData({ hasKeys: false, githubHint: null });
     } catch {
       setMessage({ type: 'error', text: 'Failed to delete token' });
     }

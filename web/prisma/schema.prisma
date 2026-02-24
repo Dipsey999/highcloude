@@ -69,9 +69,7 @@ model User {
 model ApiKeys {
   id              String   @id @default(cuid())
   userId          String   @unique
-  claudeKeyEnc    String   @db.Text
   githubTokenEnc  String   @db.Text
-  claudeKeyHint   String?
   githubTokenHint String?
   updatedAt       DateTime @updatedAt
 

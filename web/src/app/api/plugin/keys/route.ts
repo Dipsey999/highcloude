@@ -3,7 +3,7 @@ import { verifyPluginToken } from '@/lib/jwt';
 import { prisma } from '@/lib/db';
 import { decrypt } from '@/lib/encryption';
 
-// GET /api/plugin/keys — fetch decrypted API keys (requires JWT)
+// GET /api/plugin/keys — fetch decrypted GitHub token (requires JWT)
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
   if (!authHeader?.startsWith('Bearer ')) {
@@ -25,14 +25,6 @@ export async function GET(req: NextRequest) {
   }
 
   const result: Record<string, string> = {};
-
-  if (apiKeys.claudeKeyEnc) {
-    try {
-      result.claudeApiKey = decrypt(apiKeys.claudeKeyEnc);
-    } catch {
-      return NextResponse.json({ error: 'Failed to decrypt Claude key' }, { status: 500 });
-    }
-  }
 
   if (apiKeys.githubTokenEnc) {
     try {

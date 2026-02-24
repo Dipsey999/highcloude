@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'preact/hooks';
 import type { ConnectionState, CredentialPayload, SyncConfig, BridgeProject } from '../../types/messages';
-import { validateClaudeOnly, validateGitHubOnly } from '../../api/auth-manager';
+import { validateGitHubOnly } from '../../api/auth-manager';
 import { fetchUserRepos, type GitHubRepo } from '../../api/github-client';
 import { sendToCode } from '../../utils/message-bus';
 import { StatusBadge } from '../components/StatusBadge';
@@ -30,7 +30,6 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
   const [selectedBridgeProject, setSelectedBridgeProject] = useState('');
 
   // Manual state
-  const [claudeKey, setClaudeKey] = useState(initialCredentials?.claudeApiKey ?? '');
   const [githubToken, setGitHubToken] = useState(initialCredentials?.githubToken ?? '');
   const [selectedRepo, setSelectedRepo] = useState(initialCredentials?.githubRepo ?? '');
   const [branch, setBranch] = useState(initialCredentials?.githubBranch ?? 'main');
@@ -38,12 +37,10 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
   const [syncConfig, setSyncConfig] = useState<SyncConfig | null>(initialSyncConfig ?? null);
 
   const [connection, setConnection] = useState<ConnectionState>({
-    claude: initialCredentials?.claudeApiKey ? 'connected' : 'disconnected',
     github: initialCredentials?.githubToken ? 'connected' : 'disconnected',
   });
 
   const [repos, setRepos] = useState<GitHubRepo[]>([]);
-  const [claudeError, setClaudeError] = useState('');
   const [githubError, setGitHubError] = useState('');
 
   // ========== Bridge Handlers ==========
@@ -84,9 +81,8 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
       // Save bridge token to storage
       sendToCode({ type: 'SAVE_BRIDGE_TOKEN', token: bridgeToken });
 
-      // Save the credentials from bridge
+      // Save the credentials from bridge (GitHub token only needed)
       const credentials: CredentialPayload = {
-        claudeApiKey: keys.claudeApiKey || '',
         githubToken: keys.githubToken || '',
       };
       sendToCode({ type: 'SAVE_CREDENTIALS', payload: credentials });
@@ -110,7 +106,6 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
 
   const applyBridgeProject = useCallback((project: BridgeProject, creds?: CredentialPayload) => {
     const credentials: CredentialPayload = {
-      claudeApiKey: creds?.claudeApiKey || claudeKey,
       githubToken: creds?.githubToken || githubToken,
       githubRepo: project.githubRepo,
       githubBranch: project.githubBranch,
@@ -130,7 +125,7 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
 
     showToast(`Project "${project.name}" configured`, 'success');
     onConnected();
-  }, [claudeKey, githubToken, onConnected]);
+  }, [githubToken, onConnected]);
 
   const handleBridgeProjectSelect = useCallback((projectId: string) => {
     setSelectedBridgeProject(projectId);
@@ -141,22 +136,6 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
   }, [bridgeProjects, applyBridgeProject]);
 
   // ========== Manual Handlers ==========
-
-  const handleValidateClaude = useCallback(async () => {
-    setClaudeError('');
-    setConnection((prev) => ({ ...prev, claude: 'validating' }));
-
-    const result = await validateClaudeOnly(claudeKey);
-
-    if (result.valid) {
-      setConnection((prev) => ({ ...prev, claude: 'connected' }));
-      showToast('Claude API key is valid', 'success');
-    } else {
-      setConnection((prev) => ({ ...prev, claude: 'error' }));
-      setClaudeError(result.error ?? 'Validation failed');
-      showToast(result.error ?? 'Invalid Claude API key', 'error');
-    }
-  }, [claudeKey]);
 
   const handleValidateGitHub = useCallback(async () => {
     setGitHubError('');
@@ -189,7 +168,6 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
 
   const handleConnect = useCallback(() => {
     const credentials: CredentialPayload = {
-      claudeApiKey: claudeKey,
       githubToken: githubToken,
       githubRepo: selectedRepo,
       githubBranch: branch,
@@ -205,10 +183,9 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
 
     showToast('Credentials saved', 'success');
     onConnected();
-  }, [claudeKey, githubToken, selectedRepo, branch, filePath, syncConfig, onConnected]);
+  }, [githubToken, selectedRepo, branch, filePath, syncConfig, onConnected]);
 
-  const bothConnected =
-    connection.claude === 'connected' && connection.github === 'connected';
+  const githubConnected = connection.github === 'connected';
 
   const tabStyle = (tab: AuthTab) => ({
     flex: 1,
@@ -227,11 +204,32 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
     <div class="plugin-body">
       <div style={{ marginBottom: 'var(--spacing-xl)' }}>
         <h2 style={{ fontSize: 'var(--font-size-lg)', marginBottom: 'var(--spacing-sm)' }}>
-          Connect Your Services
+          Connect GitHub
         </h2>
         <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
-          Choose how to connect — use Claude Bridge web or enter keys manually.
+          Connect your GitHub account to sync design tokens. AI features are free through Claude MCP.
         </p>
+      </div>
+
+      {/* MCP Info Banner */}
+      <div style={{
+        padding: 'var(--spacing-md)',
+        background: 'linear-gradient(135deg, #f3e8ff, #faf5ff)',
+        borderRadius: 'var(--radius-md)',
+        marginBottom: 'var(--spacing-xl)',
+        border: '1px solid #e9d5ff',
+      }}>
+        <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'flex-start' }}>
+          <span style={{ fontSize: '16px' }}>&#10024;</span>
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 'var(--font-size-sm)', color: '#6b21a8', marginBottom: '4px' }}>
+              AI Features — Free with Claude MCP
+            </div>
+            <div style={{ fontSize: 'var(--font-size-xs)', color: '#7c3aed' }}>
+              Design generation, chat, and AI features work through Figma's built-in Claude MCP integration — no API key needed.
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Tab Switcher */}
@@ -330,33 +328,6 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
       {/* ===== Manual Tab ===== */}
       {authTab === 'manual' && (
         <div>
-          {/* Claude API Key */}
-          <div style={{ marginBottom: 'var(--spacing-xl)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-sm)' }}>
-              <span style={{ fontWeight: 600 }}>Claude API</span>
-              <StatusBadge status={connection.claude} label="Claude" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">API Key</label>
-              <input
-                class={`form-input ${claudeError ? 'error' : ''}`}
-                type="password"
-                placeholder="sk-ant-..."
-                value={claudeKey}
-                onInput={(e) => setClaudeKey((e.target as HTMLInputElement).value)}
-              />
-              {claudeError && <span class="form-error">{claudeError}</span>}
-              <span class="form-hint">Get your key from console.anthropic.com</span>
-            </div>
-            <button
-              class="btn btn-secondary"
-              onClick={handleValidateClaude}
-              disabled={!claudeKey || connection.claude === 'validating'}
-            >
-              {connection.claude === 'validating' ? 'Validating...' : 'Validate Key'}
-            </button>
-          </div>
-
           {/* GitHub Token */}
           <div style={{ marginBottom: 'var(--spacing-xl)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-sm)' }}>
@@ -368,12 +339,12 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
               <input
                 class={`form-input ${githubError ? 'error' : ''}`}
                 type="password"
-                placeholder="ghp_..."
+                placeholder="github_pat_... or ghp_..."
                 value={githubToken}
                 onInput={(e) => setGitHubToken((e.target as HTMLInputElement).value)}
               />
               {githubError && <span class="form-error">{githubError}</span>}
-              <span class="form-hint">Needs repo read/write scope</span>
+              <span class="form-hint">Needs Contents and Pull requests read/write permissions</span>
             </div>
             <button
               class="btn btn-secondary"
@@ -438,7 +409,7 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
             class="btn btn-primary"
             style={{ width: '100%' }}
             onClick={handleConnect}
-            disabled={!bothConnected}
+            disabled={!githubConnected}
           >
             Save & Connect
           </button>
