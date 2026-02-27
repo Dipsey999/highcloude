@@ -74,7 +74,7 @@ export async function getAllLocalVariablesWithMeta(): Promise<Array<{
           if (modeValue !== undefined) {
             defaultValue = modeValue;
           }
-        } catch {
+        } catch (_e) {
           // Some variables may not have a value for the default mode
         }
       }

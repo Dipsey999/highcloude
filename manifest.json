@@ -12,6 +12,5 @@
       "https://web-pied-iota-65.vercel.app"
     ]
   },
-  "permissions": ["currentuser"],
-  "documentAccess": "dynamic-page"
+  "permissions": ["currentuser"]
 }
