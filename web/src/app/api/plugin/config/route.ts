@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { verifyPluginToken } from '@/lib/jwt';
 import { prisma } from '@/lib/db';
 import { corsJson, corsOptions } from '@/lib/cors';
+import { normalizeGithubRepo } from '@/lib/parse-repo';
 
 // GET /api/plugin/config — fetch all projects for the plugin user (requires JWT)
 export async function GET(req: NextRequest) {
@@ -32,7 +33,13 @@ export async function GET(req: NextRequest) {
     },
   });
 
-  return corsJson({ projects });
+  // Normalize githubRepo for each project (handles legacy full-URL entries)
+  const normalizedProjects = projects.map((p) => ({
+    ...p,
+    githubRepo: normalizeGithubRepo(p.githubRepo),
+  }));
+
+  return corsJson({ projects: normalizedProjects });
 }
 
 // OPTIONS — CORS preflight

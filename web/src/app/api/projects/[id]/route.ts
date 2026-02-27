@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionUserId } from '@/lib/session';
 import { prisma } from '@/lib/db';
+import { normalizeGithubRepo } from '@/lib/parse-repo';
 
 // GET /api/projects/:id — get project details
 export async function GET(
@@ -45,11 +46,14 @@ export async function PUT(
   const body = await req.json();
   const { name, githubRepo, githubBranch, githubFilePath, syncMode, pushMode, fileMapping, defaultDirectory } = body;
 
+  // Normalize repo if provided: "https://github.com/owner/repo.git" → "owner/repo"
+  const normalizedRepo = githubRepo !== undefined ? normalizeGithubRepo(githubRepo) : undefined;
+
   const project = await prisma.project.update({
     where: { id: params.id },
     data: {
       ...(name !== undefined && { name }),
-      ...(githubRepo !== undefined && { githubRepo }),
+      ...(normalizedRepo !== undefined && { githubRepo: normalizedRepo }),
       ...(githubBranch !== undefined && { githubBranch }),
       ...(githubFilePath !== undefined && { githubFilePath }),
       ...(syncMode !== undefined && { syncMode }),

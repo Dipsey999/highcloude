@@ -24,6 +24,7 @@ import { TokenCard } from '../components/TokenCard';
 import { DiffViewer } from '../components/DiffViewer';
 import { PRListPanel } from '../components/PRListPanel';
 import { MultiFileSyncView } from './MultiFileSyncView';
+import { normalizeGithubRepo } from '../../utils/parse-repo';
 import { showToast } from '../components/Toast';
 
 type SyncState =
@@ -153,7 +154,8 @@ function SingleFileSyncView({ credentials, rawData, extractionProgress, syncConf
     setSyncState('comparing');
 
     try {
-      const [owner, repo] = credentials.githubRepo.split('/');
+      const normalized = normalizeGithubRepo(credentials.githubRepo);
+      const [owner, repo] = normalized.split('/');
       const branch = credentials.githubBranch ?? 'main';
       const filePath = credentials.githubFilePath ?? 'tokens.json';
 
@@ -212,7 +214,8 @@ function SingleFileSyncView({ credentials, rawData, extractionProgress, syncConf
     setSyncState('pushing');
 
     try {
-      const [owner, repo] = credentials.githubRepo.split('/');
+      const normalized = normalizeGithubRepo(credentials.githubRepo);
+      const [owner, repo] = normalized.split('/');
       const baseBranch = syncConfig?.baseBranch || credentials.githubBranch || 'main';
       const filePath = credentials.githubFilePath ?? 'tokens.json';
       const content = JSON.stringify(localDocument, null, 2);

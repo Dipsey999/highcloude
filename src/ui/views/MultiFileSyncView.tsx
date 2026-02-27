@@ -22,6 +22,7 @@ import {
 import { diffTokenDocuments } from '../../core/diff-engine';
 import { buildUpdateInstructions } from '../../core/token-applier';
 import { FileSyncCard } from '../components/FileSyncCard';
+import { normalizeGithubRepo } from '../../utils/parse-repo';
 import { showToast } from '../components/Toast';
 
 type MultiSyncState = 'idle' | 'extracting' | 'comparing' | 'compared' | 'pushing' | 'pulling' | 'synced' | 'error';
@@ -84,7 +85,8 @@ export function MultiFileSyncView({
     if (localDocs.size === 0 || !credentials.githubRepo) return;
 
     setSyncState('comparing');
-    const [owner, repo] = credentials.githubRepo.split('/');
+    const normalized = normalizeGithubRepo(credentials.githubRepo);
+    const [owner, repo] = normalized.split('/');
     const branch = syncConfig.baseBranch || credentials.githubBranch || 'main';
     const infos: FileSyncInfo[] = [];
 
@@ -180,7 +182,8 @@ export function MultiFileSyncView({
     if (fileInfos.length === 0 || !credentials.githubRepo) return;
 
     setSyncState('pushing');
-    const [owner, repo] = credentials.githubRepo.split('/');
+    const normalized = normalizeGithubRepo(credentials.githubRepo);
+    const [owner, repo] = normalized.split('/');
     const baseBranch = syncConfig.baseBranch || credentials.githubBranch || 'main';
 
     try {

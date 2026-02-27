@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'preact/hooks';
 import type { CredentialPayload, GitHubPRInfo } from '../../types/messages';
 import { listPullRequests, mergePullRequest } from '../../api/github-git-api';
+import { normalizeGithubRepo } from '../../utils/parse-repo';
 import { showToast } from './Toast';
 
 interface PRListPanelProps {
@@ -17,7 +18,8 @@ export function PRListPanel({ credentials }: PRListPanelProps) {
 
     setLoading(true);
     try {
-      const [owner, repo] = credentials.githubRepo.split('/');
+      const normalized = normalizeGithubRepo(credentials.githubRepo);
+      const [owner, repo] = normalized.split('/');
       const results = await listPullRequests(
         credentials.githubToken, owner, repo, 'claude-bridge/',
       );
@@ -38,7 +40,8 @@ export function PRListPanel({ credentials }: PRListPanelProps) {
 
     setMerging(prNumber);
     try {
-      const [owner, repo] = credentials.githubRepo.split('/');
+      const normalized = normalizeGithubRepo(credentials.githubRepo);
+      const [owner, repo] = normalized.split('/');
       const result = await mergePullRequest(
         credentials.githubToken, owner, repo, prNumber,
       );

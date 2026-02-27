@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionUserId } from '@/lib/session';
 import { prisma } from '@/lib/db';
+import { normalizeGithubRepo } from '@/lib/parse-repo';
 
 // GET /api/projects — list user's projects
 export async function GET() {
@@ -31,11 +32,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Name and GitHub repo are required' }, { status: 400 });
   }
 
+  // Normalize repo: "https://github.com/owner/repo.git" → "owner/repo"
+  const normalizedRepo = normalizeGithubRepo(githubRepo);
+
   const project = await prisma.project.create({
     data: {
       userId,
       name,
-      githubRepo,
+      githubRepo: normalizedRepo,
       githubBranch: githubBranch || 'main',
       githubFilePath: githubFilePath || 'tokens.json',
       syncMode: syncMode || 'single',

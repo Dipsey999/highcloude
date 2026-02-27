@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSessionUserId } from '@/lib/session';
 import { prisma } from '@/lib/db';
 import { decrypt } from '@/lib/encryption';
+import { normalizeGithubRepo } from '@/lib/parse-repo';
 
 // GET /api/projects/:id/tokens — fetch tokens.json from GitHub
 export async function GET(
@@ -44,7 +45,8 @@ export async function GET(
   }
 
   // Fetch the file from GitHub API
-  const { githubRepo, githubBranch, githubFilePath } = project;
+  const { githubBranch, githubFilePath } = project;
+  const githubRepo = normalizeGithubRepo(project.githubRepo);
   const apiUrl = `https://api.github.com/repos/${githubRepo}/contents/${githubFilePath}?ref=${githubBranch}`;
 
   try {
