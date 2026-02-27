@@ -4,7 +4,7 @@ import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/components/ThemeProvider';
-import { SunIcon, MoonIcon, DownloadIcon, ArrowLeftIcon } from '@/components/Icons';
+import { SunIcon, MoonIcon, DownloadIcon, ArrowLeftIcon, CosmiLogo } from '@/components/Icons';
 
 export function Navbar() {
   const { data: session } = useSession();
@@ -21,33 +21,23 @@ export function Navbar() {
       }}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-14 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative h-9 w-9 rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-glow transition-all duration-500 overflow-hidden"
-              style={{ background: 'linear-gradient(135deg, var(--gradient-from), var(--gradient-to))' }}
+            <CosmiLogo className="h-7 w-7 transition-transform duration-300 group-hover:scale-105" showNodes={false} />
+            <span
+              className="font-semibold text-[15px] tracking-tight"
+              style={{ color: 'var(--text-primary)' }}
             >
-              <div
-                className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                style={{
-                  background: 'conic-gradient(from 0deg, transparent, rgba(255,255,255,0.2), transparent)',
-                  animation: 'nebulaSpin 3s linear infinite',
-                }}
-              />
-              <svg className="relative h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2l2.09 6.26L20.18 9l-4.64 4.14L16.82 20 12 16.77 7.18 20l1.28-6.86L3.82 9l6.09-.74L12 2z" />
-              </svg>
-            </div>
-            <span className="font-bold text-[15px] tracking-tight" style={{ color: 'var(--text-primary)' }}>
               Cosmikit
             </span>
           </Link>
 
           {/* Right side */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <Link
               href="/download"
-              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm transition-all duration-200"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm transition-colors duration-200"
               style={{ color: 'var(--text-secondary)' }}
             >
               <DownloadIcon className="h-4 w-4" />
@@ -59,7 +49,7 @@ export function Navbar() {
                 {isDashboard ? (
                   <Link
                     href="/"
-                    className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm transition-all duration-200"
+                    className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm transition-colors duration-200"
                     style={{ color: 'var(--text-secondary)' }}
                   >
                     <ArrowLeftIcon className="h-4 w-4" />
@@ -68,17 +58,16 @@ export function Navbar() {
                 ) : (
                   <Link
                     href="/dashboard"
-                    className="rounded-lg px-3 py-2 text-sm transition-all duration-200"
+                    className="rounded-lg px-3 py-2 text-sm transition-colors duration-200"
                     style={{ color: 'var(--text-secondary)' }}
                   >
                     Dashboard
                   </Link>
                 )}
 
-                {/* Theme toggle */}
                 <button
                   onClick={toggleTheme}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border transition-all duration-200"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border transition-colors duration-200"
                   style={{
                     borderColor: 'var(--border-primary)',
                     color: 'var(--text-secondary)',
@@ -86,9 +75,9 @@ export function Navbar() {
                   title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
                 >
                   {theme === 'dark' ? (
-                    <SunIcon className="h-[18px] w-[18px]" style={{ color: 'var(--star-gold)' }} />
+                    <SunIcon className="h-4 w-4" style={{ color: 'var(--star-gold)' }} />
                   ) : (
-                    <MoonIcon className="h-[18px] w-[18px]" />
+                    <MoonIcon className="h-4 w-4" />
                   )}
                 </button>
 
@@ -97,7 +86,7 @@ export function Navbar() {
                     <img
                       src={session.user.image}
                       alt=""
-                      className="h-8 w-8 rounded-full ring-2 ring-transparent transition-all duration-200"
+                      className="h-7 w-7 rounded-full ring-1 ring-transparent"
                     />
                   )}
                   <button
@@ -113,7 +102,7 @@ export function Navbar() {
               <>
                 <button
                   onClick={toggleTheme}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border transition-all duration-200"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border transition-colors duration-200"
                   style={{
                     borderColor: 'var(--border-primary)',
                     color: 'var(--text-secondary)',
@@ -121,17 +110,17 @@ export function Navbar() {
                   title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
                 >
                   {theme === 'dark' ? (
-                    <SunIcon className="h-[18px] w-[18px]" style={{ color: 'var(--star-gold)' }} />
+                    <SunIcon className="h-4 w-4" style={{ color: 'var(--star-gold)' }} />
                   ) : (
-                    <MoonIcon className="h-[18px] w-[18px]" />
+                    <MoonIcon className="h-4 w-4" />
                   )}
                 </button>
 
                 <Link
                   href="/login"
-                  className="btn-gradient rounded-lg px-4 py-2 text-sm font-medium"
+                  className="btn-gradient rounded-lg px-4 py-1.5 text-sm font-medium"
                 >
-                  Sign in
+                  <span className="relative z-10">Sign in</span>
                 </Link>
               </>
             )}

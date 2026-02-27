@@ -3,8 +3,8 @@ import {
   DownloadIcon,
   AlertTriangleIcon,
   SparklesIcon,
+  CosmiLogo,
 } from '@/components/Icons';
-import { StarField, CosmicDust } from '@/components/StarField';
 
 const DOWNLOAD_URL =
   'https://github.com/Dipsey999/highcloude/releases/latest/download/cosmikit-figma-plugin.zip';
@@ -69,11 +69,13 @@ const setupSteps = [
 
 export default function DownloadPage() {
   return (
-    <main className="relative" style={{ background: 'var(--bg-primary)' }}>
-      <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8 relative">
+    <main style={{ background: 'var(--bg-primary)' }}>
+      <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-12 relative">
-          <CosmicDust />
+        <div className="text-center mb-12">
+          <div className="mb-6 flex justify-center">
+            <CosmiLogo className="h-12 w-12" />
+          </div>
           <h1
             className="text-3xl font-bold tracking-tight sm:text-4xl"
             style={{ color: 'var(--text-primary)' }}
@@ -81,7 +83,7 @@ export default function DownloadPage() {
             Download <span className="gradient-text">Cosmikit</span>
           </h1>
           <p
-            className="mt-4 text-lg"
+            className="mt-4 text-base sm:text-lg"
             style={{ color: 'var(--text-secondary)' }}
           >
             Get the Figma plugin and start syncing your design tokens in minutes.
@@ -91,24 +93,22 @@ export default function DownloadPage() {
         {/* Download Card */}
         <div className="gradient-border mb-12">
           <div
-            className="relative overflow-hidden p-8 text-center"
+            className="p-8 text-center"
             style={{ background: 'var(--bg-elevated)' }}
           >
-            <StarField starCount={30} showNebula={false} />
-            {/* Gradient icon circle */}
             <div
-              className="relative mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl shadow-cosmic"
+              className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl"
               style={{
                 background: 'linear-gradient(135deg, var(--gradient-from), var(--gradient-to))',
                 color: '#fff',
               }}
             >
-              <DownloadIcon className="h-8 w-8" />
+              <DownloadIcon className="h-7 w-7" />
             </div>
 
             <a
               href={DOWNLOAD_URL}
-              className="btn-gradient relative inline-flex items-center gap-2 rounded-xl px-8 py-4 text-lg font-semibold shadow-lg transition-all duration-200 hover:-translate-y-0.5"
+              className="btn-gradient inline-flex items-center gap-2 rounded-xl px-8 py-3.5 text-lg font-semibold transition-all duration-200"
             >
               <span className="relative z-10 flex items-center gap-2">
                 <DownloadIcon className="h-5 w-5" />
@@ -117,7 +117,7 @@ export default function DownloadPage() {
             </a>
 
             <p
-              className="relative mt-4 text-sm"
+              className="mt-4 text-sm"
               style={{ color: 'var(--text-tertiary)' }}
             >
               Version 0.1.0 &middot; Contains manifest.json + built plugin files
@@ -144,8 +144,8 @@ export default function DownloadPage() {
             <div
               className="pointer-events-none absolute left-4 top-4 bottom-4 w-px"
               style={{
-                backgroundImage:
-                  'repeating-linear-gradient(180deg, var(--border-accent) 0px, var(--border-accent) 4px, transparent 4px, transparent 12px)',
+                background: 'linear-gradient(180deg, var(--gradient-from), var(--gradient-to), transparent)',
+                opacity: 0.2,
               }}
               aria-hidden="true"
             />
@@ -153,10 +153,11 @@ export default function DownloadPage() {
             {installSteps.map((step, i) => (
               <li key={i} className="relative flex gap-4">
                 <span
-                  className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold shadow-md"
+                  className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold"
                   style={{
-                    background: 'linear-gradient(135deg, var(--gradient-from), var(--gradient-to))',
-                    color: '#fff',
+                    background: 'var(--bg-elevated)',
+                    border: '2px solid var(--border-primary)',
+                    color: 'var(--brand)',
                   }}
                 >
                   {i + 1}

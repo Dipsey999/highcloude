@@ -264,3 +264,98 @@ export function BookOpenIcon({ className = 'h-5 w-5', style }: IconProps) {
     </svg>
   );
 }
+
+export function ArrowRightIcon({ className = 'h-5 w-5', style }: IconProps) {
+  return (
+    <svg className={className} style={style} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+    </svg>
+  );
+}
+
+/**
+ * Cosmikit Brand Logo — AI constellation star.
+ * A 4-pointed sparkle (cosmic) with orbital nodes (AI neural network).
+ * Supports gradient fill via CSS variables.
+ */
+export function CosmiLogo({ className = 'h-8 w-8', style, showNodes = true }: IconProps & { showNodes?: boolean }) {
+  return (
+    <svg className={className} style={style} viewBox="0 0 32 32" fill="none">
+      <defs>
+        <linearGradient id="cosmi-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="var(--gradient-from)" />
+          <stop offset="100%" stopColor="var(--gradient-to)" />
+        </linearGradient>
+      </defs>
+      {/* Main 4-pointed sparkle star */}
+      <path
+        d="M16 1C16.8 9.5 22.5 15.2 31 16C22.5 16.8 16.8 22.5 16 31C15.2 22.5 9.5 16.8 1 16C9.5 15.2 15.2 9.5 16 1Z"
+        fill="url(#cosmi-grad)"
+      />
+      {/* AI neural nodes at diagonal positions */}
+      {showNodes && (
+        <>
+          <circle cx="7.5" cy="7.5" r="1.4" fill="url(#cosmi-grad)" opacity="0.55" />
+          <circle cx="24.5" cy="7.5" r="1.4" fill="url(#cosmi-grad)" opacity="0.55" />
+          <circle cx="7.5" cy="24.5" r="1.4" fill="url(#cosmi-grad)" opacity="0.55" />
+          <circle cx="24.5" cy="24.5" r="1.4" fill="url(#cosmi-grad)" opacity="0.55" />
+          {/* Connecting neural paths */}
+          <line x1="8.5" y1="8.5" x2="13.5" y2="13.5" stroke="url(#cosmi-grad)" strokeWidth="0.6" opacity="0.3" />
+          <line x1="23.5" y1="8.5" x2="18.5" y2="13.5" stroke="url(#cosmi-grad)" strokeWidth="0.6" opacity="0.3" />
+          <line x1="8.5" y1="23.5" x2="13.5" y2="18.5" stroke="url(#cosmi-grad)" strokeWidth="0.6" opacity="0.3" />
+          <line x1="23.5" y1="23.5" x2="18.5" y2="18.5" stroke="url(#cosmi-grad)" strokeWidth="0.6" opacity="0.3" />
+        </>
+      )}
+    </svg>
+  );
+}
+
+/**
+ * Larger hero version of the logo with more detail.
+ */
+export function CosmiLogoHero({ className = 'h-20 w-20', style }: IconProps) {
+  return (
+    <svg className={className} style={style} viewBox="0 0 64 64" fill="none">
+      <defs>
+        <linearGradient id="hero-grad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="var(--gradient-from)" />
+          <stop offset="50%" stopColor="var(--gradient-via)" />
+          <stop offset="100%" stopColor="var(--gradient-to)" />
+        </linearGradient>
+        <radialGradient id="hero-glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="var(--gradient-from)" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      {/* Subtle glow */}
+      <circle cx="32" cy="32" r="28" fill="url(#hero-glow)" />
+      {/* Main sparkle */}
+      <path
+        d="M32 4C33.2 19 45 30.8 60 32C45 33.2 33.2 45 32 60C30.8 45 19 33.2 4 32C19 30.8 30.8 19 32 4Z"
+        fill="url(#hero-grad)"
+      />
+      {/* Primary orbital nodes */}
+      <circle cx="14" cy="14" r="2.5" fill="url(#hero-grad)" opacity="0.5" />
+      <circle cx="50" cy="14" r="2.5" fill="url(#hero-grad)" opacity="0.5" />
+      <circle cx="14" cy="50" r="2.5" fill="url(#hero-grad)" opacity="0.5" />
+      <circle cx="50" cy="50" r="2.5" fill="url(#hero-grad)" opacity="0.5" />
+      {/* Secondary micro-nodes */}
+      <circle cx="22" cy="10" r="1.2" fill="url(#hero-grad)" opacity="0.3" />
+      <circle cx="42" cy="10" r="1.2" fill="url(#hero-grad)" opacity="0.3" />
+      <circle cx="10" cy="32" r="1.2" fill="url(#hero-grad)" opacity="0.35" />
+      <circle cx="54" cy="32" r="1.2" fill="url(#hero-grad)" opacity="0.35" />
+      <circle cx="22" cy="54" r="1.2" fill="url(#hero-grad)" opacity="0.3" />
+      <circle cx="42" cy="54" r="1.2" fill="url(#hero-grad)" opacity="0.3" />
+      {/* Neural connection lines */}
+      <line x1="15.5" y1="15.5" x2="27" y2="27" stroke="url(#hero-grad)" strokeWidth="0.8" opacity="0.25" />
+      <line x1="48.5" y1="15.5" x2="37" y2="27" stroke="url(#hero-grad)" strokeWidth="0.8" opacity="0.25" />
+      <line x1="15.5" y1="48.5" x2="27" y2="37" stroke="url(#hero-grad)" strokeWidth="0.8" opacity="0.25" />
+      <line x1="48.5" y1="48.5" x2="37" y2="37" stroke="url(#hero-grad)" strokeWidth="0.8" opacity="0.25" />
+      {/* Cross connections between outer nodes */}
+      <line x1="14" y1="14" x2="50" y2="14" stroke="url(#hero-grad)" strokeWidth="0.5" opacity="0.12" />
+      <line x1="14" y1="50" x2="50" y2="50" stroke="url(#hero-grad)" strokeWidth="0.5" opacity="0.12" />
+      <line x1="14" y1="14" x2="14" y2="50" stroke="url(#hero-grad)" strokeWidth="0.5" opacity="0.12" />
+      <line x1="50" y1="14" x2="50" y2="50" stroke="url(#hero-grad)" strokeWidth="0.5" opacity="0.12" />
+    </svg>
+  );
+}
