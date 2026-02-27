@@ -35,6 +35,14 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  if (apiKeys.claudeApiKeyEnc) {
+    try {
+      result.claudeApiKey = decrypt(apiKeys.claudeApiKeyEnc);
+    } catch {
+      // Don't fail the whole request; GitHub token is more critical
+    }
+  }
+
   return corsJson(result);
 }
 
