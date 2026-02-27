@@ -33,8 +33,8 @@ export type UIMessage =
   | { type: 'SAVE_BRIDGE_TOKEN'; token: string }
   | { type: 'LOAD_BRIDGE_TOKEN' }
   | { type: 'CLEAR_BRIDGE_TOKEN' }
-  | { type: 'FETCH_BRIDGE_CONFIG' }
-  | { type: 'FETCH_BRIDGE_KEYS' };
+  | { type: 'FETCH_BRIDGE_CONFIG'; bridgeToken: string }
+  | { type: 'FETCH_BRIDGE_KEYS'; bridgeToken: string };
 
 export interface CredentialPayload {
   claudeApiKey?: string;
@@ -86,8 +86,8 @@ export type CodeMessage =
   | { type: 'BRIDGE_TOKEN_LOADED'; token: string | null }
   | { type: 'BRIDGE_TOKEN_SAVED' }
   | { type: 'BRIDGE_TOKEN_CLEARED' }
-  | { type: 'BRIDGE_CONFIG_RESULT'; projects: BridgeProject[] }
-  | { type: 'BRIDGE_KEYS_RESULT'; claudeApiKey?: string; githubToken?: string };
+  | { type: 'BRIDGE_CONFIG_RESULT'; projects: BridgeProject[]; error?: string }
+  | { type: 'BRIDGE_KEYS_RESULT'; githubToken?: string; error?: string };
 
 // ========================================
 // Connection Status

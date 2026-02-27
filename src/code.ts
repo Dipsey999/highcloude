@@ -421,15 +421,42 @@ onUIMessage(async (msg: UIMessage) => {
         break;
       }
 
-      case 'FETCH_BRIDGE_CONFIG': {
-        // Config is fetched from UI side directly (has network access)
-        // This case is handled in the UI iframe
+      case 'FETCH_BRIDGE_KEYS': {
+        try {
+          const BRIDGE_API = 'https://web-pied-iota-65.vercel.app';
+          const keysRes = await fetch(BRIDGE_API + '/api/plugin/keys', {
+            headers: { 'Authorization': 'Bearer ' + msg.bridgeToken },
+          });
+          if (!keysRes.ok) {
+            const errBody = await keysRes.json().catch(function() { return { error: 'Invalid token' }; });
+            sendToUI({ type: 'BRIDGE_KEYS_RESULT', error: errBody.error || 'Failed to fetch keys' });
+          } else {
+            const keys = await keysRes.json();
+            sendToUI({ type: 'BRIDGE_KEYS_RESULT', githubToken: keys.githubToken });
+          }
+        } catch (err) {
+          logger.error('Bridge keys fetch failed:', err);
+          sendToUI({ type: 'BRIDGE_KEYS_RESULT', error: err instanceof Error ? err.message : 'Network error' });
+        }
         break;
       }
 
-      case 'FETCH_BRIDGE_KEYS': {
-        // Keys are fetched from UI side directly (has network access)
-        // This case is handled in the UI iframe
+      case 'FETCH_BRIDGE_CONFIG': {
+        try {
+          const BRIDGE_API = 'https://web-pied-iota-65.vercel.app';
+          const configRes = await fetch(BRIDGE_API + '/api/plugin/config', {
+            headers: { 'Authorization': 'Bearer ' + msg.bridgeToken },
+          });
+          if (!configRes.ok) {
+            sendToUI({ type: 'BRIDGE_CONFIG_RESULT', projects: [], error: 'Failed to fetch projects' });
+          } else {
+            const config = await configRes.json();
+            sendToUI({ type: 'BRIDGE_CONFIG_RESULT', projects: config.projects || [] });
+          }
+        } catch (err) {
+          logger.error('Bridge config fetch failed:', err);
+          sendToUI({ type: 'BRIDGE_CONFIG_RESULT', projects: [], error: err instanceof Error ? err.message : 'Network error' });
+        }
         break;
       }
 

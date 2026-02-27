@@ -4,5 +4,16 @@
   "api": "1.0.0",
   "main": "dist/code.js",
   "ui": "dist/ui.html",
-  "editorType": ["figma"]
+  "editorType": ["figma"],
+  "networkAccess": {
+    "allowedDomains": [
+      "https://web-pied-iota-65.vercel.app",
+      "https://api.github.com"
+    ],
+    "devAllowedDomains": [
+      "https://web-pied-iota-65.vercel.app",
+      "https://api.github.com"
+    ],
+    "reasoning": "Connects to the Claude Bridge dashboard API to fetch project config and GitHub tokens, and to GitHub API for token sync."
+  }
 }

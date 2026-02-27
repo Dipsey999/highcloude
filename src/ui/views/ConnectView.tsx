@@ -1,13 +1,28 @@
 import { useState, useCallback } from 'preact/hooks';
-import type { ConnectionState, CredentialPayload, SyncConfig, BridgeProject } from '../../types/messages';
+import type { ConnectionState, CredentialPayload, SyncConfig, BridgeProject, CodeMessage } from '../../types/messages';
 import { validateGitHubOnly } from '../../api/auth-manager';
 import { fetchUserRepos, type GitHubRepo } from '../../api/github-client';
-import { sendToCode } from '../../utils/ui-message-bus';
+import { sendToCode, onCodeMessage } from '../../utils/ui-message-bus';
 import { StatusBadge } from '../components/StatusBadge';
 import { SyncConfigPanel } from '../components/SyncConfigPanel';
 import { showToast } from '../components/Toast';
 
-const BRIDGE_API_URL = 'https://web-pied-iota-65.vercel.app';
+function waitForMessage(type: string): Promise<CodeMessage> {
+  return new Promise(function(resolve) {
+    var handler = function(msg: CodeMessage) {
+      if (msg.type === type) {
+        window.removeEventListener('message', listener);
+        resolve(msg);
+      }
+    };
+    var listener = function(event: MessageEvent) {
+      if (event.data && event.data.pluginMessage) {
+        handler(event.data.pluginMessage);
+      }
+    };
+    window.addEventListener('message', listener);
+  });
+}
 
 type AuthTab = 'manual' | 'bridge';
 
@@ -55,46 +70,41 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
     setBridgeError('');
 
     try {
-      // Fetch keys from bridge
-      const keysRes = await fetch(`${BRIDGE_API_URL}/api/plugin/keys`, {
-        headers: { Authorization: `Bearer ${bridgeToken}` },
-      });
+      // Fetch keys via code.js (bypasses CORS)
+      var keysPromise = waitForMessage('BRIDGE_KEYS_RESULT');
+      sendToCode({ type: 'FETCH_BRIDGE_KEYS', bridgeToken: bridgeToken });
+      var keysMsg = await keysPromise as any;
 
-      if (!keysRes.ok) {
-        const err = await keysRes.json().catch(() => ({ error: 'Invalid token' }));
-        throw new Error(err.error || 'Failed to fetch keys');
+      if (keysMsg.error) {
+        throw new Error(keysMsg.error);
       }
 
-      const keys = await keysRes.json();
+      // Fetch config via code.js (bypasses CORS)
+      var configPromise = waitForMessage('BRIDGE_CONFIG_RESULT');
+      sendToCode({ type: 'FETCH_BRIDGE_CONFIG', bridgeToken: bridgeToken });
+      var configMsg = await configPromise as any;
 
-      // Fetch config (projects)
-      const configRes = await fetch(`${BRIDGE_API_URL}/api/plugin/config`, {
-        headers: { Authorization: `Bearer ${bridgeToken}` },
-      });
-
-      if (!configRes.ok) {
-        throw new Error('Failed to fetch projects');
+      if (configMsg.error) {
+        throw new Error(configMsg.error);
       }
-
-      const config = await configRes.json();
 
       // Save bridge token to storage
       sendToCode({ type: 'SAVE_BRIDGE_TOKEN', token: bridgeToken });
 
       // Save the credentials from bridge (GitHub token only needed)
       const credentials: CredentialPayload = {
-        githubToken: keys.githubToken || '',
+        githubToken: keysMsg.githubToken || '',
       };
       sendToCode({ type: 'SAVE_CREDENTIALS', payload: credentials });
 
-      setBridgeProjects(config.projects || []);
+      setBridgeProjects(configMsg.projects || []);
       setBridgeConnected(true);
       showToast('Connected to Claude Bridge', 'success');
 
       // If only one project, auto-select it
-      if (config.projects?.length === 1) {
-        setSelectedBridgeProject(config.projects[0].id);
-        applyBridgeProject(config.projects[0], credentials);
+      if (configMsg.projects && configMsg.projects.length === 1) {
+        setSelectedBridgeProject(configMsg.projects[0].id);
+        applyBridgeProject(configMsg.projects[0], credentials);
       }
     } catch (err) {
       setBridgeError(err instanceof Error ? err.message : 'Connection failed');
