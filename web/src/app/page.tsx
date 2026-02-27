@@ -13,7 +13,7 @@ const features = [
   },
   {
     title: 'AI-Powered Design',
-    description: 'Describe a component in natural language and Claude generates the Figma layout using your tokens.',
+    description: 'Use Claude MCP to generate Figma layouts from natural language — free, no API key needed.',
     icon: '🤖',
   },
   {
@@ -30,6 +30,29 @@ const features = [
     title: 'Team-Ready',
     description: 'Multi-file sync splits tokens by collection. PR workflow for team review before merging changes.',
     icon: '👥',
+  },
+];
+
+const steps = [
+  {
+    num: '1',
+    title: 'Download Plugin',
+    description: 'Download the Figma plugin ZIP and import it into Figma Desktop via Plugins > Development > Import plugin from manifest.',
+  },
+  {
+    num: '2',
+    title: 'Create Account',
+    description: 'Sign in with GitHub, add your GitHub token, and create a project for your design token repository.',
+  },
+  {
+    num: '3',
+    title: 'Connect Plugin',
+    description: 'Generate a plugin token from the dashboard and paste it into the Claude Bridge plugin in Figma.',
+  },
+  {
+    num: '4',
+    title: 'Sync & Build',
+    description: 'Extract tokens, sync to GitHub, and use AI to generate designs — all inside Figma.',
   },
 ];
 
@@ -51,18 +74,24 @@ export default function LandingPage() {
             </p>
             <div className="mt-10 flex items-center justify-center gap-4">
               <Link
-                href="/login"
+                href="/download"
                 className="rounded-lg bg-brand-500 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-brand-600 transition-colors"
+              >
+                Download Plugin
+              </Link>
+              <Link
+                href="/login"
+                className="rounded-lg border border-gray-300 px-6 py-3 text-base font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Get Started Free
               </Link>
-              <a
-                href="https://github.com"
-                className="rounded-lg border border-gray-300 px-6 py-3 text-base font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                View on GitHub
-              </a>
             </div>
+            <a
+              href="https://github.com/Dipsey999/highcloude"
+              className="mt-4 inline-block text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              View on GitHub &rarr;
+            </a>
           </div>
         </div>
       </section>
@@ -100,42 +129,42 @@ export default function LandingPage() {
           <h2 className="text-center text-3xl font-bold text-gray-900">
             How it works
           </h2>
-          <div className="mt-16 grid gap-12 sm:grid-cols-3">
-            <div className="text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-brand-600 font-bold text-lg">
-                1
+          <div className="mt-16 grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
+            {steps.map((step) => (
+              <div key={step.num} className="text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-brand-600 font-bold text-lg">
+                  {step.num}
+                </div>
+                <h3 className="mt-4 font-semibold text-gray-900">{step.title}</h3>
+                <p className="mt-2 text-sm text-gray-600">{step.description}</p>
               </div>
-              <h3 className="mt-4 font-semibold text-gray-900">Configure</h3>
-              <p className="mt-2 text-sm text-gray-600">
-                Sign in, add your API keys, and connect your GitHub repository.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-brand-600 font-bold text-lg">
-                2
-              </div>
-              <h3 className="mt-4 font-semibold text-gray-900">Connect Plugin</h3>
-              <p className="mt-2 text-sm text-gray-600">
-                Copy your plugin token and paste it into the Figma plugin to link them.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-brand-600 font-bold text-lg">
-                3
-              </div>
-              <h3 className="mt-4 font-semibold text-gray-900">Sync & Build</h3>
-              <p className="mt-2 text-sm text-gray-600">
-                Extract tokens, sync to GitHub, and use AI to generate designs — all inside Figma.
-              </p>
-            </div>
+            ))}
+          </div>
+          <div className="mt-12 text-center">
+            <Link
+              href="/download"
+              className="rounded-lg bg-brand-500 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-brand-600 transition-colors"
+            >
+              Get Started
+            </Link>
           </div>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="border-t border-gray-200 bg-white py-8">
-        <div className="mx-auto max-w-7xl px-4 text-center text-sm text-gray-500">
-          Claude Bridge &mdash; Design System Sync for Figma
+        <div className="mx-auto max-w-7xl px-4 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+          <span className="text-sm text-gray-500">
+            Claude Bridge &mdash; Design System Sync for Figma
+          </span>
+          <div className="flex gap-6 text-sm text-gray-500">
+            <Link href="/download" className="hover:text-gray-900">
+              Download
+            </Link>
+            <a href="https://github.com/Dipsey999/highcloude" className="hover:text-gray-900">
+              GitHub
+            </a>
+          </div>
         </div>
       </footer>
     </main>

@@ -18,6 +18,12 @@ export function Navbar() {
           </Link>
 
           <div className="flex items-center gap-4">
+            <Link
+              href="/download"
+              className="text-sm text-gray-600 hover:text-gray-900"
+            >
+              Download
+            </Link>
             {session?.user ? (
               <>
                 <Link
