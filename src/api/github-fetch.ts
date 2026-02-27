@@ -52,9 +52,20 @@ export async function githubFetch(
   url: string,
   init?: RequestInit,
 ): Promise<Response> {
-  // If no proxy or not a GitHub URL, use direct fetch
-  if (!proxyConfig || !url.startsWith('https://api.github.com/')) {
+  // If not a GitHub URL, always use direct fetch
+  if (!url.startsWith('https://api.github.com/')) {
     return fetch(url, init);
+  }
+
+  // If no proxy configured, try direct fetch but catch CSP failures
+  if (!proxyConfig) {
+    try {
+      return await fetch(url, init);
+    } catch (err) {
+      throw new Error(
+        'GitHub API not reachable. Connect via Claude Bridge to enable GitHub sync.'
+      );
+    }
   }
 
   const proxyUrl = `${proxyConfig.bridgeUrl}/api/plugin/github-proxy`;
@@ -98,7 +109,12 @@ export async function githubFetch(
 
   if (!proxyRes.ok) {
     // Proxy itself failed (auth error, etc.)
-    throw new Error(`GitHub proxy error: ${proxyRes.status}`);
+    let errDetail = '';
+    try {
+      const errBody = await proxyRes.json();
+      errDetail = errBody.error || '';
+    } catch { /* ignore */ }
+    throw new Error(`GitHub proxy error (${proxyRes.status}): ${errDetail || 'Request failed'}`);
   }
 
   // The proxy returns { status, data } where data is the raw response text

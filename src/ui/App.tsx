@@ -25,17 +25,15 @@ export function App() {
     const unsubscribe = onCodeMessage((msg: CodeMessage) => {
       switch (msg.type) {
         case 'CREDENTIALS_LOADED': {
-          if (msg.payload) {
+          if (msg.payload && msg.payload.githubToken) {
+            // Credentials exist from a previous session — go directly to dashboard.
+            // Skip network validation here because the GitHub proxy (bridge)
+            // may not be set up yet (BRIDGE_TOKEN_LOADED races with this message).
+            // Actual GitHub operations (compare, push) will validate the token
+            // implicitly when they run, after the proxy is ready.
             setCredentials(msg.payload);
-            setConnectionState({ github: 'validating' });
-            validateCredentials(msg.payload).then((result) => {
-              setConnectionState(result.connectionState);
-              if (result.connectionState.github === 'connected') {
-                setView('dashboard');
-              } else {
-                setView('connect');
-              }
-            });
+            setConnectionState({ github: 'connected' });
+            setView('dashboard');
           } else {
             setView('connect');
           }
