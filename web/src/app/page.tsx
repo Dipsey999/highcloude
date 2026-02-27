@@ -6,10 +6,10 @@ import {
   TargetIcon,
   ChartIcon,
   UsersIcon,
-  SparklesIcon,
   DownloadIcon,
+  ArrowRightIcon,
+  CosmiLogoHero,
 } from '@/components/Icons';
-import { StarField, CosmicDust } from '@/components/StarField';
 
 const features = [
   {
@@ -17,73 +17,63 @@ const features = [
     description:
       'Extract all variables, text styles, and effects from Figma into W3C DTCG format automatically.',
     Icon: PaletteIcon,
-    orbit: 'from-violet-500/20 to-cyan-500/20',
   },
   {
     title: 'Two-Way GitHub Sync',
     description:
       'Push tokens to GitHub and pull changes back to Figma. Single-file or multi-file, direct or via PRs.',
     Icon: RefreshIcon,
-    orbit: 'from-cyan-500/20 to-pink-500/20',
   },
   {
     title: 'AI-Powered Design',
     description:
       'Use Claude MCP to generate Figma layouts from natural language — free, no API key needed.',
     Icon: RobotIcon,
-    orbit: 'from-pink-500/20 to-violet-500/20',
   },
   {
     title: 'Smart Auto-Mapping',
     description:
       'Automatically detect hard-coded values and map them to the closest matching design token.',
     Icon: TargetIcon,
-    orbit: 'from-violet-500/20 to-blue-500/20',
   },
   {
     title: 'Diff & Merge',
     description:
       'See exactly what changed between local and remote tokens before syncing. Resolve conflicts per-file.',
     Icon: ChartIcon,
-    orbit: 'from-blue-500/20 to-cyan-500/20',
   },
   {
     title: 'Team-Ready',
     description:
       'Multi-file sync splits tokens by collection. PR workflow for team review before merging changes.',
     Icon: UsersIcon,
-    orbit: 'from-cyan-500/20 to-violet-500/20',
   },
 ];
 
 const steps = [
   {
-    num: '1',
+    num: '01',
     title: 'Download Plugin',
     description:
-      'Download the Figma plugin ZIP and import it into Figma Desktop via Plugins > Development > Import plugin from manifest.',
-    emoji: '🚀',
+      'Get the Figma plugin ZIP and import it into Figma Desktop via Plugins > Development > Import.',
   },
   {
-    num: '2',
+    num: '02',
     title: 'Create Account',
     description:
-      'Sign in with GitHub, add your GitHub token, and create a project for your design token repository.',
-    emoji: '🌟',
+      'Sign in with GitHub, add your token, and create a project for your design token repository.',
   },
   {
-    num: '3',
+    num: '03',
     title: 'Connect Plugin',
     description:
       'Generate a plugin token from the dashboard and paste it into the Cosmikit plugin in Figma.',
-    emoji: '🔗',
   },
   {
-    num: '4',
+    num: '04',
     title: 'Sync & Build',
     description:
       'Extract tokens, sync to GitHub, and use AI to generate designs — all inside Figma.',
-    emoji: '🪐',
   },
 ];
 
@@ -91,97 +81,37 @@ export default function LandingPage() {
   return (
     <main style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden">
-        {/* Deep space background */}
-        <StarField starCount={120} showNebula />
-
-        {/* Nebula gradients */}
-        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-          <div
-            className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full opacity-30 animate-nebula-float"
-            style={{
-              background: 'radial-gradient(ellipse, var(--gradient-from) 0%, transparent 70%)',
-              filter: 'blur(80px)',
-            }}
-          />
-          <div
-            className="absolute bottom-0 right-1/4 w-[500px] h-[500px] rounded-full opacity-20 animate-nebula-float"
-            style={{
-              background: 'radial-gradient(ellipse, var(--nebula-cyan) 0%, transparent 70%)',
-              filter: 'blur(60px)',
-              animationDelay: '4s',
-            }}
-          />
-          <div
-            className="absolute top-1/3 right-10 w-[300px] h-[300px] rounded-full opacity-15 animate-nebula-float"
-            style={{
-              background: 'radial-gradient(ellipse, var(--nebula-pink) 0%, transparent 70%)',
-              filter: 'blur(50px)',
-              animationDelay: '8s',
-            }}
-          />
-        </div>
-
-        {/* Floating planet decorations */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-          {/* Small planet top-right */}
-          <div
-            className="absolute top-[15%] right-[12%] h-6 w-6 rounded-full animate-planet-float"
-            style={{
-              background: 'linear-gradient(135deg, var(--gradient-from), var(--nebula-pink))',
-              boxShadow: '0 0 20px var(--brand-glow), inset -2px -2px 4px rgba(0,0,0,0.3)',
-            }}
-          />
-          {/* Saturn-like planet */}
-          <div
-            className="absolute top-[35%] left-[8%] animate-planet-float"
-            style={{ animationDelay: '2s' }}
-          >
-            <div
-              className="h-8 w-8 rounded-full"
-              style={{
-                background: 'linear-gradient(135deg, var(--star-gold), var(--nebula-pink))',
-                boxShadow: '0 0 24px rgba(251, 191, 36, 0.15), inset -2px -2px 6px rgba(0,0,0,0.3)',
-              }}
-            />
-            {/* Ring */}
-            <div
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-3 rounded-full border opacity-40"
-              style={{
-                borderColor: 'var(--star-gold)',
-                transform: 'translate(-50%, -50%) rotateX(75deg)',
-              }}
-            />
-          </div>
-          {/* Tiny moon bottom */}
-          <div
-            className="absolute bottom-[20%] right-[25%] h-3 w-3 rounded-full animate-float"
-            style={{
-              background: 'var(--text-tertiary)',
-              boxShadow: 'inset -1px -1px 2px rgba(0,0,0,0.4)',
-              animationDelay: '3s',
-            }}
-          />
-        </div>
-
-        <div className="relative mx-auto max-w-7xl px-4 py-32 sm:px-6 lg:px-8">
+      <section className="hero-mesh relative">
+        <div className="mx-auto max-w-5xl px-4 py-28 sm:px-6 sm:py-36 lg:px-8">
           <div className="text-center">
+            {/* Logo mark */}
+            <div className="mb-8 flex justify-center">
+              <CosmiLogoHero className="h-16 w-16 sm:h-20 sm:w-20" />
+            </div>
+
             {/* Badge */}
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium glass">
-              <SparklesIcon className="h-4 w-4" style={{ color: 'var(--star-gold)' }} />
-              <span style={{ color: 'var(--text-secondary)' }}>Design tokens from the cosmos</span>
+            <div
+              className="mb-6 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium tracking-wide uppercase"
+              style={{
+                background: 'var(--brand-subtle)',
+                color: 'var(--brand)',
+                border: '1px solid var(--border-accent)',
+              }}
+            >
+              Design tokens from Figma to code
             </div>
 
             <h1
-              className="text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl"
-              style={{ color: 'var(--text-primary)' }}
+              className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
+              style={{ color: 'var(--text-primary)', lineHeight: '1.1' }}
             >
-              Your design system,{' '}
-              <span className="gradient-text">in orbit</span>
+              Your design system,
+              <br />
+              <span className="gradient-text">synced and intelligent</span>
             </h1>
 
             <p
-              className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed"
+              className="mx-auto mt-6 max-w-2xl text-base leading-relaxed sm:text-lg"
               style={{ color: 'var(--text-secondary)' }}
             >
               Cosmikit connects Figma to GitHub, keeping your design tokens in sync
@@ -192,140 +122,128 @@ export default function LandingPage() {
             <div className="mt-10 flex items-center justify-center gap-4 flex-wrap">
               <Link
                 href="/download"
-                className="btn-gradient inline-flex items-center gap-2 rounded-xl px-7 py-3.5 text-base font-semibold shadow-lg transition-all duration-200 hover:-translate-y-0.5"
+                className="btn-gradient inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold sm:px-8 sm:py-3.5 sm:text-base"
               >
                 <span className="relative z-10 flex items-center gap-2">
-                  <DownloadIcon className="h-5 w-5" />
+                  <DownloadIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                   Download Plugin
                 </span>
               </Link>
               <Link
                 href="/login"
-                className="btn-ghost inline-flex items-center gap-2 rounded-xl px-7 py-3.5 text-base font-semibold transition-all duration-200 hover:-translate-y-0.5"
+                className="btn-ghost inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold sm:px-8 sm:py-3.5 sm:text-base"
               >
-                Launch Mission
+                Get Started
+                <ArrowRightIcon className="h-4 w-4" />
               </Link>
             </div>
           </div>
         </div>
+
+        {/* Gradient divider */}
+        <div className="gradient-line" />
       </section>
 
       {/* ── Features ── */}
-      <section className="relative py-28" style={{ background: 'var(--bg-secondary)' }}>
-        <CosmicDust />
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center">
+      <section className="py-24 sm:py-28" style={{ background: 'var(--bg-secondary)' }}>
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto">
             <h2
-              className="text-3xl font-bold sm:text-4xl"
+              className="text-2xl font-bold sm:text-3xl lg:text-4xl"
               style={{ color: 'var(--text-primary)' }}
             >
               Everything you need for{' '}
               <span className="gradient-text">design token management</span>
             </h2>
             <p
-              className="mt-4 text-lg"
+              className="mt-4 text-base sm:text-lg"
               style={{ color: 'var(--text-secondary)' }}
             >
               From extraction to deployment, Cosmikit handles the entire token lifecycle.
             </p>
           </div>
 
-          <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 animate-stagger">
+          <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 animate-stagger">
             {features.map((feature) => (
               <div
                 key={feature.title}
-                className="group relative rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1"
+                className="group rounded-2xl p-6 transition-all duration-200 hover:-translate-y-1"
                 style={{
                   background: 'var(--bg-elevated)',
                   border: '1px solid var(--border-primary)',
                 }}
               >
-                {/* Hover nebula border */}
                 <div
-                  className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                  className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl transition-shadow duration-200 group-hover:shadow-glow"
                   style={{
-                    background: 'conic-gradient(from 180deg, var(--gradient-from), var(--nebula-pink), var(--gradient-to), var(--nebula-blue), var(--gradient-from))',
+                    background: 'linear-gradient(135deg, var(--gradient-from), var(--gradient-to))',
+                    color: '#fff',
                   }}
-                  aria-hidden="true"
-                />
-                {/* Inner bg to create border effect */}
-                <div
-                  className="pointer-events-none absolute inset-[1px] rounded-[15px] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                  style={{ background: 'var(--bg-elevated)' }}
-                  aria-hidden="true"
-                />
-
-                <div className="relative">
-                  <div
-                    className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl transition-shadow duration-300 group-hover:shadow-glow"
-                    style={{
-                      background: 'linear-gradient(135deg, var(--gradient-from), var(--gradient-to))',
-                      color: '#fff',
-                    }}
-                  >
-                    <feature.Icon className="h-6 w-6" />
-                  </div>
-
-                  <h3
-                    className="text-lg font-semibold"
-                    style={{ color: 'var(--text-primary)' }}
-                  >
-                    {feature.title}
-                  </h3>
-                  <p
-                    className="mt-2 text-sm leading-relaxed"
-                    style={{ color: 'var(--text-secondary)' }}
-                  >
-                    {feature.description}
-                  </p>
+                >
+                  <feature.Icon className="h-5 w-5" />
                 </div>
+
+                <h3
+                  className="text-base font-semibold"
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  {feature.title}
+                </h3>
+                <p
+                  className="mt-2 text-sm leading-relaxed"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  {feature.description}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── How It Works — Orbital Steps ── */}
-      <section className="relative py-28 overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
-        <StarField starCount={40} showNebula={false} />
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
-          <h2
-            className="text-center text-3xl font-bold sm:text-4xl"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            Your <span className="gradient-text">launch sequence</span>
-          </h2>
+      {/* Gradient divider */}
+      <div className="gradient-line" />
 
-          <div className="relative mt-16 grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Connecting orbital path */}
+      {/* ── How It Works ── */}
+      <section className="py-24 sm:py-28" style={{ background: 'var(--bg-primary)' }}>
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto">
+            <h2
+              className="text-2xl font-bold sm:text-3xl lg:text-4xl"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              Get started in <span className="gradient-text">minutes</span>
+            </h2>
+            <p
+              className="mt-4 text-base sm:text-lg"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              Four simple steps to connect your design system to your codebase.
+            </p>
+          </div>
+
+          <div className="relative mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Connecting line (desktop) */}
             <div
               className="pointer-events-none absolute top-7 left-[12.5%] right-[12.5%] hidden h-px lg:block"
               style={{
-                backgroundImage:
-                  'repeating-linear-gradient(90deg, var(--border-accent) 0px, var(--border-accent) 6px, transparent 6px, transparent 14px)',
+                background: 'linear-gradient(90deg, var(--border-accent), var(--gradient-from), var(--gradient-to), var(--border-accent))',
+                opacity: 0.3,
               }}
               aria-hidden="true"
             />
 
             {steps.map((step) => (
               <div key={step.num} className="relative text-center group">
-                {/* Orbital number with glow */}
                 <div
-                  className="relative z-10 mx-auto flex h-14 w-14 items-center justify-center rounded-full font-bold text-lg shadow-lg transition-all duration-300 group-hover:shadow-cosmic"
+                  className="relative z-10 mx-auto flex h-14 w-14 items-center justify-center rounded-full text-sm font-bold transition-all duration-200 group-hover:shadow-glow"
                   style={{
-                    background: 'linear-gradient(135deg, var(--gradient-from), var(--gradient-to))',
-                    color: '#fff',
+                    background: 'var(--bg-elevated)',
+                    border: '2px solid var(--border-primary)',
+                    color: 'var(--brand)',
                   }}
                 >
-                  <span className="text-xl">{step.emoji}</span>
-                  {/* Orbit ring */}
-                  <div
-                    className="absolute inset-[-6px] rounded-full border border-dashed opacity-20 group-hover:opacity-50 transition-opacity duration-300"
-                    style={{
-                      borderColor: 'var(--brand)',
-                      animation: 'orbitSpin 15s linear infinite',
-                    }}
-                  />
+                  {step.num}
                 </div>
 
                 <h3
@@ -347,34 +265,60 @@ export default function LandingPage() {
           <div className="mt-14 text-center">
             <Link
               href="/download"
-              className="btn-gradient inline-flex items-center gap-2 rounded-xl px-7 py-3.5 text-base font-semibold shadow-lg transition-all duration-200 hover:-translate-y-0.5"
+              className="btn-gradient inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold sm:px-8 sm:py-3.5 sm:text-base"
             >
-              <span className="relative z-10">Begin Your Mission</span>
+              <span className="relative z-10 flex items-center gap-2">
+                Start Building
+                <ArrowRightIcon className="h-4 w-4" />
+              </span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA Section ── */}
+      <section className="hero-mesh relative py-20 sm:py-24" style={{ background: 'var(--bg-secondary)' }}>
+        <div className="gradient-line absolute inset-x-0 top-0" />
+        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
+          <h2
+            className="text-2xl font-bold sm:text-3xl"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            Ready to sync your <span className="gradient-text">design system</span>?
+          </h2>
+          <p
+            className="mt-4 text-base sm:text-lg"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            Join teams using Cosmikit to bridge Figma and code.
+            Free to get started, open-source plugin.
+          </p>
+          <div className="mt-8 flex items-center justify-center gap-4 flex-wrap">
+            <Link
+              href="/login"
+              className="btn-gradient inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold sm:px-8 sm:py-3.5 sm:text-base"
+            >
+              <span className="relative z-10">Get Started Free</span>
+            </Link>
+            <Link
+              href="/download"
+              className="btn-ghost inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold sm:px-8 sm:py-3.5 sm:text-base"
+            >
+              Download Plugin
             </Link>
           </div>
         </div>
       </section>
 
       {/* ── Footer ── */}
-      <footer
-        className="relative py-8"
-        style={{ background: 'var(--bg-glass)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
-      >
-        {/* Gradient separator line */}
-        <div
-          className="absolute inset-x-0 top-0 h-px"
-          style={{
-            background: 'linear-gradient(90deg, transparent, var(--gradient-from), var(--gradient-to), transparent)',
-          }}
-          aria-hidden="true"
-        />
-
-        <div className="mx-auto max-w-7xl px-4 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+      <footer style={{ background: 'var(--bg-primary)' }}>
+        <div className="gradient-line" />
+        <div className="mx-auto max-w-7xl px-4 py-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
           <span
             className="text-sm"
             style={{ color: 'var(--text-tertiary)' }}
           >
-            Cosmikit &mdash; Design System Sync for Figma
+            Cosmikit — Design System Sync for Figma
           </span>
           <div className="flex gap-6 text-sm">
             <Link
@@ -383,6 +327,13 @@ export default function LandingPage() {
               style={{ color: 'var(--text-tertiary)' }}
             >
               Download
+            </Link>
+            <Link
+              href="/dashboard/docs"
+              className="transition-colors duration-200"
+              style={{ color: 'var(--text-tertiary)' }}
+            >
+              Docs
             </Link>
           </div>
         </div>
