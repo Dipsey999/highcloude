@@ -1,5 +1,6 @@
 const HtmlInlineScriptPlugin = require('html-inline-script-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const path = require('path');
 const webpack = require('webpack');
 
@@ -42,6 +43,23 @@ module.exports = (env, argv) => ({
     },
     path: path.resolve(__dirname, 'dist'),
     clean: true,
+  },
+
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          ecma: 5,
+          compress: {
+            ecma: 5,
+          },
+          format: {
+            ecma: 5,
+          },
+          safari10: true,
+        },
+      }),
+    ],
   },
 
   plugins: [
