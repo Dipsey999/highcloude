@@ -1,16 +1,8 @@
 {
-  "name": "Claude Bridge — Design System Sync",
+  "name": "Claude Bridge - Design System Sync",
   "id": "claude-bridge-design-sync",
   "api": "1.0.0",
   "main": "dist/code.js",
   "ui": "dist/ui.html",
-  "editorType": ["figma"],
-  "networkAccess": {
-    "allowedDomains": [
-      "https://api.anthropic.com",
-      "https://api.github.com",
-      "https://web-pied-iota-65.vercel.app"
-    ]
-  },
-  "permissions": ["currentuser"]
+  "editorType": ["figma"]
 }
