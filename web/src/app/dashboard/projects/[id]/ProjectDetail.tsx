@@ -44,12 +44,23 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   return (
     <div className="space-y-6">
       {/* Project Info Card */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6">
+      <div
+        className="rounded-xl border p-6"
+        style={{
+          borderColor: 'var(--border-primary)',
+          backgroundColor: 'var(--bg-elevated)',
+        }}
+      >
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-sm font-semibold text-gray-900">Configuration</h3>
+          <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+            Configuration
+          </h3>
           <button
             onClick={() => setEditing(true)}
-            className="text-sm font-medium text-brand-600 hover:text-brand-700"
+            className="text-sm font-medium transition-colors"
+            style={{ color: 'var(--brand)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--brand-hover)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--brand)')}
           >
             Edit
           </button>
@@ -57,44 +68,56 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
 
         <dl className="space-y-4">
           <div className="flex justify-between">
-            <dt className="text-sm text-gray-500">Repository</dt>
-            <dd className="text-sm font-medium text-gray-900">{project.githubRepo}</dd>
+            <dt className="text-sm" style={{ color: 'var(--text-secondary)' }}>Repository</dt>
+            <dd className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{project.githubRepo}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-sm text-gray-500">Branch</dt>
-            <dd className="text-sm font-medium text-gray-900">{project.githubBranch}</dd>
+            <dt className="text-sm" style={{ color: 'var(--text-secondary)' }}>Branch</dt>
+            <dd className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{project.githubBranch}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-sm text-gray-500">File Path</dt>
-            <dd className="text-sm font-mono text-gray-900">{project.githubFilePath}</dd>
+            <dt className="text-sm" style={{ color: 'var(--text-secondary)' }}>File Path</dt>
+            <dd className="text-sm font-mono" style={{ color: 'var(--text-primary)' }}>{project.githubFilePath}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-sm text-gray-500">Sync Mode</dt>
-            <dd className="text-sm font-medium text-gray-900 capitalize">{project.syncMode}</dd>
+            <dt className="text-sm" style={{ color: 'var(--text-secondary)' }}>Sync Mode</dt>
+            <dd className="text-sm font-medium capitalize" style={{ color: 'var(--text-primary)' }}>{project.syncMode}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-sm text-gray-500">Push Mode</dt>
-            <dd className="text-sm font-medium text-gray-900 capitalize">{project.pushMode}</dd>
+            <dt className="text-sm" style={{ color: 'var(--text-secondary)' }}>Push Mode</dt>
+            <dd className="text-sm font-medium capitalize" style={{ color: 'var(--text-primary)' }}>{project.pushMode}</dd>
           </div>
           {project.syncMode === 'multi' && (
             <div className="flex justify-between">
-              <dt className="text-sm text-gray-500">Directory</dt>
-              <dd className="text-sm font-mono text-gray-900">{project.defaultDirectory}</dd>
+              <dt className="text-sm" style={{ color: 'var(--text-secondary)' }}>Directory</dt>
+              <dd className="text-sm font-mono" style={{ color: 'var(--text-primary)' }}>{project.defaultDirectory}</dd>
             </div>
           )}
         </dl>
       </div>
 
       {/* Danger Zone */}
-      <div className="rounded-xl border border-red-200 bg-white p-6">
+      <div
+        className="rounded-xl border p-6"
+        style={{
+          borderColor: 'var(--border-primary)',
+          backgroundColor: 'color-mix(in srgb, var(--bg-elevated) 95%, #ef4444 5%)',
+        }}
+      >
         <h3 className="text-sm font-semibold text-red-600 mb-2">Danger Zone</h3>
-        <p className="text-sm text-gray-500 mb-4">
+        <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
           Deleting a project removes its configuration. Your GitHub repository will not be affected.
         </p>
         <button
           onClick={handleDelete}
           disabled={deleting}
-          className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
+          className="rounded-lg border px-4 py-2 text-sm font-medium text-red-600 disabled:opacity-50 transition-colors"
+          style={{
+            borderColor: 'color-mix(in srgb, var(--border-primary) 60%, #ef4444 40%)',
+            backgroundColor: 'transparent',
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--bg-elevated) 85%, #ef4444 15%)')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
         >
           {deleting ? 'Deleting...' : 'Delete Project'}
         </button>

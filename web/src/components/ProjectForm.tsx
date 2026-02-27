@@ -62,10 +62,14 @@ export function ProjectForm({ initialData, mode }: ProjectFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 rounded-xl border border-gray-200 bg-white p-6">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 rounded-2xl border p-6"
+      style={{ borderColor: 'var(--border-primary)', background: 'var(--bg-elevated)' }}
+    >
       {/* Project Name */}
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="name" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
           Project Name
         </label>
         <input
@@ -75,13 +79,13 @@ export function ProjectForm({ initialData, mode }: ProjectFormProps) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="My Design System"
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"
+          className="input w-full rounded-xl px-3.5 py-2.5 text-sm"
         />
       </div>
 
       {/* GitHub Repo */}
       <div>
-        <label htmlFor="repo" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="repo" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
           GitHub Repository
         </label>
         <input
@@ -91,15 +95,15 @@ export function ProjectForm({ initialData, mode }: ProjectFormProps) {
           value={githubRepo}
           onChange={(e) => setGithubRepo(e.target.value)}
           placeholder="owner/repo"
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"
+          className="input w-full rounded-xl px-3.5 py-2.5 text-sm font-mono"
         />
-        <p className="mt-1 text-xs text-gray-400">Format: owner/repo-name</p>
+        <p className="mt-1.5 text-xs" style={{ color: 'var(--text-tertiary)' }}>Format: owner/repo-name</p>
       </div>
 
       {/* Branch + File Path */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="branch" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="branch" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
             Branch
           </label>
           <input
@@ -108,11 +112,11 @@ export function ProjectForm({ initialData, mode }: ProjectFormProps) {
             value={githubBranch}
             onChange={(e) => setGithubBranch(e.target.value)}
             placeholder="main"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"
+            className="input w-full rounded-xl px-3.5 py-2.5 text-sm"
           />
         </div>
         <div>
-          <label htmlFor="filePath" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="filePath" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
             Token File Path
           </label>
           <input
@@ -121,78 +125,72 @@ export function ProjectForm({ initialData, mode }: ProjectFormProps) {
             value={githubFilePath}
             onChange={(e) => setGithubFilePath(e.target.value)}
             placeholder="tokens.json"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"
+            className="input w-full rounded-xl px-3.5 py-2.5 text-sm font-mono"
           />
         </div>
       </div>
 
       {/* Sync Mode */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Sync Mode</label>
+        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Sync Mode</label>
         <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={() => setSyncMode('single')}
-            className={`flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors ${
-              syncMode === 'single'
-                ? 'border-brand-500 bg-brand-50 text-brand-700'
-                : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            Single File
-          </button>
-          <button
-            type="button"
-            onClick={() => setSyncMode('multi')}
-            className={`flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors ${
-              syncMode === 'multi'
-                ? 'border-brand-500 bg-brand-50 text-brand-700'
-                : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            Multi File
-          </button>
+          {(['single', 'multi'] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setSyncMode(m)}
+              className={`flex-1 rounded-xl border px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+                syncMode === m ? 'text-white' : ''
+              }`}
+              style={syncMode === m ? {
+                background: 'linear-gradient(135deg, var(--gradient-from), var(--gradient-to))',
+                borderColor: 'transparent',
+              } : {
+                borderColor: 'var(--border-primary)',
+                color: 'var(--text-secondary)',
+                background: 'var(--bg-tertiary)',
+              }}
+            >
+              {m === 'single' ? 'Single File' : 'Multi File'}
+            </button>
+          ))}
         </div>
-        <p className="mt-1 text-xs text-gray-400">
-          {syncMode === 'single'
-            ? 'All tokens in one file'
-            : 'Tokens split by collection into separate files'}
+        <p className="mt-1.5 text-xs" style={{ color: 'var(--text-tertiary)' }}>
+          {syncMode === 'single' ? 'All tokens in one file' : 'Tokens split by collection into separate files'}
         </p>
       </div>
 
       {/* Push Mode */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Push Mode</label>
+        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Push Mode</label>
         <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={() => setPushMode('direct')}
-            className={`flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors ${
-              pushMode === 'direct'
-                ? 'border-brand-500 bg-brand-50 text-brand-700'
-                : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            Direct Commit
-          </button>
-          <button
-            type="button"
-            onClick={() => setPushMode('pr')}
-            className={`flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors ${
-              pushMode === 'pr'
-                ? 'border-brand-500 bg-brand-50 text-brand-700'
-                : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            Pull Request
-          </button>
+          {(['direct', 'pr'] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setPushMode(m)}
+              className={`flex-1 rounded-xl border px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+                pushMode === m ? 'text-white' : ''
+              }`}
+              style={pushMode === m ? {
+                background: 'linear-gradient(135deg, var(--gradient-from), var(--gradient-to))',
+                borderColor: 'transparent',
+              } : {
+                borderColor: 'var(--border-primary)',
+                color: 'var(--text-secondary)',
+                background: 'var(--bg-tertiary)',
+              }}
+            >
+              {m === 'direct' ? 'Direct Commit' : 'Pull Request'}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Default Directory (for multi-file) */}
       {syncMode === 'multi' && (
         <div>
-          <label htmlFor="dir" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="dir" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
             Default Directory
           </label>
           <input
@@ -201,27 +199,32 @@ export function ProjectForm({ initialData, mode }: ProjectFormProps) {
             value={defaultDirectory}
             onChange={(e) => setDefaultDirectory(e.target.value)}
             placeholder="tokens/"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"
+            className="input w-full rounded-xl px-3.5 py-2.5 text-sm font-mono"
           />
         </div>
       )}
 
       {error && (
-        <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800">{error}</div>
+        <div
+          className="rounded-xl px-4 py-3 text-sm border-l-4"
+          style={{ background: 'var(--error-subtle)', color: 'var(--error)', borderLeftColor: 'var(--error)' }}
+        >
+          {error}
+        </div>
       )}
 
       <div className="flex gap-3">
         <button
           type="submit"
           disabled={saving}
-          className="flex-1 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="btn-gradient flex-1 rounded-xl px-4 py-2.5 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? 'Saving...' : mode === 'create' ? 'Create Project' : 'Save Changes'}
         </button>
         <button
           type="button"
           onClick={() => router.back()}
-          className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          className="btn-ghost rounded-xl px-4 py-2.5 text-sm font-medium"
         >
           Cancel
         </button>

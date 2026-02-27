@@ -5,6 +5,7 @@ import { ProjectDetail } from './ProjectDetail';
 import { TokenViewer } from '@/components/TokenViewer';
 import { FigmaVariablesViewer } from '@/components/FigmaVariablesViewer';
 import { PluginStatusBadge } from '@/components/PluginStatusBadge';
+import { PaletteIcon, DatabaseIcon } from '@/components/Icons';
 
 interface Props {
   params: { id: string };
@@ -25,8 +26,8 @@ export default async function ProjectPage({ params }: Props) {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
-        <p className="mt-1 text-sm text-gray-500">{project.githubRepo}</p>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{project.name}</h1>
+        <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>{project.githubRepo}</p>
       </div>
 
       {/* Plugin Status Banner — full width */}
@@ -54,13 +55,29 @@ export default async function ProjectPage({ params }: Props) {
 
         {/* Column 2: Figma Local Variables */}
         <div className="lg:col-span-1">
-          <h2 className="text-sm font-semibold text-gray-900 mb-4">Figma Variables</h2>
+          <h2 className="text-sm font-semibold mb-4 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+            <span
+              className="inline-flex items-center justify-center w-6 h-6 rounded-md"
+              style={{ background: 'linear-gradient(135deg, var(--brand), var(--brand-hover))' }}
+            >
+              <PaletteIcon className="h-3.5 w-3.5 text-white" />
+            </span>
+            Figma Variables
+          </h2>
           <FigmaVariablesViewer projectId={project.id} />
         </div>
 
         {/* Column 3: GitHub Design Tokens */}
         <div className="lg:col-span-1">
-          <h2 className="text-sm font-semibold text-gray-900 mb-4">GitHub Design Tokens</h2>
+          <h2 className="text-sm font-semibold mb-4 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+            <span
+              className="inline-flex items-center justify-center w-6 h-6 rounded-md"
+              style={{ background: 'linear-gradient(135deg, var(--brand), var(--brand-hover))' }}
+            >
+              <DatabaseIcon className="h-3.5 w-3.5 text-white" />
+            </span>
+            GitHub Design Tokens
+          </h2>
           <TokenViewer projectId={project.id} />
         </div>
       </div>

@@ -1,36 +1,63 @@
 'use client';
 
 import { signIn } from 'next-auth/react';
+import { GitHubIcon } from '@/components/Icons';
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
-      <div className="w-full max-w-sm rounded-xl bg-white p-8 shadow-sm border border-gray-200">
+    <div
+      className="flex min-h-[calc(100vh-4rem)] items-center justify-center"
+      style={{
+        background:
+          'radial-gradient(circle at 50% 40%, var(--gradient-from) / 0.08, transparent 60%)',
+      }}
+    >
+      <div
+        className="w-full max-w-sm rounded-xl p-8 shadow-xl backdrop-blur-sm"
+        style={{
+          background: 'var(--bg-elevated)',
+          border: '1px solid var(--border-primary)',
+        }}
+      >
         <div className="text-center">
-          <div className="mx-auto h-12 w-12 rounded-xl bg-brand-500 flex items-center justify-center">
-            <span className="text-white font-bold text-lg">CB</span>
+          <div
+            className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--gradient-from)] to-[var(--gradient-to)]"
+            style={{
+              boxShadow: '0 4px 20px color-mix(in srgb, var(--gradient-from) 40%, transparent)',
+            }}
+          >
+            <span className="text-lg font-bold text-white">CB</span>
           </div>
-          <h1 className="mt-4 text-2xl font-bold text-gray-900">Sign in to Claude Bridge</h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <h1
+            className="mt-4 text-2xl font-bold"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            Sign in to Claude Bridge
+          </h1>
+          <p
+            className="mt-2 text-sm"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             Connect with your GitHub account to get started.
           </p>
         </div>
 
         <button
           onClick={() => signIn('github', { callbackUrl: '/dashboard' })}
-          className="mt-8 flex w-full items-center justify-center gap-3 rounded-lg bg-gray-900 px-4 py-3 text-sm font-semibold text-white hover:bg-gray-800 transition-colors"
+          className="mt-8 flex w-full items-center justify-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold transition-colors hover:opacity-90"
+          style={{
+            background: 'var(--bg-tertiary)',
+            color: 'var(--text-primary)',
+          }}
         >
-          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-            <path
-              fillRule="evenodd"
-              d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-              clipRule="evenodd"
-            />
-          </svg>
+          <GitHubIcon className="h-5 w-5" />
           Continue with GitHub
         </button>
 
-        <p className="mt-6 text-center text-xs text-gray-400">
+        <p
+          className="mt-6 text-center text-xs"
+          style={{ color: 'var(--text-tertiary)' }}
+        >
           We only request access to your public profile.
         </p>
       </div>

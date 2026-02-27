@@ -2,59 +2,113 @@
 
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
+import { useTheme } from '@/components/ThemeProvider';
+import { SunIcon, MoonIcon, DownloadIcon } from '@/components/Icons';
 
 export function Navbar() {
   const { data: session } = useSession();
+  const { theme, toggleTheme } = useTheme();
 
   return (
-    <nav className="border-b border-gray-200 bg-white">
+    <nav
+      className="sticky top-0 z-50 border-b backdrop-blur-xl"
+      style={{
+        borderColor: 'var(--border-primary)',
+        background: 'var(--bg-glass)',
+      }}
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-brand-500 flex items-center justify-center">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-[var(--gradient-from)] to-[var(--gradient-to)] flex items-center justify-center shadow-sm group-hover:shadow-glow transition-shadow duration-300">
               <span className="text-white font-bold text-sm">CB</span>
             </div>
-            <span className="font-semibold text-gray-900">Claude Bridge</span>
+            <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+              Claude Bridge
+            </span>
           </Link>
 
-          <div className="flex items-center gap-4">
+          {/* Right side */}
+          <div className="flex items-center gap-2">
             <Link
               href="/download"
-              className="text-sm text-gray-600 hover:text-gray-900"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm transition-all duration-200"
+              style={{ color: 'var(--text-secondary)' }}
             >
-              Download
+              <DownloadIcon className="h-4 w-4" />
+              <span className="hidden sm:inline">Download</span>
             </Link>
+
             {session?.user ? (
               <>
                 <Link
                   href="/dashboard"
-                  className="text-sm text-gray-600 hover:text-gray-900"
+                  className="rounded-lg px-3 py-2 text-sm transition-all duration-200"
+                  style={{ color: 'var(--text-secondary)' }}
                 >
                   Dashboard
                 </Link>
-                <div className="flex items-center gap-2">
+
+                {/* Theme toggle */}
+                <button
+                  onClick={toggleTheme}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border transition-all duration-200"
+                  style={{
+                    borderColor: 'var(--border-primary)',
+                    color: 'var(--text-secondary)',
+                  }}
+                  title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                >
+                  {theme === 'dark' ? (
+                    <SunIcon className="h-[18px] w-[18px] text-amber-400" />
+                  ) : (
+                    <MoonIcon className="h-[18px] w-[18px]" />
+                  )}
+                </button>
+
+                <div className="flex items-center gap-2 ml-1">
                   {session.user.image && (
                     <img
                       src={session.user.image}
                       alt=""
-                      className="h-8 w-8 rounded-full"
+                      className="h-8 w-8 rounded-full ring-2 ring-transparent transition-all duration-200"
                     />
                   )}
                   <button
                     onClick={() => signOut({ callbackUrl: '/' })}
-                    className="text-sm text-gray-500 hover:text-gray-700"
+                    className="text-sm transition-colors duration-200"
+                    style={{ color: 'var(--text-tertiary)' }}
                   >
                     Sign out
                   </button>
                 </div>
               </>
             ) : (
-              <Link
-                href="/login"
-                className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
-              >
-                Sign in
-              </Link>
+              <>
+                <button
+                  onClick={toggleTheme}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border transition-all duration-200"
+                  style={{
+                    borderColor: 'var(--border-primary)',
+                    color: 'var(--text-secondary)',
+                  }}
+                  title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                >
+                  {theme === 'dark' ? (
+                    <SunIcon className="h-[18px] w-[18px] text-amber-400" />
+                  ) : (
+                    <MoonIcon className="h-[18px] w-[18px]" />
+                  )}
+                </button>
+
+                <Link
+                  href="/login"
+                  className="btn-gradient rounded-lg px-4 py-2 text-sm font-medium"
+                >
+                  Sign in
+                </Link>
+              </>
             )}
           </div>
         </div>

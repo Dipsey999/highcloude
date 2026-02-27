@@ -1,4 +1,10 @@
 import Link from 'next/link';
+import {
+  DownloadIcon,
+  AlertTriangleIcon,
+  SparklesIcon,
+  ExternalLinkIcon,
+} from '@/components/Icons';
 
 const DOWNLOAD_URL =
   'https://github.com/Dipsey999/highcloude/releases/latest/download/claude-bridge-figma-plugin.zip';
@@ -63,77 +69,120 @@ const setupSteps = [
 
 export default function DownloadPage() {
   return (
-    <main className="bg-white">
+    <main style={{ background: 'var(--bg-primary)' }}>
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+          <h1
+            className="text-3xl font-bold tracking-tight sm:text-4xl"
+            style={{ color: 'var(--text-primary)' }}
+          >
             Download Claude Bridge
           </h1>
-          <p className="mt-4 text-lg text-gray-600">
+          <p
+            className="mt-4 text-lg"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             Get the Figma plugin and start syncing your design tokens in minutes.
           </p>
         </div>
 
         {/* Download Card */}
-        <div className="rounded-xl border border-gray-200 bg-gradient-to-b from-white to-gray-50 p-8 shadow-sm text-center mb-12">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-500">
-            <svg
-              className="h-8 w-8 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
+        <div className="gradient-border mb-12">
+          <div
+            className="glass p-8 text-center"
+            style={{ background: 'var(--bg-elevated)' }}
+          >
+            {/* Gradient icon circle */}
+            <div
+              className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg"
+              style={{
+                background: 'linear-gradient(135deg, var(--gradient-from), var(--gradient-to))',
+                color: '#fff',
+              }}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-              />
-            </svg>
+              <DownloadIcon className="h-8 w-8" />
+            </div>
+
+            <a
+              href={DOWNLOAD_URL}
+              className="btn-gradient inline-flex items-center gap-2 rounded-xl px-8 py-4 text-lg font-semibold shadow-lg transition-all duration-200 hover:-translate-y-0.5"
+            >
+              <DownloadIcon className="h-5 w-5" />
+              Download Plugin (ZIP)
+            </a>
+
+            <p
+              className="mt-4 text-sm"
+              style={{ color: 'var(--text-tertiary)' }}
+            >
+              Version 0.1.0 &middot; Contains manifest.json + built plugin files
+            </p>
+
+            <a
+              href="https://github.com/Dipsey999/highcloude/releases"
+              className="mt-2 inline-flex items-center gap-1 text-sm font-medium transition-colors duration-200"
+              style={{ color: 'var(--brand)' }}
+            >
+              View all releases on GitHub
+              <ExternalLinkIcon className="h-3.5 w-3.5" />
+            </a>
           </div>
-          <a
-            href={DOWNLOAD_URL}
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-8 py-4 text-lg font-semibold text-white shadow-sm hover:bg-brand-600 transition-colors"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-              />
-            </svg>
-            Download Plugin (ZIP)
-          </a>
-          <p className="mt-4 text-sm text-gray-500">
-            Version 0.1.0 &middot; Contains manifest.json + built plugin files
-          </p>
-          <a
-            href="https://github.com/Dipsey999/highcloude/releases"
-            className="mt-2 inline-block text-sm text-brand-500 hover:text-brand-600"
-          >
-            View all releases on GitHub &rarr;
-          </a>
         </div>
 
         {/* Installation Steps */}
-        <div className="rounded-xl border border-gray-200 bg-white p-8 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Installation</h2>
-          <ol className="space-y-6">
+        <div
+          className="rounded-2xl p-8 mb-8"
+          style={{
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--border-primary)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+          }}
+        >
+          <h2
+            className="text-xl font-bold mb-6"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            Installation
+          </h2>
+
+          <ol className="relative space-y-6">
+            {/* Subtle connecting line between steps */}
+            <div
+              className="pointer-events-none absolute left-4 top-4 bottom-4 w-px"
+              style={{
+                backgroundImage:
+                  'repeating-linear-gradient(180deg, var(--border-accent) 0px, var(--border-accent) 4px, transparent 4px, transparent 12px)',
+              }}
+              aria-hidden="true"
+            />
+
             {installSteps.map((step, i) => (
-              <li key={i} className="flex gap-4">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-600">
+              <li key={i} className="relative flex gap-4">
+                {/* Gradient step number */}
+                <span
+                  className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold shadow-md"
+                  style={{
+                    background: 'linear-gradient(135deg, var(--gradient-from), var(--gradient-to))',
+                    color: '#fff',
+                  }}
+                >
                   {i + 1}
                 </span>
                 <div>
-                  <div className="font-semibold text-gray-900">{step.title}</div>
-                  <p className="mt-1 text-sm text-gray-600">{step.description}</p>
+                  <div
+                    className="font-semibold"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    {step.title}
+                  </div>
+                  <p
+                    className="mt-1 text-sm leading-relaxed"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
+                    {step.description}
+                  </p>
                 </div>
               </li>
             ))}
@@ -141,24 +190,59 @@ export default function DownloadPage() {
         </div>
 
         {/* Account Setup */}
-        <div className="rounded-xl border border-gray-200 bg-white p-8 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Set Up Your Account</h2>
-          <p className="text-sm text-gray-500 mb-6">
+        <div
+          className="rounded-2xl p-8 mb-8"
+          style={{
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--border-primary)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+          }}
+        >
+          <h2
+            className="text-xl font-bold mb-2"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            Set Up Your Account
+          </h2>
+          <p
+            className="text-sm mb-6"
+            style={{ color: 'var(--text-tertiary)' }}
+          >
             Connect the plugin to your GitHub repository through the Claude Bridge dashboard.
           </p>
+
           <ol className="space-y-6">
             {setupSteps.map((step, i) => (
               <li key={i} className="flex gap-4">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold text-gray-600">
+                {/* Muted step number */}
+                <span
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
+                  style={{
+                    background: 'var(--bg-tertiary)',
+                    color: 'var(--text-secondary)',
+                  }}
+                >
                   {i + 1}
                 </span>
                 <div>
-                  <div className="font-semibold text-gray-900">{step.title}</div>
-                  <p className="mt-1 text-sm text-gray-600">{step.description}</p>
+                  <div
+                    className="font-semibold"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    {step.title}
+                  </div>
+                  <p
+                    className="mt-1 text-sm leading-relaxed"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
+                    {step.description}
+                  </p>
                   {step.link && (
                     <Link
                       href={step.link.href}
-                      className="mt-2 inline-block text-sm font-medium text-brand-500 hover:text-brand-600"
+                      className="mt-2 inline-flex items-center gap-1 text-sm font-medium transition-colors duration-200"
+                      style={{ color: 'var(--brand)' }}
                     >
                       {step.link.label} &rarr;
                     </Link>
@@ -169,30 +253,38 @@ export default function DownloadPage() {
           </ol>
         </div>
 
-        {/* Requirements */}
-        <div className="rounded-lg bg-amber-50 border border-amber-200 p-4 mb-8">
+        {/* Figma Desktop Required Warning */}
+        <div
+          className="rounded-2xl p-5 mb-8"
+          style={{
+            background: 'var(--warning-subtle)',
+            border: '1px solid var(--warning)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+          }}
+        >
           <div className="flex gap-3">
-            <svg
-              className="h-5 w-5 text-amber-600 shrink-0 mt-0.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
-              />
-            </svg>
+            <AlertTriangleIcon
+              className="h-5 w-5 shrink-0 mt-0.5"
+              // amber-tinted via the warning variable
+            />
             <div>
-              <p className="text-sm font-medium text-amber-800">Figma Desktop Required</p>
-              <p className="mt-1 text-xs text-amber-700">
+              <p
+                className="text-sm font-medium"
+                style={{ color: 'var(--warning)' }}
+              >
+                Figma Desktop Required
+              </p>
+              <p
+                className="mt-1 text-xs leading-relaxed"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 Development plugins only work in the Figma desktop app, not the browser version.
                 Download Figma Desktop from{' '}
                 <a
                   href="https://www.figma.com/downloads/"
-                  className="underline hover:text-amber-900"
+                  className="underline font-medium transition-colors duration-200"
+                  style={{ color: 'var(--warning)' }}
                 >
                   figma.com/downloads
                 </a>
@@ -203,12 +295,30 @@ export default function DownloadPage() {
         </div>
 
         {/* AI Features Note */}
-        <div className="rounded-lg bg-purple-50 border border-purple-200 p-4 mb-8">
+        <div
+          className="rounded-2xl p-5 mb-8"
+          style={{
+            background: 'rgba(139, 92, 246, 0.06)',
+            border: '1px solid rgba(139, 92, 246, 0.2)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+          }}
+        >
           <div className="flex gap-3">
-            <span className="text-lg shrink-0">&#10024;</span>
+            <SparklesIcon
+              className="h-5 w-5 shrink-0 mt-0.5"
+            />
             <div>
-              <p className="text-sm font-medium text-purple-800">Free AI Features</p>
-              <p className="mt-1 text-xs text-purple-700">
+              <p
+                className="text-sm font-medium"
+                style={{ color: 'rgb(139, 92, 246)' }}
+              >
+                Free AI Features
+              </p>
+              <p
+                className="mt-1 text-xs leading-relaxed"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 Design generation, chat, and AI features work through Figma&apos;s built-in Claude MCP
                 integration — no paid API key needed. Just connect Claude to Figma via the MCP server.
               </p>
@@ -217,11 +327,12 @@ export default function DownloadPage() {
         </div>
 
         {/* Build from source */}
-        <div className="text-center text-sm text-gray-500">
+        <div className="text-center text-sm" style={{ color: 'var(--text-tertiary)' }}>
           Want to build from source?{' '}
           <a
             href="https://github.com/Dipsey999/highcloude"
-            className="text-brand-500 hover:text-brand-600 font-medium"
+            className="font-medium transition-colors duration-200"
+            style={{ color: 'var(--brand)' }}
           >
             View the GitHub repository
           </a>

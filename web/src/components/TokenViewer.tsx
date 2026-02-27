@@ -9,6 +9,7 @@ import {
   type TokenSummary,
   type DTCGTokenType,
 } from '@/lib/tokens';
+import { SearchIcon, FileIcon } from '@/components/Icons';
 
 interface TokenViewerProps {
   projectId: string;
@@ -16,19 +17,22 @@ interface TokenViewerProps {
 
 type FilterType = 'all' | DTCGTokenType;
 
-const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
-  color: { bg: 'bg-pink-50', text: 'text-pink-700' },
-  dimension: { bg: 'bg-blue-50', text: 'text-blue-700' },
-  string: { bg: 'bg-gray-50', text: 'text-gray-700' },
-  boolean: { bg: 'bg-amber-50', text: 'text-amber-700' },
-  typography: { bg: 'bg-purple-50', text: 'text-purple-700' },
-  shadow: { bg: 'bg-indigo-50', text: 'text-indigo-700' },
+const TYPE_STYLES: Record<string, { background: string; color: string }> = {
+  color: { background: 'rgba(236,72,153,0.1)', color: 'rgb(236,72,153)' },
+  dimension: { background: 'var(--brand-subtle)', color: 'var(--brand)' },
+  string: { background: 'var(--bg-tertiary)', color: 'var(--text-secondary)' },
+  boolean: { background: 'rgba(245,158,11,0.1)', color: 'rgb(245,158,11)' },
+  typography: { background: 'rgba(168,85,247,0.1)', color: 'rgb(168,85,247)' },
+  shadow: { background: 'rgba(99,102,241,0.1)', color: 'rgb(99,102,241)' },
 };
 
 function TokenTypeBadge({ type }: { type: string }) {
-  const colors = TYPE_COLORS[type] || { bg: 'bg-gray-50', text: 'text-gray-600' };
+  const styles = TYPE_STYLES[type] || { background: 'var(--bg-tertiary)', color: 'var(--text-tertiary)' };
   return (
-    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${colors.bg} ${colors.text}`}>
+    <span
+      className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+      style={{ background: styles.background, color: styles.color }}
+    >
       {type}
     </span>
   );
@@ -40,8 +44,12 @@ function ColorSwatch({ value }: { value: string }) {
   if (!isColor) return null;
   return (
     <span
-      className="inline-block h-4 w-4 rounded border border-gray-300 shrink-0"
-      style={{ backgroundColor: value }}
+      className="inline-block h-4 w-4 rounded shrink-0"
+      style={{
+        backgroundColor: value,
+        border: '1px solid var(--border-primary)',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+      }}
       title={value}
     />
   );
@@ -54,14 +62,17 @@ function TokenValueDisplay({ type, value }: { type: DTCGTokenType; value: unknow
     return (
       <span className="flex items-center gap-2">
         <ColorSwatch value={value} />
-        <code className="text-xs text-gray-700">{formatted}</code>
+        <code className="text-xs" style={{ color: 'var(--text-secondary)' }}>{formatted}</code>
       </span>
     );
   }
 
   if (type === 'boolean') {
     return (
-      <span className={`text-xs font-medium ${value ? 'text-green-600' : 'text-red-600'}`}>
+      <span
+        className="text-xs font-medium"
+        style={{ color: value ? 'var(--success)' : 'var(--error)' }}
+      >
         {formatted}
       </span>
     );
@@ -69,11 +80,11 @@ function TokenValueDisplay({ type, value }: { type: DTCGTokenType; value: unknow
 
   if (type === 'typography' || type === 'shadow') {
     return (
-      <code className="text-xs text-gray-600 break-all">{formatted}</code>
+      <code className="text-xs break-all" style={{ color: 'var(--text-tertiary)' }}>{formatted}</code>
     );
   }
 
-  return <code className="text-xs text-gray-700">{formatted}</code>;
+  return <code className="text-xs" style={{ color: 'var(--text-secondary)' }}>{formatted}</code>;
 }
 
 export function TokenViewer({ projectId }: TokenViewerProps) {
@@ -153,10 +164,21 @@ export function TokenViewer({ projectId }: TokenViewerProps) {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white p-6">
+      <div
+        className="rounded-xl p-6 backdrop-blur-sm"
+        style={{
+          border: '1px solid var(--border-primary)',
+          background: 'var(--bg-elevated)',
+        }}
+      >
         <div className="flex items-center gap-3">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
-          <span className="text-sm text-gray-500">Loading tokens from GitHub...</span>
+          <div
+            className="h-5 w-5 animate-spin rounded-full border-2 border-t-transparent"
+            style={{ borderColor: 'var(--brand)', borderTopColor: 'transparent' }}
+          />
+          <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+            Loading tokens from GitHub...
+          </span>
         </div>
       </div>
     );
@@ -164,12 +186,21 @@ export function TokenViewer({ projectId }: TokenViewerProps) {
 
   if (error) {
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 p-6">
-        <h3 className="text-sm font-semibold text-red-800">Failed to load tokens</h3>
-        <p className="mt-1 text-sm text-red-600">{error}</p>
+      <div
+        className="rounded-xl p-6 backdrop-blur-sm"
+        style={{
+          border: '1px solid rgba(239,68,68,0.3)',
+          background: 'rgba(239,68,68,0.05)',
+        }}
+      >
+        <h3 className="text-sm font-semibold" style={{ color: 'var(--error)' }}>
+          Failed to load tokens
+        </h3>
+        <p className="mt-1 text-sm" style={{ color: 'rgba(239,68,68,0.8)' }}>{error}</p>
         <button
           onClick={() => window.location.reload()}
-          className="mt-3 text-sm font-medium text-red-700 hover:text-red-800"
+          className="mt-3 text-sm font-medium transition-colors"
+          style={{ color: 'var(--error)' }}
         >
           Retry
         </button>
@@ -179,13 +210,28 @@ export function TokenViewer({ projectId }: TokenViewerProps) {
 
   if (emptyMessage) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white p-6">
+      <div
+        className="rounded-xl p-6 backdrop-blur-sm"
+        style={{
+          border: '1px solid var(--border-primary)',
+          background: 'var(--bg-elevated)',
+        }}
+      >
         <div className="text-center py-8">
-          <svg className="mx-auto h-10 w-10 text-gray-300" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+          <svg
+            className="mx-auto h-10 w-10"
+            style={{ color: 'var(--text-tertiary)' }}
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
           </svg>
-          <p className="mt-3 text-sm text-gray-500">{emptyMessage}</p>
-          <p className="mt-1 text-xs text-gray-400">Use the Figma plugin to extract and push tokens.</p>
+          <p className="mt-3 text-sm" style={{ color: 'var(--text-secondary)' }}>{emptyMessage}</p>
+          <p className="mt-1 text-xs" style={{ color: 'var(--text-tertiary)' }}>
+            Use the Figma plugin to extract and push tokens.
+          </p>
         </div>
       </div>
     );
@@ -196,14 +242,27 @@ export function TokenViewer({ projectId }: TokenViewerProps) {
       {/* Summary Cards */}
       {summary && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          <div className="rounded-lg border border-gray-200 bg-white p-3">
-            <p className="text-xs text-gray-500">Total Tokens</p>
-            <p className="text-lg font-semibold text-gray-900">{summary.total}</p>
+          <div
+            className="rounded-lg p-3 backdrop-blur-sm"
+            style={{
+              border: '1px solid var(--border-primary)',
+              background: 'var(--bg-elevated)',
+            }}
+          >
+            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Total Tokens</p>
+            <p className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{summary.total}</p>
           </div>
           {Object.entries(summary.byType).map(([type, count]) => (
-            <div key={type} className="rounded-lg border border-gray-200 bg-white p-3">
-              <p className="text-xs text-gray-500 capitalize">{type}</p>
-              <p className="text-lg font-semibold text-gray-900">{count}</p>
+            <div
+              key={type}
+              className="rounded-lg p-3 backdrop-blur-sm"
+              style={{
+                border: '1px solid var(--border-primary)',
+                background: 'var(--bg-elevated)',
+              }}
+            >
+              <p className="text-xs capitalize" style={{ color: 'var(--text-secondary)' }}>{type}</p>
+              <p className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{count}</p>
             </div>
           ))}
         </div>
@@ -211,27 +270,34 @@ export function TokenViewer({ projectId }: TokenViewerProps) {
 
       {/* File Info */}
       {(filePath || repo) && (
-        <div className="flex items-center gap-2 text-xs text-gray-400">
-          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-          </svg>
+        <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-tertiary)' }}>
+          <FileIcon className="h-3.5 w-3.5" />
           <span>{repo} / {filePath}</span>
         </div>
       )}
 
       {/* Search + Filter */}
-      <div className="rounded-xl border border-gray-200 bg-white">
+      <div
+        className="rounded-xl backdrop-blur-sm"
+        style={{
+          border: '1px solid var(--border-primary)',
+          background: 'var(--bg-elevated)',
+        }}
+      >
         <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
           <div className="relative flex-1">
-            <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-            </svg>
+            <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search tokens..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full rounded-lg py-2 pl-9 pr-3 text-sm placeholder:opacity-50 focus:outline-none focus:ring-1"
+              style={{
+                background: 'var(--bg-tertiary)',
+                border: '1px solid var(--border-primary)',
+                color: 'var(--text-primary)',
+              }}
             />
           </div>
           <div className="flex flex-wrap gap-1.5">
@@ -239,11 +305,18 @@ export function TokenViewer({ projectId }: TokenViewerProps) {
               <button
                 key={f}
                 onClick={() => setFilterType(f)}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                className="rounded-full px-3 py-1 text-xs font-medium transition-colors"
+                style={
                   filterType === f
-                    ? 'bg-brand-500 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                    ? {
+                        background: 'linear-gradient(135deg, var(--gradient-from), var(--gradient-to))',
+                        color: '#ffffff',
+                      }
+                    : {
+                        background: 'var(--bg-tertiary)',
+                        color: 'var(--text-secondary)',
+                      }
+                }
               >
                 {f === 'all' ? 'All' : f}
               </button>
@@ -252,8 +325,8 @@ export function TokenViewer({ projectId }: TokenViewerProps) {
         </div>
 
         {/* Results count */}
-        <div className="border-t border-gray-100 px-4 py-2">
-          <p className="text-xs text-gray-400">
+        <div className="px-4 py-2" style={{ borderTop: '1px solid var(--border-primary)' }}>
+          <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
             {filtered.length} token{filtered.length !== 1 ? 's' : ''}
             {filterType !== 'all' && ` (${filterType})`}
             {search && ` matching "${search}"`}
@@ -262,7 +335,7 @@ export function TokenViewer({ projectId }: TokenViewerProps) {
 
         {/* Token Table */}
         {filtered.length === 0 ? (
-          <div className="px-4 py-8 text-center text-sm text-gray-400">
+          <div className="px-4 py-8 text-center text-sm" style={{ color: 'var(--text-tertiary)' }}>
             No tokens match your search.
           </div>
         ) : (
@@ -270,20 +343,33 @@ export function TokenViewer({ projectId }: TokenViewerProps) {
             {Array.from(grouped.entries()).map(([group, groupTokens]) => (
               <div key={group}>
                 {/* Group header */}
-                <div className="sticky top-0 z-10 bg-gray-50 border-t border-gray-100 px-4 py-2">
-                  <span className="text-xs font-semibold text-gray-500">{group}</span>
-                  <span className="ml-2 text-xs text-gray-400">({groupTokens.length})</span>
+                <div
+                  className="sticky top-0 z-10 px-4 py-2"
+                  style={{
+                    background: 'var(--bg-secondary)',
+                    borderTop: '1px solid var(--border-primary)',
+                  }}
+                >
+                  <span className="text-xs font-semibold" style={{ color: 'var(--text-secondary)' }}>{group}</span>
+                  <span className="ml-2 text-xs" style={{ color: 'var(--text-tertiary)' }}>({groupTokens.length})</span>
                 </div>
                 {/* Token rows */}
                 {groupTokens.map((token) => (
                   <div
                     key={token.path}
-                    className="flex items-center gap-4 border-t border-gray-50 px-4 py-2.5 hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-4 px-4 py-2.5 transition-colors"
+                    style={{ borderTop: '1px solid var(--border-primary)' }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLElement).style.background = 'var(--bg-tertiary)';
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLElement).style.background = 'transparent';
+                    }}
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-gray-900 truncate">{token.name}</p>
+                      <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>{token.name}</p>
                       {token.description && (
-                        <p className="text-xs text-gray-400 truncate">{token.description}</p>
+                        <p className="text-xs truncate" style={{ color: 'var(--text-tertiary)' }}>{token.description}</p>
                       )}
                     </div>
                     <TokenTypeBadge type={token.type} />
