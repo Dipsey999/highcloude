@@ -1,7 +1,7 @@
 import { logger } from './logger';
 import type { SyncHistoryEntry } from '../types/messages';
 
-const STORAGE_KEY = 'claude-bridge:sync-history';
+const STORAGE_KEY = 'cosmikit:sync-history';
 const MAX_ENTRIES = 50;
 
 /**

@@ -1,5 +1,5 @@
 /**
- * SVG Icon Library — Claude Bridge
+ * SVG Icon Library — Cosmikit
  * All icons accept className prop for sizing/coloring via Tailwind.
  * Default size: 20x20 (h-5 w-5)
  */

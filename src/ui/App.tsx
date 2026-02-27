@@ -331,7 +331,7 @@ export function App() {
   return (
     <div class="plugin-container">
       <div class="plugin-header">
-        <h1>Claude Bridge</h1>
+        <h1>Cosmikit</h1>
         {view === 'dashboard' && (
           <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
             <span class={`status-badge ${connectionState.github}`}>

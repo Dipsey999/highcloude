@@ -5,7 +5,7 @@ import type { DesignTokensDocument, DTCGToken } from '../types/messages';
 function makeDoc(tokens: Record<string, unknown>): DesignTokensDocument {
   return {
     metadata: {
-      source: 'claude-bridge',
+      source: 'cosmikit',
       figmaFileName: 'Test',
       lastSynced: '2025-01-01T00:00:00Z',
       version: '1.0.0',

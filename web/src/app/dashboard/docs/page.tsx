@@ -8,7 +8,7 @@ export default function DocsPage() {
           Documentation
         </h1>
         <p className="mt-2 text-sm max-w-lg" style={{ color: 'var(--text-secondary)' }}>
-          Learn how to use Claude Bridge to extract, sync, and generate design tokens.
+          Learn how to use Cosmikit to extract, sync, and generate design tokens.
         </p>
       </div>
       <DocsContent />

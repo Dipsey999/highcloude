@@ -1,6 +1,6 @@
 {
-  "name": "Claude Bridge - Design System Sync",
-  "id": "claude-bridge-design-sync",
+  "name": "Cosmikit - Design System Sync",
+  "id": "cosmikit-design-sync",
   "api": "1.0.0",
   "main": "dist/code.js",
   "ui": "dist/ui.html",
@@ -10,6 +10,6 @@
       "https://web-pied-iota-65.vercel.app",
       "https://api.github.com"
     ],
-    "reasoning": "Connects to the Claude Bridge dashboard API to fetch project config and GitHub tokens, and to GitHub API for token sync."
+    "reasoning": "Connects to the Cosmikit dashboard API to fetch project config and GitHub tokens, and to GitHub API for token sync."
   }
 }

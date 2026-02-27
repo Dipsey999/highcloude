@@ -21,7 +21,7 @@ export function PRListPanel({ credentials }: PRListPanelProps) {
       const normalized = normalizeGithubRepo(credentials.githubRepo);
       const [owner, repo] = normalized.split('/');
       const results = await listPullRequests(
-        credentials.githubToken, owner, repo, 'claude-bridge/',
+        credentials.githubToken, owner, repo, 'cosmikit/',
       );
       setPrs(results);
     } catch (err) {
@@ -78,7 +78,7 @@ export function PRListPanel({ credentials }: PRListPanelProps) {
           <h3>Open Pull Requests</h3>
           <button class="btn-filter" onClick={loadPRs}>Refresh</button>
         </div>
-        <div class="pr-list-empty">No open Claude Bridge PRs</div>
+        <div class="pr-list-empty">No open Cosmikit PRs</div>
       </div>
     );
   }

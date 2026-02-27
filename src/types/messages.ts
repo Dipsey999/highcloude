@@ -161,7 +161,7 @@ export interface DTCGGroup {
 }
 
 export interface TokenMetadata {
-  source: 'claude-bridge';
+  source: 'cosmikit';
   figmaFileName: string;
   figmaFileKey?: string;
   lastSynced: string;

@@ -260,7 +260,7 @@ export function buildChatSystemPrompt(
     ? `\n\nCurrently selected element:\n${selectionContext}`
     : '';
 
-  return `You are a friendly design system consultant working inside a Figma plugin called "Claude Bridge". You help designers and developers with:
+  return `You are a friendly design system consultant working inside a Figma plugin called "Cosmikit". You help designers and developers with:
 
 1. Design token usage — when to use which token, naming conventions, best practices
 2. Color palette decisions — contrast ratios, accessibility, semantic naming

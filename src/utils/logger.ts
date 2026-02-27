@@ -1,4 +1,4 @@
-const PREFIX = '[Claude Bridge]';
+const PREFIX = '[Cosmikit]';
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 

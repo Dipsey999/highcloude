@@ -219,7 +219,7 @@ export function KeysForm() {
           defaultOpen={!keysData?.githubHint}
           steps={[
             { text: 'Open GitHub token settings. We recommend "Fine-grained tokens" for better security.', link: { url: 'https://github.com/settings/tokens?type=beta', label: 'Open Token Settings' } },
-            { text: 'Click "Generate new token". Set a name (e.g. "Claude Bridge") and expiration (90 days recommended).' },
+            { text: 'Click "Generate new token". Set a name (e.g. "Cosmikit") and expiration (90 days recommended).' },
             { text: 'Under "Repository access", select "Only select repositories" and pick the repo where your design tokens live.' },
             { text: 'Under "Permissions" > "Repository permissions", set Contents to "Read and write" and Pull requests to "Read and write".' },
             { text: 'Click "Generate token" and copy it immediately — you won\'t be able to see it again.' },

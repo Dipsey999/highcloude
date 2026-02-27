@@ -169,7 +169,7 @@ function SingleFileSyncView({ credentials, rawData, extractionProgress, syncConf
         setRemoteSha(null);
         const emptyRemote: DesignTokensDocument = {
           metadata: {
-            source: 'claude-bridge',
+            source: 'cosmikit',
             figmaFileName: '',
             lastSynced: '',
             version: '1.0.0',
@@ -233,28 +233,28 @@ function SingleFileSyncView({ credentials, rawData, extractionProgress, syncConf
           `Your GitHub token does not have write access to "${owner}/${repo}". ` +
           `Go to GitHub Settings → Developer Settings → Personal Access Tokens, ` +
           `edit your token, and enable "Contents: Read and write" for this repository. ` +
-          `Then update the token in your Claude Bridge dashboard under API Keys.`
+          `Then update the token in your Cosmikit dashboard under API Keys.`
         );
       }
 
       if (syncConfig?.pushMode === 'pr') {
         // PR workflow for single-file mode
         const baseSha = await getBranchSha(credentials.githubToken, owner, repo, baseBranch);
-        const branchName = `claude-bridge/sync-${Date.now()}`;
+        const branchName = `cosmikit/sync-${Date.now()}`;
 
         await createBranch(credentials.githubToken, owner, repo, branchName, baseSha);
 
         const commitResult = await commitMultipleFiles(
           credentials.githubToken, owner, repo, branchName,
           [{ path: filePath, content }],
-          'chore: sync design tokens from Figma via Claude Bridge',
+          'chore: sync design tokens from Figma via Cosmikit',
         );
         resultSha = commitResult.commitSha;
 
         const pr = await createPullRequest(
           credentials.githubToken, owner, repo, branchName, baseBranch,
           'Sync design tokens from Figma',
-          `## Token Sync\n\nPushed \`${filePath}\` from Claude Bridge.`,
+          `## Token Sync\n\nPushed \`${filePath}\` from Cosmikit.`,
         );
 
         showToast(`PR #${pr.number} created`, 'success');
@@ -271,7 +271,7 @@ function SingleFileSyncView({ credentials, rawData, extractionProgress, syncConf
         const result = await writeFileToRepo(
           credentials.githubToken, owner, repo, filePath, baseBranch,
           content, sha ?? undefined,
-          'chore: sync design tokens from Figma via Claude Bridge',
+          'chore: sync design tokens from Figma via Cosmikit',
         );
         resultSha = result.sha;
         showToast('Tokens pushed to GitHub', 'success');

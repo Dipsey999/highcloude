@@ -26,7 +26,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Read from localStorage or system preference
-    const stored = localStorage.getItem('cb-theme') as Theme | null;
+    const stored = localStorage.getItem('cosmikit-theme') as Theme | null;
     if (stored === 'dark' || stored === 'light') {
       setThemeState(stored);
     } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -43,7 +43,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } else {
       root.classList.remove('dark');
     }
-    localStorage.setItem('cb-theme', theme);
+    localStorage.setItem('cosmikit-theme', theme);
   }, [theme, mounted]);
 
   const setTheme = useCallback((t: Theme) => {

@@ -53,7 +53,7 @@ export default function PluginTokenPage() {
           Plugin Token
         </h1>
         <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
-          Generate a token to connect your Figma plugin to Claude Bridge.
+          Generate a token to connect your Figma plugin to Cosmikit.
         </p>
       </div>
 
@@ -73,8 +73,8 @@ export default function PluginTokenPage() {
             {[
               <>Click &quot;Generate Token&quot; below to create a secure JWT</>,
               <>Copy the token to your clipboard</>,
-              <>Open the Claude Bridge plugin in Figma</>,
-              <>Select &quot;Claude Bridge&quot; tab and paste the token</>,
+              <>Open the Cosmikit plugin in Figma</>,
+              <>Select &quot;Cosmikit&quot; tab and paste the token</>,
             ].map((step, i) => (
               <li key={i} className="flex gap-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[var(--gradient-from)] to-[var(--gradient-to)] text-xs font-semibold text-white">

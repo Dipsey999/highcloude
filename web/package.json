@@ -1,5 +1,5 @@
 {
-  "name": "claude-bridge-web",
+  "name": "cosmikit-web",
   "version": "0.1.0",
   "private": true,
   "scripts": {

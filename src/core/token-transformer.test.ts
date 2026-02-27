@@ -136,7 +136,7 @@ describe('transformToDocument', () => {
   it('creates document with correct metadata', () => {
     const raw = makeRaw();
     const doc = transformToDocument(raw);
-    expect(doc.metadata.source).toBe('claude-bridge');
+    expect(doc.metadata.source).toBe('cosmikit');
     expect(doc.metadata.figmaFileName).toBe('TestFile');
     expect(doc.metadata.figmaFileKey).toBe('abc123');
     expect(doc.metadata.version).toBe('1.0.0');
@@ -365,7 +365,7 @@ describe('transformToMultiDocument', () => {
     const result = transformToMultiDocument(raw);
     expect(result.has('typography')).toBe(true);
     const doc = result.get('typography')!;
-    expect(doc.metadata.source).toBe('claude-bridge');
+    expect(doc.metadata.source).toBe('cosmikit');
   });
 
   it('puts effect styles into a "shadows" document', () => {
