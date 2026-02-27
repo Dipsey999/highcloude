@@ -34,7 +34,12 @@ export type UIMessage =
   | { type: 'LOAD_BRIDGE_TOKEN' }
   | { type: 'CLEAR_BRIDGE_TOKEN' }
   | { type: 'FETCH_BRIDGE_CONFIG'; bridgeToken: string }
-  | { type: 'FETCH_BRIDGE_KEYS'; bridgeToken: string };
+  | { type: 'FETCH_BRIDGE_KEYS'; bridgeToken: string }
+  // Component Pattern Library
+  | { type: 'SAVE_COMPONENT_PATTERN'; pattern: ComponentPatternInput }
+  | { type: 'LIST_COMPONENT_PATTERNS' }
+  | { type: 'DELETE_COMPONENT_PATTERN'; patternId: string }
+  | { type: 'EXPORT_SELECTION_AS_PATTERN' };
 
 export interface CredentialPayload {
   claudeApiKey?: string;
@@ -87,7 +92,12 @@ export type CodeMessage =
   | { type: 'BRIDGE_TOKEN_SAVED' }
   | { type: 'BRIDGE_TOKEN_CLEARED' }
   | { type: 'BRIDGE_CONFIG_RESULT'; projects: BridgeProject[]; error?: string }
-  | { type: 'BRIDGE_KEYS_RESULT'; githubToken?: string; error?: string };
+  | { type: 'BRIDGE_KEYS_RESULT'; githubToken?: string; error?: string }
+  // Component Pattern Library
+  | { type: 'COMPONENT_PATTERNS_LOADED'; patterns: ComponentPattern[] }
+  | { type: 'COMPONENT_PATTERN_SAVED'; pattern: ComponentPattern }
+  | { type: 'COMPONENT_PATTERN_DELETED'; patternId: string }
+  | { type: 'PATTERN_EXPORT_RESULT'; spec: ExportedNode; nodeCount: number };
 
 // ========================================
 // Connection Status
@@ -299,6 +309,22 @@ export interface DesignSpecPadding {
   left: number;
 }
 
+export interface DesignSpecEffect {
+  type: 'DROP_SHADOW' | 'INNER_SHADOW' | 'LAYER_BLUR' | 'BACKGROUND_BLUR';
+  color?: string;
+  offsetX?: number;
+  offsetY?: number;
+  radius?: number;
+  spread?: number;
+  visible?: boolean;
+}
+
+export interface DesignSpecGradient {
+  type: 'LINEAR' | 'RADIAL';
+  stops: Array<{ position: number; color: string }>;
+  angle?: number;
+}
+
 export interface DesignSpecNode {
   type: DesignNodeType;
   name?: string;
@@ -311,18 +337,40 @@ export interface DesignSpecNode {
   strokeWidth?: number;
   opacity?: number;
   cornerRadius?: number;
+  // Individual corner radii
+  topLeftRadius?: number;
+  topRightRadius?: number;
+  bottomLeftRadius?: number;
+  bottomRightRadius?: number;
+  // Auto layout
   layoutMode?: 'HORIZONTAL' | 'VERTICAL' | 'NONE';
   padding?: DesignSpecPadding;
   itemSpacing?: number;
   primaryAxisAlignItems?: 'MIN' | 'CENTER' | 'MAX' | 'SPACE_BETWEEN';
   counterAxisAlignItems?: 'MIN' | 'CENTER' | 'MAX';
+  // Sizing modes
+  primaryAxisSizingMode?: 'FIXED' | 'AUTO';
+  counterAxisSizingMode?: 'FIXED' | 'AUTO';
+  layoutGrow?: number;
+  layoutAlign?: 'STRETCH' | 'INHERIT';
+  // Clipping
+  clipsContent?: boolean;
+  // Text
   characters?: string;
   fontSize?: number;
   fontWeight?: number;
   fontFamily?: string;
   textAlignHorizontal?: 'LEFT' | 'CENTER' | 'RIGHT' | 'JUSTIFIED';
+  textAutoResize?: 'WIDTH_AND_HEIGHT' | 'HEIGHT' | 'NONE' | 'TRUNCATE';
+  textDecoration?: 'NONE' | 'UNDERLINE' | 'STRIKETHROUGH';
   lineHeight?: number | string;
   letterSpacing?: number;
+  // Effects and gradients
+  effects?: DesignSpecEffect[];
+  fillGradient?: DesignSpecGradient;
+  // Blend mode
+  blendMode?: 'PASS_THROUGH' | 'NORMAL' | 'DARKEN' | 'MULTIPLY' | 'SCREEN' | 'OVERLAY';
+  // Component
   componentKey?: string;
   children?: DesignSpecNode[];
 }
@@ -351,18 +399,31 @@ export interface ExportedNode {
   strokeWidth?: number;
   opacity?: number;
   cornerRadius?: number;
+  topLeftRadius?: number;
+  topRightRadius?: number;
+  bottomLeftRadius?: number;
+  bottomRightRadius?: number;
   layoutMode?: 'HORIZONTAL' | 'VERTICAL' | 'NONE';
   padding?: DesignSpecPadding;
   itemSpacing?: number;
   primaryAxisAlignItems?: 'MIN' | 'CENTER' | 'MAX' | 'SPACE_BETWEEN';
   counterAxisAlignItems?: 'MIN' | 'CENTER' | 'MAX';
+  primaryAxisSizingMode?: 'FIXED' | 'AUTO';
+  counterAxisSizingMode?: 'FIXED' | 'AUTO';
+  layoutGrow?: number;
+  layoutAlign?: 'STRETCH' | 'INHERIT';
+  clipsContent?: boolean;
   characters?: string;
   fontSize?: number;
   fontWeight?: number;
   fontFamily?: string;
   textAlignHorizontal?: 'LEFT' | 'CENTER' | 'RIGHT' | 'JUSTIFIED';
+  textAutoResize?: 'WIDTH_AND_HEIGHT' | 'HEIGHT' | 'NONE' | 'TRUNCATE';
+  textDecoration?: 'NONE' | 'UNDERLINE' | 'STRIKETHROUGH';
   lineHeight?: number | string;
   letterSpacing?: number;
+  effects?: DesignSpecEffect[];
+  blendMode?: string;
   boundVariables?: Record<string, string>;
   children?: ExportedNode[];
 }
@@ -563,4 +624,56 @@ export interface BridgeProject {
   pushMode: PushMode;
   fileMapping: FileMapping;
   defaultDirectory: string;
+}
+
+// ========================================
+// Component Pattern Library Types
+// ========================================
+
+export type PatternCategory = 'button' | 'card' | 'navigation' | 'form' | 'layout' | 'modal' | 'list' | 'other';
+
+export interface ComponentPattern {
+  id: string;
+  name: string;
+  category: PatternCategory;
+  tags: string[];
+  description: string;
+  spec: ExportedNode;
+  tokensUsed: string[];
+  dimensions: { width: number; height: number };
+  createdAt: string;
+}
+
+export interface ComponentPatternInput {
+  name: string;
+  category: PatternCategory;
+  tags: string[];
+  description: string;
+}
+
+/**
+ * Summarize a component pattern's structure for inclusion in Claude's prompt.
+ * Returns a compact structural description like "FRAME[VERTICAL] > TEXT + FRAME[HORIZONTAL] > TEXT, TEXT"
+ */
+export function summarizePatternStructure(node: ExportedNode, depth: number = 0): string {
+  if (depth > 3) return '...';
+
+  let desc: string = node.type;
+  if (node.type === 'FRAME' && node.layoutMode) {
+    desc = `FRAME[${node.layoutMode}]`;
+  }
+
+  if (!node.children || node.children.length === 0) {
+    return desc;
+  }
+
+  const childSummaries = node.children
+    .slice(0, 5) // Limit to avoid huge summaries
+    .map((c) => summarizePatternStructure(c, depth + 1));
+
+  if (node.children.length > 5) {
+    childSummaries.push(`+${node.children.length - 5} more`);
+  }
+
+  return `${desc} > ${childSummaries.join(', ')}`;
 }

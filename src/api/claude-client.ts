@@ -3,6 +3,12 @@ import { logger } from '../utils/logger';
 const CLAUDE_API_BASE = 'https://api.anthropic.com';
 const ANTHROPIC_VERSION = '2023-06-01';
 
+// Model tiers for different complexity levels
+export type ClaudeModel = 'claude-sonnet-4-20250514' | 'claude-haiku-4-5-20251001';
+const DEFAULT_MODEL: ClaudeModel = 'claude-sonnet-4-20250514';
+const MAX_RETRIES = 2;
+const RETRY_DELAYS = [1000, 2000]; // ms backoff
+
 export interface ClaudeValidationResult {
   valid: boolean;
   error?: string;
@@ -73,9 +79,17 @@ export interface GenerateDesignCallbacks {
   onError: (error: string) => void;
 }
 
+export interface GenerateDesignOptions {
+  model?: ClaudeModel;
+  maxTokens?: number;
+  temperature?: number;
+  /** Multi-turn messages for conversational refinement */
+  messages?: Array<{ role: 'user' | 'assistant'; content: string }>;
+}
+
 /**
  * Call Claude API with streaming to generate a design spec.
- * Uses SSE via ReadableStream for real-time output.
+ * Supports prompt caching, model selection, retry logic, and multi-turn conversation.
  */
 export async function generateDesign(
   apiKey: string,
@@ -83,106 +97,150 @@ export async function generateDesign(
   userMessage: string,
   callbacks: GenerateDesignCallbacks,
   signal?: AbortSignal,
+  options?: GenerateDesignOptions,
 ): Promise<void> {
-  try {
-    const response = await fetch(`${CLAUDE_API_BASE}/v1/messages`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': ANTHROPIC_VERSION,
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4096,
-        temperature: 0.3,
-        stream: true,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userMessage }],
-      }),
-      signal,
-    });
+  const model = options?.model ?? DEFAULT_MODEL;
+  const maxTokens = options?.maxTokens ?? 4096;
+  const temperature = options?.temperature ?? 0.3;
 
-    if (!response.ok) {
-      const errorBody = await response.text().catch(() => '');
-      let errorMessage = `API error (${response.status})`;
-      try {
-        const parsed = JSON.parse(errorBody) as { error?: { message?: string } };
-        if (parsed.error?.message) {
-          errorMessage = parsed.error.message;
+  // Build messages array — support multi-turn for refinement
+  const messages = options?.messages
+    ? [...options.messages, { role: 'user' as const, content: userMessage }]
+    : [{ role: 'user' as const, content: userMessage }];
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const response = await fetch(`${CLAUDE_API_BASE}/v1/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': ANTHROPIC_VERSION,
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: maxTokens,
+          temperature,
+          stream: true,
+          system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
+          messages,
+        }),
+        signal,
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.text().catch(() => '');
+        let errorMessage = `API error (${response.status})`;
+        try {
+          const parsed = JSON.parse(errorBody) as { error?: { message?: string } };
+          if (parsed.error?.message) {
+            errorMessage = parsed.error.message;
+          }
+        } catch {
+          // Use default error message
         }
-      } catch {
-        // Use default error message
+
+        // Retry on overloaded (529) or server errors (500+)
+        if ((response.status === 529 || response.status >= 500) && attempt < MAX_RETRIES) {
+          logger.warn(`Claude API returned ${response.status}, retrying in ${RETRY_DELAYS[attempt]}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+          await sleep(RETRY_DELAYS[attempt]);
+          continue;
+        }
+
+        callbacks.onError(errorMessage);
+        return;
       }
-      callbacks.onError(errorMessage);
+
+      if (!response.body) {
+        callbacks.onError('No response body — streaming not supported');
+        return;
+      }
+
+      // Successfully connected, stream the response
+      await streamResponse(response.body, callbacks);
       return;
+    } catch (err) {
+      if (signal?.aborted) {
+        logger.info('Design generation cancelled by user');
+        return;
+      }
+
+      // Retry on network errors
+      if (attempt < MAX_RETRIES) {
+        logger.warn(`Network error, retrying in ${RETRY_DELAYS[attempt]}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+        await sleep(RETRY_DELAYS[attempt]);
+        continue;
+      }
+
+      logger.error('Design generation failed:', err);
+      callbacks.onError(err instanceof Error ? err.message : 'Unknown error');
     }
+  }
+}
 
-    if (!response.body) {
-      callbacks.onError('No response body — streaming not supported');
-      return;
-    }
+/**
+ * Stream and process an SSE response body.
+ */
+async function streamResponse(
+  body: ReadableStream<Uint8Array>,
+  callbacks: GenerateDesignCallbacks,
+): Promise<void> {
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let fullText = '';
+  let buffer = '';
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let fullText = '';
-    let buffer = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+    buffer += decoder.decode(value, { stream: true });
 
-      buffer += decoder.decode(value, { stream: true });
+    // Process complete lines from the buffer
+    const lines = buffer.split('\n');
+    // Keep the last (potentially incomplete) line in the buffer
+    buffer = lines.pop() ?? '';
 
-      // Process complete lines from the buffer
-      const lines = buffer.split('\n');
-      // Keep the last (potentially incomplete) line in the buffer
-      buffer = lines.pop() ?? '';
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        const data = line.slice(6).trim();
 
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const data = line.slice(6).trim();
+        if (data === '[DONE]') {
+          callbacks.onComplete(fullText);
+          return;
+        }
 
-          if (data === '[DONE]') {
+        try {
+          const event = JSON.parse(data) as SSEEvent;
+          if (event.type === 'content_block_delta' && event.delta?.text) {
+            fullText += event.delta.text;
+            callbacks.onChunk(event.delta.text);
+          } else if (event.type === 'message_stop') {
             callbacks.onComplete(fullText);
             return;
+          } else if (event.type === 'error') {
+            const errMsg = (event as SSEErrorEvent).error?.message ?? 'Stream error';
+            callbacks.onError(errMsg);
+            return;
           }
-
-          try {
-            const event = JSON.parse(data) as SSEEvent;
-            if (event.type === 'content_block_delta' && event.delta?.text) {
-              fullText += event.delta.text;
-              callbacks.onChunk(event.delta.text);
-            } else if (event.type === 'message_stop') {
-              callbacks.onComplete(fullText);
-              return;
-            } else if (event.type === 'error') {
-              const errMsg = (event as SSEErrorEvent).error?.message ?? 'Stream error';
-              callbacks.onError(errMsg);
-              return;
-            }
-          } catch {
-            // Skip non-JSON lines (e.g. event: type lines)
-          }
+        } catch {
+          // Skip non-JSON lines (e.g. event: type lines)
         }
       }
     }
-
-    // If we exit the loop without an explicit message_stop, complete with what we have
-    if (fullText.length > 0) {
-      callbacks.onComplete(fullText);
-    } else {
-      callbacks.onError('Stream ended without content');
-    }
-  } catch (err) {
-    if (signal?.aborted) {
-      logger.info('Design generation cancelled by user');
-      return;
-    }
-    logger.error('Design generation failed:', err);
-    callbacks.onError(err instanceof Error ? err.message : 'Unknown error');
   }
+
+  // If we exit the loop without an explicit message_stop, complete with what we have
+  if (fullText.length > 0) {
+    callbacks.onComplete(fullText);
+  } else {
+    callbacks.onError('Stream ended without content');
+  }
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // SSE event types from Claude API

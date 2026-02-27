@@ -15,6 +15,7 @@ import { buildUpdateInstructions } from './core/token-applier';
 import { batchAutoMapAllPages, findUnusedTokens, findOrphanedValues } from './core/batch-operations';
 import { validateDTCG } from './core/dtcg-validator';
 import { transformToDocument } from './core/token-transformer';
+import { loadPatterns as loadComponentPatterns, savePattern as saveComponentPattern, deletePattern as deleteComponentPattern } from './core/component-library';
 import type { UIMessage, DesignTokensDocument } from './types/messages';
 
 // Show the plugin UI — wrap in try-catch for safety
@@ -467,6 +468,32 @@ onUIMessage(async (msg: UIMessage) => {
           else { try { errMsg = JSON.stringify(err); } catch (_e) { /* ignore */ } }
           sendToUI({ type: 'BRIDGE_CONFIG_RESULT', projects: [], error: errMsg });
         }
+        break;
+      }
+
+      // Component Pattern Library
+      case 'LIST_COMPONENT_PATTERNS': {
+        const patterns = await loadComponentPatterns();
+        sendToUI({ type: 'COMPONENT_PATTERNS_LOADED', patterns });
+        break;
+      }
+
+      case 'SAVE_COMPONENT_PATTERN': {
+        const selExport = await exportSelection();
+        const pattern = await saveComponentPattern(msg.pattern, selExport.root);
+        sendToUI({ type: 'COMPONENT_PATTERN_SAVED', pattern });
+        break;
+      }
+
+      case 'DELETE_COMPONENT_PATTERN': {
+        await deleteComponentPattern(msg.patternId);
+        sendToUI({ type: 'COMPONENT_PATTERN_DELETED', patternId: msg.patternId });
+        break;
+      }
+
+      case 'EXPORT_SELECTION_AS_PATTERN': {
+        const exportResult = await exportSelection();
+        sendToUI({ type: 'PATTERN_EXPORT_RESULT', spec: exportResult.root, nodeCount: exportResult.nodeCount });
         break;
       }
 

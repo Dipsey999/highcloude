@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FolderIcon, KeyIcon, LinkIcon, SparklesIcon } from '@/components/Icons';
+import { FolderIcon, KeyIcon, LinkIcon, SparklesIcon, RobotIcon, BookOpenIcon } from '@/components/Icons';
 
 const mainLinks = [
   { href: '/dashboard', label: 'Projects', icon: FolderIcon },
@@ -13,6 +13,25 @@ const mainLinks = [
 const tokenLinks = [
   { href: '/dashboard/tokens', label: 'Tokens', icon: SparklesIcon },
 ];
+
+const aiLinks = [
+  { href: '/dashboard/claude', label: 'Claude', icon: RobotIcon },
+];
+
+const helpLinks = [
+  { href: '/dashboard/docs', label: 'Docs', icon: BookOpenIcon },
+];
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <span
+      className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider"
+      style={{ color: 'var(--text-tertiary)' }}
+    >
+      {children}
+    </span>
+  );
+}
 
 function SidebarLink({
   href,
@@ -50,6 +69,15 @@ function SidebarLink({
   );
 }
 
+function SidebarSeparator() {
+  return (
+    <div
+      className="my-3 border-t"
+      style={{ borderColor: 'var(--border-primary)' }}
+    />
+  );
+}
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
@@ -81,13 +109,33 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             />
           ))}
 
-          {/* Separator */}
-          <div
-            className="my-3 border-t"
-            style={{ borderColor: 'var(--border-primary)' }}
-          />
-
+          <SidebarSeparator />
+          <SectionLabel>Tokens</SectionLabel>
           {tokenLinks.map((link) => (
+            <SidebarLink
+              key={link.href}
+              href={link.href}
+              label={link.label}
+              icon={link.icon}
+              isActive={isActive(link.href)}
+            />
+          ))}
+
+          <SidebarSeparator />
+          <SectionLabel>AI</SectionLabel>
+          {aiLinks.map((link) => (
+            <SidebarLink
+              key={link.href}
+              href={link.href}
+              label={link.label}
+              icon={link.icon}
+              isActive={isActive(link.href)}
+            />
+          ))}
+
+          <SidebarSeparator />
+          <SectionLabel>Help</SectionLabel>
+          {helpLinks.map((link) => (
             <SidebarLink
               key={link.href}
               href={link.href}
