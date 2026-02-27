@@ -225,6 +225,10 @@ export function App() {
     setView('dashboard');
   }, []);
 
+  const handleCredentialsChange = useCallback((creds: CredentialPayload) => {
+    setCredentials(creds);
+  }, []);
+
   const handleDisconnect = useCallback(() => {
     clearGitHubProxy();
     setCredentials(null);
@@ -265,6 +269,7 @@ export function App() {
         <DashboardView
           connectionState={connectionState}
           credentials={credentials}
+          onCredentialsChange={handleCredentialsChange}
           onDisconnect={handleDisconnect}
           rawData={rawData}
           extractionProgress={extractionProgress}
