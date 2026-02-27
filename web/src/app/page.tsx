@@ -8,7 +8,6 @@ import {
   UsersIcon,
   SparklesIcon,
   DownloadIcon,
-  GitHubIcon,
 } from '@/components/Icons';
 
 const features = [
@@ -161,14 +160,6 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            <a
-              href="https://github.com/Dipsey999/highcloude"
-              className="mt-6 inline-flex items-center gap-1.5 text-sm transition-colors duration-200"
-              style={{ color: 'var(--text-tertiary)' }}
-            >
-              <GitHubIcon className="h-4 w-4" />
-              View on GitHub &rarr;
-            </a>
           </div>
         </div>
       </section>
@@ -334,14 +325,6 @@ export default function LandingPage() {
             >
               Download
             </Link>
-            <a
-              href="https://github.com/Dipsey999/highcloude"
-              className="inline-flex items-center gap-1 transition-colors duration-200"
-              style={{ color: 'var(--text-tertiary)' }}
-            >
-              <GitHubIcon className="h-3.5 w-3.5" />
-              GitHub
-            </a>
           </div>
         </div>
       </footer>

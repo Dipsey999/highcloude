@@ -3,7 +3,6 @@ import {
   DownloadIcon,
   AlertTriangleIcon,
   SparklesIcon,
-  ExternalLinkIcon,
 } from '@/components/Icons';
 
 const DOWNLOAD_URL =
@@ -119,14 +118,6 @@ export default function DownloadPage() {
               Version 0.1.0 &middot; Contains manifest.json + built plugin files
             </p>
 
-            <a
-              href="https://github.com/Dipsey999/highcloude/releases"
-              className="mt-2 inline-flex items-center gap-1 text-sm font-medium transition-colors duration-200"
-              style={{ color: 'var(--brand)' }}
-            >
-              View all releases on GitHub
-              <ExternalLinkIcon className="h-3.5 w-3.5" />
-            </a>
           </div>
         </div>
 
@@ -326,17 +317,6 @@ export default function DownloadPage() {
           </div>
         </div>
 
-        {/* Build from source */}
-        <div className="text-center text-sm" style={{ color: 'var(--text-tertiary)' }}>
-          Want to build from source?{' '}
-          <a
-            href="https://github.com/Dipsey999/highcloude"
-            className="font-medium transition-colors duration-200"
-            style={{ color: 'var(--brand)' }}
-          >
-            View the GitHub repository
-          </a>
-        </div>
       </div>
     </main>
   );

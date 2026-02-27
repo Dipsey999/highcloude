@@ -2,12 +2,15 @@
 
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useTheme } from '@/components/ThemeProvider';
-import { SunIcon, MoonIcon, DownloadIcon } from '@/components/Icons';
+import { SunIcon, MoonIcon, DownloadIcon, ArrowLeftIcon } from '@/components/Icons';
 
 export function Navbar() {
   const { data: session } = useSession();
   const { theme, toggleTheme } = useTheme();
+  const pathname = usePathname();
+  const isDashboard = pathname.startsWith('/dashboard');
 
   return (
     <nav
@@ -42,13 +45,24 @@ export function Navbar() {
 
             {session?.user ? (
               <>
-                <Link
-                  href="/dashboard"
-                  className="rounded-lg px-3 py-2 text-sm transition-all duration-200"
-                  style={{ color: 'var(--text-secondary)' }}
-                >
-                  Dashboard
-                </Link>
+                {isDashboard ? (
+                  <Link
+                    href="/"
+                    className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm transition-all duration-200"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
+                    <ArrowLeftIcon className="h-4 w-4" />
+                    <span className="hidden sm:inline">Home</span>
+                  </Link>
+                ) : (
+                  <Link
+                    href="/dashboard"
+                    className="rounded-lg px-3 py-2 text-sm transition-all duration-200"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
+                    Dashboard
+                  </Link>
+                )}
 
                 {/* Theme toggle */}
                 <button
