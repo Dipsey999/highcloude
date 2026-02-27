@@ -1,3 +1,4 @@
+// CORS: Allow all origins for plugin API (Figma plugin iframe has null origin)
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async headers() {
