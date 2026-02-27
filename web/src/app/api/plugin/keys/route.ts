@@ -1,19 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { verifyPluginToken } from '@/lib/jwt';
 import { prisma } from '@/lib/db';
 import { decrypt } from '@/lib/encryption';
+import { corsJson, corsOptions } from '@/lib/cors';
 
 // GET /api/plugin/keys — fetch decrypted GitHub token (requires JWT)
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
   if (!authHeader?.startsWith('Bearer ')) {
-    return NextResponse.json({ error: 'Missing authorization token' }, { status: 401 });
+    return corsJson({ error: 'Missing authorization token' }, { status: 401 });
   }
 
   const token = authHeader.slice(7);
   const userId = await verifyPluginToken(token);
   if (!userId) {
-    return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
+    return corsJson({ error: 'Invalid or expired token' }, { status: 401 });
   }
 
   const apiKeys = await prisma.apiKeys.findUnique({
@@ -21,7 +22,7 @@ export async function GET(req: NextRequest) {
   });
 
   if (!apiKeys) {
-    return NextResponse.json({ error: 'No API keys configured' }, { status: 404 });
+    return corsJson({ error: 'No API keys configured' }, { status: 404 });
   }
 
   const result: Record<string, string> = {};
@@ -30,21 +31,14 @@ export async function GET(req: NextRequest) {
     try {
       result.githubToken = decrypt(apiKeys.githubTokenEnc);
     } catch {
-      return NextResponse.json({ error: 'Failed to decrypt GitHub token' }, { status: 500 });
+      return corsJson({ error: 'Failed to decrypt GitHub token' }, { status: 500 });
     }
   }
 
-  return NextResponse.json(result);
+  return corsJson(result);
 }
 
 // OPTIONS — CORS preflight
 export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 204,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET,OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-    },
-  });
+  return corsOptions();
 }
