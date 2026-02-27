@@ -4,6 +4,7 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+  'X-Claude-Bridge': 'cors-ok',
 };
 
 export function corsJson(data: unknown, init?: { status?: number }) {
