@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'preact/hooks';
-import type { ConnectionState, CredentialPayload, CodeMessage, RawExtractionResult } from '../types/messages';
+import { useState, useEffect, useCallback, useRef } from 'preact/hooks';
+import type { ConnectionState, CredentialPayload, CodeMessage, RawExtractionResult, BridgeProject, SyncConfig } from '../types/messages';
 import { onCodeMessage, sendToCode } from '../utils/ui-message-bus';
 import { validateCredentials } from '../api/auth-manager';
 import { setGitHubProxy, clearGitHubProxy } from '../api/github-fetch';
@@ -12,29 +12,31 @@ var BRIDGE_API_URL = 'https://web-pied-iota-65.vercel.app';
 
 /**
  * Refresh credentials and project config from the bridge dashboard.
- * This ensures the plugin always uses the latest GitHub token and project settings.
+ * Also returns the full list of projects for the project selector.
  */
 async function refreshFromBridge(
   token: string,
   cachedCredentials: CredentialPayload | null,
-): Promise<CredentialPayload | null> {
+): Promise<{ credentials: CredentialPayload | null; projects: BridgeProject[] }> {
   try {
     // Fetch latest GitHub token from bridge
     const keysRes = await fetch(BRIDGE_API_URL + '/api/plugin/keys', {
       headers: { Authorization: 'Bearer ' + token },
     });
-    if (!keysRes.ok) return null;
+    if (!keysRes.ok) return { credentials: null, projects: [] };
     const keys = await keysRes.json();
 
     // Fetch latest project config from bridge
     const configRes = await fetch(BRIDGE_API_URL + '/api/plugin/config', {
       headers: { Authorization: 'Bearer ' + token },
     });
-    if (!configRes.ok) return null;
+    if (!configRes.ok) return { credentials: null, projects: [] };
     const config = await configRes.json();
 
-    // Use the first project if available (same logic as ConnectView auto-select)
-    const project = config.projects?.[0];
+    const projects: BridgeProject[] = config.projects ?? [];
+
+    // Use the first project if available
+    const project = projects[0];
 
     const freshCredentials: CredentialPayload = {
       githubToken: keys.githubToken || cachedCredentials?.githubToken || '',
@@ -60,10 +62,35 @@ async function refreshFromBridge(
     }
 
     logger.info('Refreshed credentials from bridge');
-    return freshCredentials;
+    return { credentials: freshCredentials, projects };
   } catch (err) {
     logger.error('Failed to refresh from bridge:', err);
-    return null;
+    return { credentials: null, projects: [] };
+  }
+}
+
+/**
+ * Send a heartbeat to the bridge dashboard so the web UI can show plugin status.
+ */
+async function sendHeartbeat(
+  token: string,
+  projectId: string | null,
+  figmaFileName?: string,
+) {
+  try {
+    await fetch(BRIDGE_API_URL + '/api/plugin/heartbeat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token,
+      },
+      body: JSON.stringify({
+        projectId: projectId ?? undefined,
+        figmaFileName: figmaFileName ?? undefined,
+      }),
+    });
+  } catch {
+    // Heartbeat failures are non-critical — silently ignore
   }
 }
 
@@ -78,6 +105,31 @@ export function App() {
   const [rawData, setRawData] = useState<RawExtractionResult | null>(null);
   const [extractionProgress, setExtractionProgress] = useState<{ stage: string; percent: number } | null>(null);
   const [bridgeToken, setBridgeToken] = useState<string | null>(null);
+  const [bridgeProjects, setBridgeProjects] = useState<BridgeProject[]>([]);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+
+  // Track heartbeat interval
+  const heartbeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Start heartbeat when bridge is connected and on dashboard
+  useEffect(() => {
+    if (bridgeToken && view === 'dashboard') {
+      // Send immediate heartbeat
+      sendHeartbeat(bridgeToken, selectedProjectId, rawData?.figmaFileName);
+
+      // Then every 30 seconds
+      heartbeatRef.current = setInterval(() => {
+        sendHeartbeat(bridgeToken, selectedProjectId, rawData?.figmaFileName);
+      }, 30000);
+
+      return () => {
+        if (heartbeatRef.current) {
+          clearInterval(heartbeatRef.current);
+          heartbeatRef.current = null;
+        }
+      };
+    }
+  }, [bridgeToken, view, selectedProjectId, rawData?.figmaFileName]);
 
   useEffect(() => {
     const unsubscribe = onCodeMessage((msg: CodeMessage) => {
@@ -85,10 +137,6 @@ export function App() {
         case 'CREDENTIALS_LOADED': {
           if (msg.payload && msg.payload.githubToken) {
             // Credentials exist from a previous session — go directly to dashboard.
-            // Skip network validation here because the GitHub proxy (bridge)
-            // may not be set up yet (BRIDGE_TOKEN_LOADED races with this message).
-            // Actual GitHub operations (compare, push) will validate the token
-            // implicitly when they run, after the proxy is ready.
             setCredentials(msg.payload);
             setConnectionState({ github: 'connected' });
             setView('dashboard');
@@ -98,19 +146,23 @@ export function App() {
           break;
         }
 
-        // Bridge token loaded — activate GitHub proxy and refresh credentials
+        // Bridge token loaded — activate GitHub proxy and refresh credentials + projects
         case 'BRIDGE_TOKEN_LOADED': {
           if (msg.token) {
             setBridgeToken(msg.token);
             setGitHubProxy(BRIDGE_API_URL, msg.token);
 
-            // Always refresh credentials from the dashboard so we use the latest
-            // GitHub token (the user may have updated it on the web).
-            refreshFromBridge(msg.token, credentials).then((fresh) => {
-              if (fresh) {
-                setCredentials(fresh);
+            // Refresh credentials AND load projects from bridge
+            refreshFromBridge(msg.token, credentials).then((result) => {
+              if (result.credentials) {
+                setCredentials(result.credentials);
                 setConnectionState({ github: 'connected' });
                 setView('dashboard');
+              }
+              if (result.projects.length > 0) {
+                setBridgeProjects(result.projects);
+                // Auto-select first project if none selected yet
+                setSelectedProjectId((prev) => prev ?? result.projects[0].id);
               }
             });
           }
@@ -125,6 +177,8 @@ export function App() {
           setConnectionState({ github: 'disconnected' });
           setRawData(null);
           setExtractionProgress(null);
+          setBridgeProjects([]);
+          setSelectedProjectId(null);
           setView('connect');
           break;
         }
@@ -235,8 +289,44 @@ export function App() {
     setConnectionState({ github: 'disconnected' });
     setRawData(null);
     setExtractionProgress(null);
+    setBridgeProjects([]);
+    setSelectedProjectId(null);
+    if (heartbeatRef.current) {
+      clearInterval(heartbeatRef.current);
+      heartbeatRef.current = null;
+    }
     setView('connect');
   }, []);
+
+  // Handle project selection change from the dashboard
+  const handleProjectChange = useCallback((projectId: string) => {
+    const project = bridgeProjects.find((p) => p.id === projectId);
+    if (!project) return;
+
+    setSelectedProjectId(projectId);
+
+    // Apply the project's config to credentials and sync config
+    const updatedCredentials: CredentialPayload = {
+      githubToken: credentials?.githubToken ?? '',
+      githubRepo: project.githubRepo,
+      githubBranch: project.githubBranch,
+      githubFilePath: project.githubFilePath,
+    };
+
+    sendToCode({ type: 'SAVE_CREDENTIALS', payload: updatedCredentials });
+    setCredentials(updatedCredentials);
+
+    const config: SyncConfig = {
+      syncMode: project.syncMode,
+      pushMode: project.pushMode,
+      fileMapping: project.fileMapping,
+      defaultDirectory: project.defaultDirectory,
+      baseBranch: project.githubBranch,
+    };
+    sendToCode({ type: 'SAVE_SYNC_CONFIG', config });
+
+    showToast(`Switched to "${project.name}"`, 'success');
+  }, [bridgeProjects, credentials]);
 
   return (
     <div class="plugin-container">
@@ -273,6 +363,10 @@ export function App() {
           onDisconnect={handleDisconnect}
           rawData={rawData}
           extractionProgress={extractionProgress}
+          bridgeProjects={bridgeProjects}
+          selectedProjectId={selectedProjectId}
+          onProjectChange={handleProjectChange}
+          bridgeToken={bridgeToken}
         />
       )}
 

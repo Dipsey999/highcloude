@@ -90,5 +90,15 @@ model Project {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
+  // Figma variable snapshot (pushed by plugin)
+  figmaSnapshot   Json?
+  figmaSnapshotAt DateTime?
+  figmaFileName   String?
+
+  // Plugin status tracking (heartbeat)
+  pluginLastSeen      DateTime?
+  pluginFigmaFileName String?
+  pluginProjectId     String?
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
