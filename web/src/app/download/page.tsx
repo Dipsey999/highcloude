@@ -4,9 +4,10 @@ import {
   AlertTriangleIcon,
   SparklesIcon,
 } from '@/components/Icons';
+import { StarField, CosmicDust } from '@/components/StarField';
 
 const DOWNLOAD_URL =
-  'https://github.com/Dipsey999/highcloude/releases/latest/download/claude-bridge-figma-plugin.zip';
+  'https://github.com/Dipsey999/highcloude/releases/latest/download/cosmikit-figma-plugin.zip';
 
 const installSteps = [
   {
@@ -31,14 +32,14 @@ const installSteps = [
   {
     title: 'Run the plugin',
     description:
-      'Open any Figma file, then go to Plugins > Development > Claude Bridge — Design System Sync. The plugin panel will open.',
+      'Open any Figma file, then go to Plugins > Development > Cosmikit — Design System Sync. The plugin panel will open.',
   },
 ];
 
 const setupSteps = [
   {
     title: 'Sign in with GitHub',
-    description: 'Go to the Claude Bridge dashboard and sign in using your GitHub account.',
+    description: 'Go to the Cosmikit dashboard and sign in using your GitHub account.',
     link: { href: '/login', label: 'Sign In' },
   },
   {
@@ -62,21 +63,22 @@ const setupSteps = [
   {
     title: 'Connect the plugin',
     description:
-      'Back in Figma, open the Claude Bridge plugin. Select the "Claude Bridge" tab, paste your token, and click Connect. You\'re all set!',
+      'Back in Figma, open the Cosmikit plugin. Select the "Cosmikit" tab, paste your token, and click Connect. You\'re all set!',
   },
 ];
 
 export default function DownloadPage() {
   return (
-    <main style={{ background: 'var(--bg-primary)' }}>
-      <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
+    <main className="relative" style={{ background: 'var(--bg-primary)' }}>
+      <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8 relative">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 relative">
+          <CosmicDust />
           <h1
             className="text-3xl font-bold tracking-tight sm:text-4xl"
             style={{ color: 'var(--text-primary)' }}
           >
-            Download Claude Bridge
+            Download <span className="gradient-text">Cosmikit</span>
           </h1>
           <p
             className="mt-4 text-lg"
@@ -89,12 +91,13 @@ export default function DownloadPage() {
         {/* Download Card */}
         <div className="gradient-border mb-12">
           <div
-            className="glass p-8 text-center"
+            className="relative overflow-hidden p-8 text-center"
             style={{ background: 'var(--bg-elevated)' }}
           >
+            <StarField starCount={30} showNebula={false} />
             {/* Gradient icon circle */}
             <div
-              className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg"
+              className="relative mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl shadow-cosmic"
               style={{
                 background: 'linear-gradient(135deg, var(--gradient-from), var(--gradient-to))',
                 color: '#fff',
@@ -105,19 +108,20 @@ export default function DownloadPage() {
 
             <a
               href={DOWNLOAD_URL}
-              className="btn-gradient inline-flex items-center gap-2 rounded-xl px-8 py-4 text-lg font-semibold shadow-lg transition-all duration-200 hover:-translate-y-0.5"
+              className="btn-gradient relative inline-flex items-center gap-2 rounded-xl px-8 py-4 text-lg font-semibold shadow-lg transition-all duration-200 hover:-translate-y-0.5"
             >
-              <DownloadIcon className="h-5 w-5" />
-              Download Plugin (ZIP)
+              <span className="relative z-10 flex items-center gap-2">
+                <DownloadIcon className="h-5 w-5" />
+                Download Plugin (ZIP)
+              </span>
             </a>
 
             <p
-              className="mt-4 text-sm"
+              className="relative mt-4 text-sm"
               style={{ color: 'var(--text-tertiary)' }}
             >
               Version 0.1.0 &middot; Contains manifest.json + built plugin files
             </p>
-
           </div>
         </div>
 
@@ -127,8 +131,6 @@ export default function DownloadPage() {
           style={{
             background: 'var(--bg-elevated)',
             border: '1px solid var(--border-primary)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
           }}
         >
           <h2
@@ -139,7 +141,6 @@ export default function DownloadPage() {
           </h2>
 
           <ol className="relative space-y-6">
-            {/* Subtle connecting line between steps */}
             <div
               className="pointer-events-none absolute left-4 top-4 bottom-4 w-px"
               style={{
@@ -151,7 +152,6 @@ export default function DownloadPage() {
 
             {installSteps.map((step, i) => (
               <li key={i} className="relative flex gap-4">
-                {/* Gradient step number */}
                 <span
                   className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold shadow-md"
                   style={{
@@ -186,8 +186,6 @@ export default function DownloadPage() {
           style={{
             background: 'var(--bg-elevated)',
             border: '1px solid var(--border-primary)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
           }}
         >
           <h2
@@ -200,13 +198,12 @@ export default function DownloadPage() {
             className="text-sm mb-6"
             style={{ color: 'var(--text-tertiary)' }}
           >
-            Connect the plugin to your GitHub repository through the Claude Bridge dashboard.
+            Connect the plugin to your GitHub repository through the Cosmikit dashboard.
           </p>
 
           <ol className="space-y-6">
             {setupSteps.map((step, i) => (
               <li key={i} className="flex gap-4">
-                {/* Muted step number */}
                 <span
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
                   style={{
@@ -250,15 +247,10 @@ export default function DownloadPage() {
           style={{
             background: 'var(--warning-subtle)',
             border: '1px solid var(--warning)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
           }}
         >
           <div className="flex gap-3">
-            <AlertTriangleIcon
-              className="h-5 w-5 shrink-0 mt-0.5"
-              // amber-tinted via the warning variable
-            />
+            <AlertTriangleIcon className="h-5 w-5 shrink-0 mt-0.5" />
             <div>
               <p
                 className="text-sm font-medium"
@@ -289,20 +281,16 @@ export default function DownloadPage() {
         <div
           className="rounded-2xl p-5 mb-8"
           style={{
-            background: 'rgba(139, 92, 246, 0.06)',
-            border: '1px solid rgba(139, 92, 246, 0.2)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
+            background: 'var(--brand-subtle)',
+            border: '1px solid var(--border-accent)',
           }}
         >
           <div className="flex gap-3">
-            <SparklesIcon
-              className="h-5 w-5 shrink-0 mt-0.5"
-            />
+            <SparklesIcon className="h-5 w-5 shrink-0 mt-0.5" style={{ color: 'var(--brand)' }} />
             <div>
               <p
                 className="text-sm font-medium"
-                style={{ color: 'rgb(139, 92, 246)' }}
+                style={{ color: 'var(--brand)' }}
               >
                 Free AI Features
               </p>
@@ -316,7 +304,6 @@ export default function DownloadPage() {
             </div>
           </div>
         </div>
-
       </div>
     </main>
   );

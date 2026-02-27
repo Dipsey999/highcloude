@@ -112,7 +112,7 @@ export function MultiFileSyncView({
 
         // Compute diff
         const emptyDoc: DesignTokensDocument = {
-          metadata: { source: 'claude-bridge', figmaFileName: '', lastSynced: '', version: '1.0.0' },
+          metadata: { source: 'cosmikit', figmaFileName: '', lastSynced: '', version: '1.0.0' },
         };
         const diffResult = diffTokenDocuments(localDoc, remoteDoc ?? emptyDoc);
         const { summary } = diffResult;
@@ -221,20 +221,20 @@ export function MultiFileSyncView({
       if (syncConfig.pushMode === 'pr') {
         // Branch + PR workflow
         const baseSha = await getBranchSha(credentials.githubToken, owner, repo, baseBranch);
-        const branchName = `claude-bridge/sync-${Date.now()}`;
+        const branchName = `cosmikit/sync-${Date.now()}`;
 
         await createBranch(credentials.githubToken, owner, repo, branchName, baseSha);
 
         const result = await commitMultipleFiles(
           credentials.githubToken, owner, repo, branchName, filesToCommit,
-          'chore: sync design tokens from Figma via Claude Bridge',
+          'chore: sync design tokens from Figma via Cosmikit',
         );
         commitSha = result.commitSha;
 
         const pr = await createPullRequest(
           credentials.githubToken, owner, repo, branchName, baseBranch,
           'Sync design tokens from Figma',
-          `## Token Sync\n\nPushed ${filesToCommit.length} file(s) from Claude Bridge.\n\nFiles:\n${filesToCommit.map((f) => `- \`${f.path}\``).join('\n')}`,
+          `## Token Sync\n\nPushed ${filesToCommit.length} file(s) from Cosmikit.\n\nFiles:\n${filesToCommit.map((f) => `- \`${f.path}\``).join('\n')}`,
         );
         prNumber = pr.number;
         prUrl = pr.htmlUrl;
@@ -244,7 +244,7 @@ export function MultiFileSyncView({
         // Direct push with atomic commit
         const result = await commitMultipleFiles(
           credentials.githubToken, owner, repo, baseBranch, filesToCommit,
-          'chore: sync design tokens from Figma via Claude Bridge',
+          'chore: sync design tokens from Figma via Cosmikit',
         );
         commitSha = result.commitSha;
         showToast(`Pushed ${filesToCommit.length} files to ${baseBranch}`, 'success');

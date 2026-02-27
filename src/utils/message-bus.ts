@@ -25,7 +25,7 @@ export function onUIMessage(handler: (msg: UIMessage) => void): () => void {
     if (isUIMessage(msg)) {
       handler(msg);
     } else {
-      console.warn('[Claude Bridge] Unknown message from UI:', msg);
+      console.warn('[Cosmikit] Unknown message from UI:', msg);
     }
   };
   return () => {

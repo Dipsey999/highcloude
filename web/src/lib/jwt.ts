@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from 'jose';
 
-const ISSUER = 'claude-bridge';
+const ISSUER = 'cosmikit';
 const AUDIENCE = 'figma-plugin';
 const EXPIRY = '24h';
 

@@ -17,7 +17,7 @@ import type {
 export function transformToDocument(raw: RawExtractionResult): DesignTokensDocument {
   const doc: DesignTokensDocument = {
     metadata: {
-      source: 'claude-bridge',
+      source: 'cosmikit',
       figmaFileName: raw.figmaFileName,
       figmaFileKey: raw.figmaFileKey,
       lastSynced: new Date().toISOString(),
@@ -296,7 +296,7 @@ export function transformToMultiDocument(
   for (const [collectionName, variables] of variablesByCollection) {
     const doc: DesignTokensDocument = {
       metadata: {
-        source: 'claude-bridge',
+        source: 'cosmikit',
         figmaFileName: raw.figmaFileName,
         figmaFileKey: raw.figmaFileKey,
         lastSynced: new Date().toISOString(),
@@ -316,7 +316,7 @@ export function transformToMultiDocument(
   if (raw.textStyles.length > 0) {
     const doc: DesignTokensDocument = {
       metadata: {
-        source: 'claude-bridge',
+        source: 'cosmikit',
         figmaFileName: raw.figmaFileName,
         figmaFileKey: raw.figmaFileKey,
         lastSynced: new Date().toISOString(),
@@ -337,7 +337,7 @@ export function transformToMultiDocument(
   if (raw.effectStyles.length > 0) {
     const doc: DesignTokensDocument = {
       metadata: {
-        source: 'claude-bridge',
+        source: 'cosmikit',
         figmaFileName: raw.figmaFileName,
         figmaFileKey: raw.figmaFileKey,
         lastSynced: new Date().toISOString(),

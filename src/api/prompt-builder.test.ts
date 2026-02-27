@@ -12,7 +12,7 @@ import type { DesignTokensDocument } from '../types/messages';
 function makeDoc(tokens: Record<string, unknown>): DesignTokensDocument {
   return {
     metadata: {
-      source: 'claude-bridge',
+      source: 'cosmikit',
       figmaFileName: 'Test',
       lastSynced: '2025-01-01T00:00:00Z',
       version: '1.0.0',
@@ -113,7 +113,7 @@ describe('buildChatSystemPrompt', () => {
   it('includes design system consultant context', () => {
     const prompt = buildChatSystemPrompt([]);
     expect(prompt).toContain('design system consultant');
-    expect(prompt).toContain('Claude Bridge');
+    expect(prompt).toContain('Cosmikit');
   });
 
   it('truncates at 200 tokens with "and N more"', () => {

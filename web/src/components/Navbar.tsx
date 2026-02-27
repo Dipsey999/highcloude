@@ -24,11 +24,22 @@ export function Navbar() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-[var(--gradient-from)] to-[var(--gradient-to)] flex items-center justify-center shadow-sm group-hover:shadow-glow transition-shadow duration-300">
-              <span className="text-white font-bold text-sm">CB</span>
+            <div className="relative h-9 w-9 rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-glow transition-all duration-500 overflow-hidden"
+              style={{ background: 'linear-gradient(135deg, var(--gradient-from), var(--gradient-to))' }}
+            >
+              <div
+                className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                style={{
+                  background: 'conic-gradient(from 0deg, transparent, rgba(255,255,255,0.2), transparent)',
+                  animation: 'nebulaSpin 3s linear infinite',
+                }}
+              />
+              <svg className="relative h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l2.09 6.26L20.18 9l-4.64 4.14L16.82 20 12 16.77 7.18 20l1.28-6.86L3.82 9l6.09-.74L12 2z" />
+              </svg>
             </div>
-            <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-              Claude Bridge
+            <span className="font-bold text-[15px] tracking-tight" style={{ color: 'var(--text-primary)' }}>
+              Cosmikit
             </span>
           </Link>
 
@@ -75,7 +86,7 @@ export function Navbar() {
                   title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
                 >
                   {theme === 'dark' ? (
-                    <SunIcon className="h-[18px] w-[18px] text-amber-400" />
+                    <SunIcon className="h-[18px] w-[18px]" style={{ color: 'var(--star-gold)' }} />
                   ) : (
                     <MoonIcon className="h-[18px] w-[18px]" />
                   )}
@@ -110,7 +121,7 @@ export function Navbar() {
                   title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
                 >
                   {theme === 'dark' ? (
-                    <SunIcon className="h-[18px] w-[18px] text-amber-400" />
+                    <SunIcon className="h-[18px] w-[18px]" style={{ color: 'var(--star-gold)' }} />
                   ) : (
                     <MoonIcon className="h-[18px] w-[18px]" />
                   )}

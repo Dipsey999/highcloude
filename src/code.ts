@@ -512,7 +512,7 @@ onUIMessage(async (msg: UIMessage) => {
       });
     } catch (e) {
       // If even error reporting fails, just log
-      console.error('[Claude Bridge] Fatal error:', err);
+      console.error('[Cosmikit] Fatal error:', err);
     }
   }
 });

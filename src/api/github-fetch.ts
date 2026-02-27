@@ -63,7 +63,7 @@ export async function githubFetch(
       return await fetch(url, init);
     } catch (err) {
       throw new Error(
-        'GitHub API not reachable. Connect via Claude Bridge to enable GitHub sync.'
+        'GitHub API not reachable. Connect via Cosmikit to enable GitHub sync.'
       );
     }
   }

@@ -281,7 +281,7 @@ export function ClaudeSetup() {
               link: { url: 'https://console.anthropic.com', label: 'Open Console' },
             },
             { text: 'Navigate to "API Keys" in the sidebar and click "Create Key".' },
-            { text: 'Name your key (e.g. "Claude Bridge") and copy it immediately.' },
+            { text: 'Name your key (e.g. "Cosmikit") and copy it immediately.' },
             { text: 'Paste the key below. It starts with sk-ant-api03-...' },
           ]}
         />
@@ -407,7 +407,7 @@ export function ClaudeSetup() {
             </p>
             <p className="mt-1 text-xs" style={{ color: 'var(--text-tertiary)' }}>
               Model selection, temperature, and generation preferences are configured directly in the Figma plugin.
-              Open Claude Bridge in Figma to adjust these settings.
+              Open Cosmikit in Figma to adjust these settings.
             </p>
           </div>
         </div>

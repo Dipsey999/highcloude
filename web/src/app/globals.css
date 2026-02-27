@@ -3,85 +3,100 @@
 @tailwind utilities;
 
 /* ============================================
-   Design Token System — Light & Dark Themes
+   Cosmikit — Cosmic Design Token System
    ============================================ */
 
 @layer base {
   :root {
-    /* Backgrounds */
-    --bg-primary: #ffffff;
-    --bg-secondary: #f8fafc;
-    --bg-tertiary: #f1f5f9;
+    /* Backgrounds — light space */
+    --bg-primary: #f8f9fc;
+    --bg-secondary: #f0f1f8;
+    --bg-tertiary: #e8eaf4;
     --bg-elevated: #ffffff;
     --bg-glass: rgba(255, 255, 255, 0.72);
 
     /* Borders */
-    --border-primary: #e2e8f0;
-    --border-accent: rgba(13, 153, 255, 0.2);
+    --border-primary: #dde0ef;
+    --border-accent: rgba(139, 92, 246, 0.25);
 
     /* Text */
-    --text-primary: #0f172a;
-    --text-secondary: #475569;
-    --text-tertiary: #94a3b8;
+    --text-primary: #0f0d2e;
+    --text-secondary: #4a4672;
+    --text-tertiary: #8b87b0;
 
-    /* Brand */
-    --brand: #0d99ff;
-    --brand-hover: #0a7acc;
-    --brand-subtle: rgba(13, 153, 255, 0.08);
-    --brand-glow: rgba(13, 153, 255, 0.15);
+    /* Brand — cosmic violet */
+    --brand: #7c3aed;
+    --brand-hover: #6d28d9;
+    --brand-subtle: rgba(124, 58, 237, 0.08);
+    --brand-glow: rgba(124, 58, 237, 0.2);
 
     /* Status */
-    --success: #14ae5c;
-    --success-subtle: rgba(20, 174, 92, 0.1);
-    --error: #f24822;
-    --error-subtle: rgba(242, 72, 34, 0.08);
+    --success: #10b981;
+    --success-subtle: rgba(16, 185, 129, 0.1);
+    --error: #ef4444;
+    --error-subtle: rgba(239, 68, 68, 0.08);
     --warning: #f59e0b;
     --warning-subtle: rgba(245, 158, 11, 0.1);
 
-    /* Gradient */
-    --gradient-from: #0d99ff;
-    --gradient-to: #7c3aed;
+    /* Cosmic gradient */
+    --gradient-from: #7c3aed;
+    --gradient-via: #a855f7;
+    --gradient-to: #06b6d4;
+
+    /* Nebula accents */
+    --nebula-pink: #ec4899;
+    --nebula-blue: #3b82f6;
+    --nebula-cyan: #06b6d4;
+    --star-gold: #fbbf24;
+    --star-white: #f1f5f9;
 
     /* Shadows */
-    --shadow-color: rgba(0, 0, 0, 0.06);
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.08);
+    --shadow-color: rgba(15, 13, 46, 0.06);
+    --shadow-sm: 0 1px 2px rgba(15, 13, 46, 0.04);
+    --shadow-md: 0 4px 12px rgba(15, 13, 46, 0.06);
+    --shadow-lg: 0 12px 32px rgba(15, 13, 46, 0.08);
   }
 
   .dark {
-    --bg-primary: #0a0f1a;
-    --bg-secondary: #111827;
-    --bg-tertiary: #1e293b;
-    --bg-elevated: #151d2e;
-    --bg-glass: rgba(21, 29, 46, 0.72);
+    --bg-primary: #050714;
+    --bg-secondary: #0a0d1f;
+    --bg-tertiary: #111430;
+    --bg-elevated: #0d1025;
+    --bg-glass: rgba(13, 16, 37, 0.78);
 
-    --border-primary: rgba(255, 255, 255, 0.08);
-    --border-accent: rgba(56, 189, 248, 0.2);
+    --border-primary: rgba(255, 255, 255, 0.07);
+    --border-accent: rgba(167, 139, 250, 0.25);
 
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-tertiary: #64748b;
+    --text-primary: #f1f0ff;
+    --text-secondary: #a5a1d2;
+    --text-tertiary: #6b66a0;
 
-    --brand: #38bdf8;
-    --brand-hover: #7dd3fc;
-    --brand-subtle: rgba(56, 189, 248, 0.1);
-    --brand-glow: rgba(56, 189, 248, 0.2);
+    --brand: #a78bfa;
+    --brand-hover: #c4b5fd;
+    --brand-subtle: rgba(167, 139, 250, 0.1);
+    --brand-glow: rgba(167, 139, 250, 0.25);
 
-    --success: #22c55e;
-    --success-subtle: rgba(34, 197, 94, 0.12);
+    --success: #34d399;
+    --success-subtle: rgba(52, 211, 153, 0.12);
     --error: #f87171;
     --error-subtle: rgba(248, 113, 113, 0.12);
     --warning: #fbbf24;
     --warning-subtle: rgba(251, 191, 36, 0.12);
 
-    --gradient-from: #38bdf8;
-    --gradient-to: #a78bfa;
+    --gradient-from: #a78bfa;
+    --gradient-via: #c084fc;
+    --gradient-to: #22d3ee;
 
-    --shadow-color: rgba(0, 0, 0, 0.4);
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.4);
+    --nebula-pink: #f472b6;
+    --nebula-blue: #60a5fa;
+    --nebula-cyan: #22d3ee;
+    --star-gold: #fcd34d;
+    --star-white: #e2e8f0;
+
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
   }
 
   body {
@@ -132,7 +147,7 @@
 
   /* Gradient text */
   .gradient-text {
-    background: linear-gradient(135deg, var(--gradient-from), var(--gradient-to));
+    background: linear-gradient(135deg, var(--gradient-from), var(--gradient-via), var(--gradient-to));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -140,7 +155,7 @@
 
   /* Gradient border — apply to a wrapper div */
   .gradient-border {
-    background: linear-gradient(135deg, var(--gradient-from), var(--gradient-to));
+    background: linear-gradient(135deg, var(--gradient-from), var(--gradient-via), var(--gradient-to));
     padding: 1px;
     border-radius: 16px;
   }
@@ -150,18 +165,38 @@
     border-radius: 15px;
   }
 
-  /* Gradient button */
+  /* Gradient button — cosmic */
   .btn-gradient {
     background: linear-gradient(135deg, var(--gradient-from), var(--gradient-to));
     color: #ffffff;
     font-weight: 500;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 8px var(--brand-glow);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 12px var(--brand-glow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--gradient-to), var(--gradient-from));
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
 
   .btn-gradient:hover {
-    box-shadow: 0 4px 20px var(--brand-glow);
+    box-shadow: 0 4px 24px var(--brand-glow), 0 0 48px rgba(124, 58, 237, 0.1);
     transform: translateY(-1px);
+  }
+
+  .btn-gradient:hover::before {
+    opacity: 1;
+  }
+
+  .btn-gradient > * {
+    position: relative;
+    z-index: 1;
   }
 
   .btn-gradient:active {
@@ -187,12 +222,12 @@
     background: var(--bg-elevated);
     border: 1px solid var(--border-primary);
     border-radius: 16px;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
   }
 
   .card-hover:hover {
     border-color: var(--border-accent);
-    box-shadow: 0 0 20px var(--brand-glow);
+    box-shadow: 0 0 24px var(--brand-glow);
     transform: translateY(-2px);
   }
 
@@ -217,30 +252,74 @@
   /* Fade-in with stagger support */
   .animate-stagger > * {
     opacity: 0;
-    animation: fadeIn 0.4s ease-out forwards;
+    animation: fadeIn 0.5s ease-out forwards;
   }
 
   .animate-stagger > *:nth-child(1) { animation-delay: 0ms; }
-  .animate-stagger > *:nth-child(2) { animation-delay: 60ms; }
-  .animate-stagger > *:nth-child(3) { animation-delay: 120ms; }
-  .animate-stagger > *:nth-child(4) { animation-delay: 180ms; }
-  .animate-stagger > *:nth-child(5) { animation-delay: 240ms; }
-  .animate-stagger > *:nth-child(6) { animation-delay: 300ms; }
-  .animate-stagger > *:nth-child(7) { animation-delay: 360ms; }
-  .animate-stagger > *:nth-child(8) { animation-delay: 420ms; }
+  .animate-stagger > *:nth-child(2) { animation-delay: 80ms; }
+  .animate-stagger > *:nth-child(3) { animation-delay: 160ms; }
+  .animate-stagger > *:nth-child(4) { animation-delay: 240ms; }
+  .animate-stagger > *:nth-child(5) { animation-delay: 320ms; }
+  .animate-stagger > *:nth-child(6) { animation-delay: 400ms; }
+  .animate-stagger > *:nth-child(7) { animation-delay: 480ms; }
+  .animate-stagger > *:nth-child(8) { animation-delay: 560ms; }
 
   /* Status dot glow */
   .status-online {
-    box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
   }
 
   .status-recent {
     box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
   }
+
+  /* ── Cosmic effects ── */
+
+  /* Nebula glow card */
+  .nebula-glow {
+    position: relative;
+  }
+
+  .nebula-glow::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from 180deg,
+      var(--gradient-from),
+      var(--nebula-pink),
+      var(--gradient-to),
+      var(--nebula-blue),
+      var(--gradient-from)
+    );
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: -1;
+  }
+
+  .nebula-glow:hover::before {
+    opacity: 0.6;
+    animation: nebulaSpin 4s linear infinite;
+  }
+
+  /* Cosmic orbit ring */
+  .orbit-ring {
+    position: relative;
+  }
+
+  .orbit-ring::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1px dashed var(--border-accent);
+    animation: orbitSpin 20s linear infinite;
+  }
 }
 
 /* ============================================
-   Keyframes (for non-Tailwind animations)
+   Keyframes — Cosmic Animations
    ============================================ */
 
 @keyframes fadeIn {
@@ -261,4 +340,62 @@
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-6px); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes twinkle-slow {
+  0%, 100% { opacity: 0.1; transform: scale(0.6); }
+  50% { opacity: 0.8; transform: scale(1); }
+}
+
+@keyframes nebulaSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes orbitSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(var(--orbit-radius, 60px)) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(var(--orbit-radius, 60px)) rotate(-360deg); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px var(--brand-glow); }
+  50% { box-shadow: 0 0 40px var(--brand-glow), 0 0 60px rgba(124, 58, 237, 0.1); }
+}
+
+@keyframes shootingStar {
+  0% { transform: translateX(0) translateY(0); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translateX(300px) translateY(300px); opacity: 0; }
+}
+
+@keyframes nebulaFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+  33% { transform: translate(10px, -10px) scale(1.05); opacity: 0.4; }
+  66% { transform: translate(-5px, 5px) scale(0.95); opacity: 0.25; }
+}
+
+@keyframes planetFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(3deg); }
+}
+
+@keyframes ringRotate {
+  from { transform: rotateX(75deg) rotateZ(0deg); }
+  to { transform: rotateX(75deg) rotateZ(360deg); }
+}
+
+@keyframes cometTrail {
+  0% { opacity: 0; transform: translateX(-100%) translateY(-100%); }
+  10% { opacity: 0.8; }
+  100% { opacity: 0; transform: translateX(200vw) translateY(200vh); }
 }

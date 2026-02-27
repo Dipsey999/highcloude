@@ -123,7 +123,7 @@ export function DashboardView({
     <div class="plugin-body">
       <div style={{ marginBottom: 'var(--spacing-md)' }}>
         <h2 style={{ fontSize: 'var(--font-size-lg)', marginBottom: 'var(--spacing-sm)' }}>
-          Claude Bridge
+          Cosmikit
         </h2>
         <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
           {selectedProject

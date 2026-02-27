@@ -157,7 +157,7 @@ export function DocsContent() {
           <SectionHeading id="getting-started" title="Getting Started" />
           <div className="space-y-4">
             <Paragraph>
-              Claude Bridge connects Figma to GitHub, keeping your design tokens in sync with AI-powered assistance.
+              Cosmikit connects Figma to GitHub, keeping your design tokens in sync with AI-powered assistance.
               It extracts Figma variables into the W3C Design Token Community Group (DTCG) format, syncs them to
               GitHub, and uses Claude AI to generate Figma designs based on your design system.
             </Paragraph>
@@ -167,7 +167,7 @@ export function DocsContent() {
             </InfoBox>
             <StepList
               steps={[
-                'Download the Claude Bridge Figma plugin from the Download page.',
+                'Download the Cosmikit Figma plugin from the Download page.',
                 'Sign in to this dashboard with your GitHub account.',
                 'Add your GitHub personal access token in the API Keys section.',
                 'Create a project and configure your repository settings.',
@@ -183,7 +183,7 @@ export function DocsContent() {
           <SectionHeading id="plugin-setup" title="Plugin Setup" />
           <div className="space-y-4">
             <Paragraph>
-              The Claude Bridge plugin runs inside Figma Desktop. It communicates with this web dashboard
+              The Cosmikit plugin runs inside Figma Desktop. It communicates with this web dashboard
               to sync tokens, retrieve API keys, and push design data.
             </Paragraph>
             <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Installation</h3>
@@ -192,14 +192,14 @@ export function DocsContent() {
                 'Download the plugin ZIP from the Download page.',
                 'Open Figma Desktop and go to Plugins > Development > Import plugin from manifest.',
                 'Select the manifest.json file from the extracted ZIP.',
-                'The plugin appears under Plugins > Development > Claude Bridge.',
+                'The plugin appears under Plugins > Development > Cosmikit.',
               ]}
             />
             <h3 className="text-sm font-semibold mt-6" style={{ color: 'var(--text-primary)' }}>Connecting to the Dashboard</h3>
             <StepList
               steps={[
                 'Go to Plugin Token in this dashboard and generate a token.',
-                'Open the Claude Bridge plugin in Figma.',
+                'Open the Cosmikit plugin in Figma.',
                 'Paste the token in the connection screen and click Connect.',
                 'The plugin fetches your project settings and API keys securely via JWT.',
               ]}
@@ -215,7 +215,7 @@ export function DocsContent() {
           <SectionHeading id="token-extraction" title="Token Extraction" />
           <div className="space-y-4">
             <Paragraph>
-              Claude Bridge extracts all Figma local variables and converts them into the W3C DTCG format.
+              Cosmikit extracts all Figma local variables and converts them into the W3C DTCG format.
               This includes colors, dimensions, typography, and any custom variable collections you&apos;ve created.
             </Paragraph>
             <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>What Gets Extracted</h3>
@@ -307,7 +307,7 @@ export function DocsContent() {
             <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>How It Works</h3>
             <StepList
               steps={[
-                'Open the Build tab in the Claude Bridge plugin.',
+                'Open the Build tab in the Cosmikit plugin.',
                 'Type a design prompt (e.g. "A card with a profile avatar, name, and email").',
                 'Claude generates a JSON design spec using your extracted tokens.',
                 'Review the output and click "Apply to Canvas" to create the Figma nodes.',
@@ -357,7 +357,7 @@ export function DocsContent() {
           <SectionHeading id="design-rules" title="Design Rules & Validation" />
           <div className="space-y-4">
             <Paragraph>
-              Before applying a generated design to the canvas, Claude Bridge automatically validates it
+              Before applying a generated design to the canvas, Cosmikit automatically validates it
               against a set of design system rules. Issues are shown with severity levels (error, warning, info)
               so you can fix them before applying.
             </Paragraph>
@@ -379,7 +379,7 @@ export function DocsContent() {
           <SectionHeading id="accessibility" title="Accessibility Checker" />
           <div className="space-y-4">
             <Paragraph>
-              Claude Bridge includes a WCAG 2.1 accessibility checker that validates generated designs
+              Cosmikit includes a WCAG 2.1 accessibility checker that validates generated designs
               for color contrast, touch target sizes, and text readability.
             </Paragraph>
             <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>What It Checks</h3>
@@ -418,7 +418,7 @@ export function DocsContent() {
             <StepList
               steps={[
                 'Select a component or frame in Figma.',
-                'Open the Claude Bridge plugin.',
+                'Open the Cosmikit plugin.',
                 'Give the pattern a name, category, and optional tags.',
                 'Click "Save as Pattern" to store it.',
               ]}

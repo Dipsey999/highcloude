@@ -89,7 +89,7 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
 
       setBridgeProjects(configMsg.projects || []);
       setBridgeConnected(true);
-      showToast('Connected to Claude Bridge', 'success');
+      showToast('Connected to Cosmikit', 'success');
 
       // If only one project, auto-select it
       if (configMsg.projects && configMsg.projects.length === 1) {
@@ -235,7 +235,7 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
       {/* Tab Switcher */}
       <div style={{ display: 'flex', borderBottom: '1px solid var(--color-border)', marginBottom: 'var(--spacing-xl)' }}>
         <button style={tabStyle('bridge')} onClick={() => setAuthTab('bridge')}>
-          Claude Bridge
+          Cosmikit
         </button>
         <button style={tabStyle('manual')} onClick={() => setAuthTab('manual')}>
           Manual Setup
@@ -280,7 +280,7 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
                 fontSize: 'var(--font-size-sm)',
                 color: 'var(--color-text-success)',
               }}>
-                Connected to Claude Bridge
+                Connected to Cosmikit
               </div>
 
               {bridgeProjects.length > 0 && (

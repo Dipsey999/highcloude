@@ -2,9 +2,9 @@ import type { CredentialPayload, SyncConfig } from '../types/messages';
 import { logger } from './logger';
 
 const STORAGE_KEYS = {
-  CREDENTIALS: 'claude-bridge:credentials',
-  SYNC_CONFIG: 'claude-bridge:sync-config',
-  BRIDGE_TOKEN: 'claude-bridge:bridge-token',
+  CREDENTIALS: 'cosmikit:credentials',
+  SYNC_CONFIG: 'cosmikit:sync-config',
+  BRIDGE_TOKEN: 'cosmikit:bridge-token',
 } as const;
 
 /** Save credentials to figma.clientStorage (per-user, persistent). */

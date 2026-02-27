@@ -1,4 +1,4 @@
-# Claude Bridge — Design System Sync for Figma
+# Cosmikit — Design System Sync for Figma
 
 Sync design tokens between Figma and GitHub with AI-powered assistance. Extract, transform, diff, and push — all from inside Figma.
 
@@ -9,7 +9,7 @@ Sync design tokens between Figma and GitHub with AI-powered assistance. Extract,
 1. **Download** the plugin ZIP from the [latest release](https://github.com/Dipsey999/highcloude/releases/latest)
 2. **Extract** the ZIP to any folder on your computer
 3. **Import** into Figma Desktop: Plugins > Development > Import plugin from manifest > select `manifest.json`
-4. **Sign in** at the [Claude Bridge dashboard](https://web-pied-iota-65.vercel.app) with GitHub
+4. **Sign in** at the [Cosmikit dashboard](https://web-pied-iota-65.vercel.app) with GitHub
 5. **Add your GitHub token** in the dashboard under API Keys
 6. **Create a project** and select the repo where you want to sync tokens
 7. **Generate a plugin token** from the dashboard and paste it into the Figma plugin
@@ -86,7 +86,7 @@ See `web/.env.example` for the full list:
 npm run release
 ```
 
-This builds the plugin and creates `claude-bridge-figma-plugin.zip` containing `manifest.json` and the `dist/` folder. Upload it as a GitHub Release asset.
+This builds the plugin and creates `cosmikit-figma-plugin.zip` containing `manifest.json` and the `dist/` folder. Upload it as a GitHub Release asset.
 
 ## Tech Stack
 
