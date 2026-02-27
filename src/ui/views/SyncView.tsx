@@ -11,7 +11,7 @@ import type {
 } from '../../types/messages';
 import { sendToCode, onCodeMessage } from '../../utils/ui-message-bus';
 import { transformToDocument, computeSummary } from '../../core/token-transformer';
-import { readFileFromRepo, writeFileToRepo } from '../../api/github-client';
+import { readFileFromRepo, writeFileToRepo, checkRepoAccess } from '../../api/github-client';
 import {
   commitMultipleFiles,
   createBranch,
@@ -220,6 +220,22 @@ function SingleFileSyncView({ credentials, rawData, extractionProgress, syncConf
       const filePath = credentials.githubFilePath ?? 'tokens.json';
       const content = JSON.stringify(localDocument, null, 2);
       let resultSha: string;
+
+      // Pre-flight: check repo write access before attempting push
+      const access = await checkRepoAccess(credentials.githubToken, owner, repo);
+      if (!access.repoExists) {
+        throw new Error(
+          `Repository "${owner}/${repo}" not found. Check the repository name in your project settings.`
+        );
+      }
+      if (!access.canPush) {
+        throw new Error(
+          `Your GitHub token does not have write access to "${owner}/${repo}". ` +
+          `Go to GitHub Settings → Developer Settings → Personal Access Tokens, ` +
+          `edit your token, and enable "Contents: Read and write" for this repository. ` +
+          `Then update the token in your Claude Bridge dashboard under API Keys.`
+        );
+      }
 
       if (syncConfig?.pushMode === 'pr') {
         // PR workflow for single-file mode

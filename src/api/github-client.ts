@@ -88,6 +88,59 @@ export async function fetchUserRepos(
 }
 
 // ========================================
+// Repository Access Check
+// ========================================
+
+export interface RepoAccessResult {
+  canRead: boolean;
+  canPush: boolean;
+  repoExists: boolean;
+  error?: string;
+}
+
+/**
+ * Check if the token has read/write access to a repository.
+ * Uses GET /repos/{owner}/{repo} which returns `permissions` object.
+ */
+export async function checkRepoAccess(
+  token: string,
+  owner: string,
+  repo: string,
+): Promise<RepoAccessResult> {
+  try {
+    const response = await githubFetch(`${GITHUB_API_BASE}/repos/${owner}/${repo}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github.v3+json',
+      },
+    });
+
+    if (response.status === 404) {
+      return { canRead: false, canPush: false, repoExists: false, error: `Repository "${owner}/${repo}" not found or not accessible with this token.` };
+    }
+
+    if (response.status === 403) {
+      return { canRead: false, canPush: false, repoExists: true, error: 'Token does not have access to this repository. Check token permissions.' };
+    }
+
+    if (!response.ok) {
+      return { canRead: false, canPush: false, repoExists: false, error: `GitHub API error: ${response.status}` };
+    }
+
+    const data = (await response.json()) as { permissions?: { push?: boolean; pull?: boolean; admin?: boolean } };
+    const perms = data.permissions;
+
+    return {
+      canRead: perms?.pull ?? false,
+      canPush: perms?.push ?? false,
+      repoExists: true,
+    };
+  } catch (err) {
+    return { canRead: false, canPush: false, repoExists: false, error: err instanceof Error ? err.message : 'Network error' };
+  }
+}
+
+// ========================================
 // File Read/Write Operations
 // ========================================
 
@@ -178,6 +231,16 @@ export async function writeFileToRepo(
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
     const errorMessage = (errorBody as { message?: string }).message ?? `HTTP ${response.status}`;
+
+    // Provide helpful guidance for common permission errors
+    if (response.status === 403 || errorMessage.includes('Resource not accessible')) {
+      throw new Error(
+        `GitHub token lacks write permission. Go to your dashboard API Keys, ` +
+        `ensure your token has "Contents: Read and write" permission for this repository, ` +
+        `then reconnect the plugin.`
+      );
+    }
+
     throw new Error(`Failed to write file: ${errorMessage}`);
   }
 
