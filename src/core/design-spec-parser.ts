@@ -1,7 +1,7 @@
 import { sendToUI } from '../utils/message-bus';
 import { logger } from '../utils/logger';
 import { buildVariableLookup } from '../utils/variable-lookup';
-import type { DesignSpecNode, CreateDesignResult, DesignSpecPadding } from '../types/messages';
+import type { DesignSpecNode, CreateDesignResult, DesignSpecPadding, DesignSpecEffect, DesignSpecGradient } from '../types/messages';
 
 // Font cache to avoid redundant loadFontAsync calls
 const loadedFonts = new Set<string>();
@@ -122,7 +122,7 @@ async function createFrame(
 
   // Apply auto layout first (before sizing, since it affects sizing behavior)
   if (spec.layoutMode && spec.layoutMode !== 'NONE') {
-    applyAutoLayout(frame, spec);
+    applyAutoLayout(frame, spec, variables);
   }
 
   // Set dimensions
@@ -130,10 +130,13 @@ async function createFrame(
   if (spec.height != null && spec.width != null) frame.resize(spec.width, spec.height);
 
   // Apply visual properties
-  await applyFill(frame, spec.fill, variables, errors);
+  await applyFill(frame, spec.fill, spec.fillGradient, variables, errors);
   await applyStroke(frame, spec.stroke, spec.strokeWidth, variables, errors);
   if (spec.opacity != null) frame.opacity = spec.opacity;
-  if (spec.cornerRadius != null) frame.cornerRadius = spec.cornerRadius;
+  applyCornerRadius(frame, spec);
+  if (spec.clipsContent != null) frame.clipsContent = spec.clipsContent;
+  if (spec.blendMode) applyBlendMode(frame, spec.blendMode);
+  if (spec.effects) applyEffects(frame, spec.effects);
 
   // Create children
   if (spec.children) {
@@ -141,14 +144,29 @@ async function createFrame(
       const child = await createNode(childSpec, variables, errors, onProgress);
       if (child) {
         frame.appendChild(child);
+        // Apply layout-specific child properties after appending
+        if (childSpec.layoutGrow != null && 'layoutGrow' in child) {
+          (child as FrameNode).layoutGrow = childSpec.layoutGrow;
+        }
+        if (childSpec.layoutAlign && 'layoutAlign' in child) {
+          (child as FrameNode).layoutAlign = childSpec.layoutAlign;
+        }
       }
     }
   }
 
-  // If using auto layout, set sizing mode to HUG after children are added
+  // If using auto layout, set sizing mode after children are added
   if (spec.layoutMode && spec.layoutMode !== 'NONE') {
-    if (spec.width == null) frame.primaryAxisSizingMode = 'AUTO';
-    if (spec.height == null) frame.counterAxisSizingMode = 'AUTO';
+    if (spec.primaryAxisSizingMode) {
+      frame.primaryAxisSizingMode = spec.primaryAxisSizingMode;
+    } else if (spec.width == null) {
+      frame.primaryAxisSizingMode = 'AUTO';
+    }
+    if (spec.counterAxisSizingMode) {
+      frame.counterAxisSizingMode = spec.counterAxisSizingMode;
+    } else if (spec.height == null) {
+      frame.counterAxisSizingMode = 'AUTO';
+    }
   }
 
   return frame;
@@ -189,15 +207,23 @@ async function createText(
     text.textAlignHorizontal = spec.textAlignHorizontal;
   }
 
+  if (spec.textDecoration && spec.textDecoration !== 'NONE') {
+    text.textDecoration = spec.textDecoration;
+  }
+
   // Apply fill (text color)
-  await applyFill(text, spec.fill, variables, errors);
+  await applyFill(text, spec.fill, undefined, variables, errors);
 
   if (spec.opacity != null) text.opacity = spec.opacity;
+  if (spec.blendMode) applyBlendMode(text, spec.blendMode);
+  if (spec.effects) applyEffects(text, spec.effects);
 
-  // Set dimensions if provided
+  // Set dimensions and text resize behavior
   if (spec.width != null) {
     text.resize(spec.width, text.height);
-    text.textAutoResize = 'HEIGHT';
+    text.textAutoResize = spec.textAutoResize ?? 'HEIGHT';
+  } else if (spec.textAutoResize) {
+    text.textAutoResize = spec.textAutoResize;
   }
 
   return text;
@@ -221,16 +247,18 @@ async function createRectangle(
   }
 
   // IMAGE gets a gray placeholder fill by default
-  if (spec.type === 'IMAGE' && !spec.fill) {
+  if (spec.type === 'IMAGE' && !spec.fill && !spec.fillGradient) {
     rect.fills = [{ type: 'SOLID', color: { r: 0.85, g: 0.85, b: 0.85 } }];
   } else {
-    await applyFill(rect, spec.fill, variables, errors);
+    await applyFill(rect, spec.fill, spec.fillGradient, variables, errors);
   }
 
   await applyStroke(rect, spec.stroke, spec.strokeWidth, variables, errors);
 
   if (spec.opacity != null) rect.opacity = spec.opacity;
-  if (spec.cornerRadius != null) rect.cornerRadius = spec.cornerRadius;
+  applyCornerRadius(rect, spec);
+  if (spec.blendMode) applyBlendMode(rect, spec.blendMode);
+  if (spec.effects) applyEffects(rect, spec.effects);
 
   return rect;
 }
@@ -252,10 +280,12 @@ async function createEllipse(
     ellipse.resize(spec.width, spec.width);
   }
 
-  await applyFill(ellipse, spec.fill, variables, errors);
+  await applyFill(ellipse, spec.fill, spec.fillGradient, variables, errors);
   await applyStroke(ellipse, spec.stroke, spec.strokeWidth, variables, errors);
 
   if (spec.opacity != null) ellipse.opacity = spec.opacity;
+  if (spec.blendMode) applyBlendMode(ellipse, spec.blendMode);
+  if (spec.effects) applyEffects(ellipse, spec.effects);
 
   return ellipse;
 }
@@ -273,29 +303,46 @@ async function createComponent(
   component.name = spec.name ?? 'Component';
 
   if (spec.layoutMode && spec.layoutMode !== 'NONE') {
-    applyAutoLayout(component, spec);
+    applyAutoLayout(component, spec, variables);
   }
 
   if (spec.width != null) component.resize(spec.width, spec.height ?? spec.width);
   if (spec.height != null && spec.width != null) component.resize(spec.width, spec.height);
 
-  await applyFill(component, spec.fill, variables, errors);
+  await applyFill(component, spec.fill, spec.fillGradient, variables, errors);
   await applyStroke(component, spec.stroke, spec.strokeWidth, variables, errors);
   if (spec.opacity != null) component.opacity = spec.opacity;
-  if (spec.cornerRadius != null) component.cornerRadius = spec.cornerRadius;
+  applyCornerRadius(component, spec);
+  if (spec.clipsContent != null) component.clipsContent = spec.clipsContent;
+  if (spec.blendMode) applyBlendMode(component, spec.blendMode);
+  if (spec.effects) applyEffects(component, spec.effects);
 
   if (spec.children) {
     for (const childSpec of spec.children) {
       const child = await createNode(childSpec, variables, errors, onProgress);
       if (child) {
         component.appendChild(child);
+        if (childSpec.layoutGrow != null && 'layoutGrow' in child) {
+          (child as FrameNode).layoutGrow = childSpec.layoutGrow;
+        }
+        if (childSpec.layoutAlign && 'layoutAlign' in child) {
+          (child as FrameNode).layoutAlign = childSpec.layoutAlign;
+        }
       }
     }
   }
 
   if (spec.layoutMode && spec.layoutMode !== 'NONE') {
-    if (spec.width == null) component.primaryAxisSizingMode = 'AUTO';
-    if (spec.height == null) component.counterAxisSizingMode = 'AUTO';
+    if (spec.primaryAxisSizingMode) {
+      component.primaryAxisSizingMode = spec.primaryAxisSizingMode;
+    } else if (spec.width == null) {
+      component.primaryAxisSizingMode = 'AUTO';
+    }
+    if (spec.counterAxisSizingMode) {
+      component.counterAxisSizingMode = spec.counterAxisSizingMode;
+    } else if (spec.height == null) {
+      component.counterAxisSizingMode = 'AUTO';
+    }
   }
 
   return component;
@@ -346,6 +393,7 @@ async function createInstance(
 function applyAutoLayout(
   frame: FrameNode | ComponentNode,
   spec: DesignSpecNode,
+  variables?: Map<string, Variable>,
 ): void {
   frame.layoutMode = spec.layoutMode === 'VERTICAL' ? 'VERTICAL' : 'HORIZONTAL';
 
@@ -369,9 +417,48 @@ function applyAutoLayout(
     frame.counterAxisAlignItems = spec.counterAxisAlignItems;
   }
 
+  // Try to bind dimension variables if available
+  if (variables) {
+    tryBindDimensionVariable(frame, 'itemSpacing', spec.itemSpacing, variables);
+  }
+
   // Default to AUTO sizing (hug contents)
   frame.primaryAxisSizingMode = 'AUTO';
   frame.counterAxisSizingMode = 'AUTO';
+}
+
+/**
+ * Attempt to bind a FLOAT variable to a frame property if the value matches.
+ * This makes the layout responsive to variable changes.
+ */
+function tryBindDimensionVariable(
+  frame: FrameNode | ComponentNode,
+  property: 'itemSpacing' | 'paddingTop' | 'paddingRight' | 'paddingBottom' | 'paddingLeft' | 'width' | 'height',
+  value: number | undefined,
+  variables: Map<string, Variable>,
+): void {
+  if (value == null) return;
+
+  // Find a matching FLOAT variable by value
+  for (const [_name, variable] of variables) {
+    if (variable.resolvedType !== 'FLOAT') continue;
+
+    try {
+      // Check if the variable's value matches
+      const varValue = variable.valuesByMode;
+      for (const modeId of Object.keys(varValue)) {
+        const modeValue = varValue[modeId];
+        if (typeof modeValue === 'number' && Math.abs(modeValue - value) < 0.01) {
+          // Found a matching variable — bind it
+          frame.setBoundVariable(property as VariableBindableNodeField, variable);
+          return;
+        }
+        break; // Only check first mode
+      }
+    } catch {
+      // setBoundVariable may not support all properties — skip silently
+    }
+  }
 }
 
 /**
@@ -386,9 +473,38 @@ function applyAutoLayout(
 async function applyFill(
   node: SceneNode,
   fill: string | undefined,
+  gradient: DesignSpecGradient | undefined,
   variables: Map<string, Variable>,
   errors: string[],
 ): Promise<void> {
+  // Gradient fill takes precedence
+  if (gradient && 'fills' in node) {
+    const paintNode = node as GeometryMixin & SceneNode;
+    try {
+      const stops = gradient.stops.map((s) => {
+        const color = hexToRgb(s.color);
+        return {
+          position: s.position,
+          color: color ? { ...color, a: 1 } : { r: 0, g: 0, b: 0, a: 1 },
+        };
+      });
+
+      const gradientTransform: Transform = gradient.type === 'LINEAR'
+        ? createLinearGradientTransform(gradient.angle ?? 0)
+        : [[0.5, 0, 0.5], [0, 0.5, 0.5]];
+
+      const gradientPaint: GradientPaint = {
+        type: gradient.type === 'RADIAL' ? 'GRADIENT_RADIAL' : 'GRADIENT_LINEAR',
+        gradientTransform,
+        gradientStops: stops,
+      };
+      paintNode.fills = [gradientPaint];
+      return;
+    } catch (err) {
+      errors.push(`Could not apply gradient: ${err instanceof Error ? err.message : 'Unknown'}`);
+    }
+  }
+
   if (!fill) return;
   if (!('fills' in node)) return;
 
@@ -538,4 +654,82 @@ function hexToRgb(hex: string): RGB | null {
   if ([r, g, b].some(isNaN)) return null;
 
   return { r, g, b };
+}
+
+/**
+ * Apply corner radius, supporting both uniform and individual corners.
+ */
+function applyCornerRadius(
+  node: RectangleNode | FrameNode | ComponentNode,
+  spec: DesignSpecNode,
+): void {
+  if (spec.cornerRadius != null) {
+    node.cornerRadius = spec.cornerRadius;
+  }
+  // Individual corner radii override uniform
+  if (spec.topLeftRadius != null) node.topLeftRadius = spec.topLeftRadius;
+  if (spec.topRightRadius != null) node.topRightRadius = spec.topRightRadius;
+  if (spec.bottomLeftRadius != null) node.bottomLeftRadius = spec.bottomLeftRadius;
+  if (spec.bottomRightRadius != null) node.bottomRightRadius = spec.bottomRightRadius;
+}
+
+/**
+ * Apply blend mode to a node.
+ */
+function applyBlendMode(node: SceneNode, blendMode: string): void {
+  if ('blendMode' in node) {
+    const validModes = ['PASS_THROUGH', 'NORMAL', 'DARKEN', 'MULTIPLY', 'SCREEN', 'OVERLAY'];
+    if (validModes.includes(blendMode)) {
+      (node as FrameNode).blendMode = blendMode as BlendMode;
+    }
+  }
+}
+
+/**
+ * Apply effects (shadows, blurs) to a node.
+ */
+function applyEffects(node: SceneNode, effects: DesignSpecEffect[]): void {
+  if (!('effects' in node)) return;
+
+  const figmaEffects: Effect[] = [];
+
+  for (const e of effects) {
+    if (e.type === 'DROP_SHADOW' || e.type === 'INNER_SHADOW') {
+      const color = e.color ? hexToRgb(e.color) : null;
+      figmaEffects.push({
+        type: e.type,
+        color: color
+          ? { r: color.r, g: color.g, b: color.b, a: 0.25 }
+          : { r: 0, g: 0, b: 0, a: 0.25 },
+        offset: { x: e.offsetX ?? 0, y: e.offsetY ?? 4 },
+        radius: e.radius ?? 8,
+        spread: e.spread ?? 0,
+        visible: e.visible !== false,
+        blendMode: 'NORMAL' as BlendMode,
+      } as DropShadowEffect);
+    } else if (e.type === 'LAYER_BLUR' || e.type === 'BACKGROUND_BLUR') {
+      figmaEffects.push({
+        type: e.type,
+        radius: e.radius ?? 8,
+        visible: e.visible !== false,
+      } as BlurEffect);
+    }
+  }
+
+  (node as FrameNode).effects = figmaEffects;
+}
+
+/**
+ * Create a gradient transform matrix from an angle in degrees.
+ * The transform maps from (0,0)-(1,1) UV space to the paint.
+ */
+function createLinearGradientTransform(angleDeg: number): Transform {
+  const rad = (angleDeg * Math.PI) / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+  // Translate to center, rotate, translate back
+  return [
+    [cos, sin, (1 - cos - sin) / 2],
+    [-sin, cos, (1 + sin - cos) / 2],
+  ];
 }
