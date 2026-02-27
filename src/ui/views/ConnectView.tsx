@@ -7,22 +7,7 @@ import { StatusBadge } from '../components/StatusBadge';
 import { SyncConfigPanel } from '../components/SyncConfigPanel';
 import { showToast } from '../components/Toast';
 
-function waitForMessage(type: string): Promise<CodeMessage> {
-  return new Promise(function(resolve) {
-    var handler = function(msg: CodeMessage) {
-      if (msg.type === type) {
-        window.removeEventListener('message', listener);
-        resolve(msg);
-      }
-    };
-    var listener = function(event: MessageEvent) {
-      if (event.data && event.data.pluginMessage) {
-        handler(event.data.pluginMessage);
-      }
-    };
-    window.addEventListener('message', listener);
-  });
-}
+var BRIDGE_API_URL = 'https://web-pied-iota-65.vercel.app';
 
 type AuthTab = 'manual' | 'bridge';
 
@@ -70,23 +55,24 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
     setBridgeError('');
 
     try {
-      // Fetch keys via code.js (bypasses CORS)
-      var keysPromise = waitForMessage('BRIDGE_KEYS_RESULT');
-      sendToCode({ type: 'FETCH_BRIDGE_KEYS', bridgeToken: bridgeToken });
-      var keysMsg = await keysPromise as any;
-
-      if (keysMsg.error) {
-        throw new Error(keysMsg.error);
+      // Fetch keys from bridge API
+      var keysRes = await fetch(BRIDGE_API_URL + '/api/plugin/keys', {
+        headers: { 'Authorization': 'Bearer ' + bridgeToken },
+      });
+      if (!keysRes.ok) {
+        var keysErr = await keysRes.json().catch(function() { return { error: 'Invalid token' }; });
+        throw new Error(keysErr.error || 'Failed to fetch keys (HTTP ' + keysRes.status + ')');
       }
+      var keysMsg = await keysRes.json();
 
-      // Fetch config via code.js (bypasses CORS)
-      var configPromise = waitForMessage('BRIDGE_CONFIG_RESULT');
-      sendToCode({ type: 'FETCH_BRIDGE_CONFIG', bridgeToken: bridgeToken });
-      var configMsg = await configPromise as any;
-
-      if (configMsg.error) {
-        throw new Error(configMsg.error);
+      // Fetch config from bridge API
+      var configRes = await fetch(BRIDGE_API_URL + '/api/plugin/config', {
+        headers: { 'Authorization': 'Bearer ' + bridgeToken },
+      });
+      if (!configRes.ok) {
+        throw new Error('Failed to fetch projects (HTTP ' + configRes.status + ')');
       }
+      var configMsg = await configRes.json();
 
       // Save bridge token to storage
       sendToCode({ type: 'SAVE_BRIDGE_TOKEN', token: bridgeToken });

@@ -423,7 +423,9 @@ onUIMessage(async (msg: UIMessage) => {
 
       case 'FETCH_BRIDGE_KEYS': {
         try {
+          logger.info('FETCH_BRIDGE_KEYS: fetch type=' + typeof fetch);
           const BRIDGE_API = 'https://web-pied-iota-65.vercel.app';
+          logger.info('FETCH_BRIDGE_KEYS: calling ' + BRIDGE_API + '/api/plugin/keys');
           const keysRes = await fetch(BRIDGE_API + '/api/plugin/keys', {
             headers: { 'Authorization': 'Bearer ' + msg.bridgeToken },
           });
@@ -436,7 +438,11 @@ onUIMessage(async (msg: UIMessage) => {
           }
         } catch (err) {
           logger.error('Bridge keys fetch failed:', err);
-          sendToUI({ type: 'BRIDGE_KEYS_RESULT', error: err instanceof Error ? err.message : 'Network error' });
+          var errMsg = 'Network error';
+          if (err instanceof Error) { errMsg = err.message; }
+          else if (typeof err === 'string') { errMsg = err; }
+          else { try { errMsg = JSON.stringify(err); } catch (_e) { /* ignore */ } }
+          sendToUI({ type: 'BRIDGE_KEYS_RESULT', error: errMsg });
         }
         break;
       }
@@ -455,7 +461,11 @@ onUIMessage(async (msg: UIMessage) => {
           }
         } catch (err) {
           logger.error('Bridge config fetch failed:', err);
-          sendToUI({ type: 'BRIDGE_CONFIG_RESULT', projects: [], error: err instanceof Error ? err.message : 'Network error' });
+          var errMsg = 'Network error';
+          if (err instanceof Error) { errMsg = err.message; }
+          else if (typeof err === 'string') { errMsg = err; }
+          else { try { errMsg = JSON.stringify(err); } catch (_e) { /* ignore */ } }
+          sendToUI({ type: 'BRIDGE_CONFIG_RESULT', projects: [], error: errMsg });
         }
         break;
       }
