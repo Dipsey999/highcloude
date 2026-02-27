@@ -3,11 +3,69 @@ import type { ConnectionState, CredentialPayload, CodeMessage, RawExtractionResu
 import { onCodeMessage, sendToCode } from '../utils/ui-message-bus';
 import { validateCredentials } from '../api/auth-manager';
 import { setGitHubProxy, clearGitHubProxy } from '../api/github-fetch';
+import { logger } from '../utils/logger';
 import { ConnectView } from './views/ConnectView';
 import { DashboardView } from './views/DashboardView';
 import { ToastContainer, showToast } from './components/Toast';
 
 var BRIDGE_API_URL = 'https://web-pied-iota-65.vercel.app';
+
+/**
+ * Refresh credentials and project config from the bridge dashboard.
+ * This ensures the plugin always uses the latest GitHub token and project settings.
+ */
+async function refreshFromBridge(
+  token: string,
+  cachedCredentials: CredentialPayload | null,
+): Promise<CredentialPayload | null> {
+  try {
+    // Fetch latest GitHub token from bridge
+    const keysRes = await fetch(BRIDGE_API_URL + '/api/plugin/keys', {
+      headers: { Authorization: 'Bearer ' + token },
+    });
+    if (!keysRes.ok) return null;
+    const keys = await keysRes.json();
+
+    // Fetch latest project config from bridge
+    const configRes = await fetch(BRIDGE_API_URL + '/api/plugin/config', {
+      headers: { Authorization: 'Bearer ' + token },
+    });
+    if (!configRes.ok) return null;
+    const config = await configRes.json();
+
+    // Use the first project if available (same logic as ConnectView auto-select)
+    const project = config.projects?.[0];
+
+    const freshCredentials: CredentialPayload = {
+      githubToken: keys.githubToken || cachedCredentials?.githubToken || '',
+      githubRepo: project?.githubRepo || cachedCredentials?.githubRepo,
+      githubBranch: project?.githubBranch || cachedCredentials?.githubBranch,
+      githubFilePath: project?.githubFilePath || cachedCredentials?.githubFilePath,
+    };
+
+    // Persist the refreshed credentials
+    sendToCode({ type: 'SAVE_CREDENTIALS', payload: freshCredentials });
+
+    if (project) {
+      sendToCode({
+        type: 'SAVE_SYNC_CONFIG',
+        config: {
+          syncMode: project.syncMode,
+          pushMode: project.pushMode,
+          fileMapping: project.fileMapping,
+          defaultDirectory: project.defaultDirectory,
+          baseBranch: project.githubBranch,
+        },
+      });
+    }
+
+    logger.info('Refreshed credentials from bridge');
+    return freshCredentials;
+  } catch (err) {
+    logger.error('Failed to refresh from bridge:', err);
+    return null;
+  }
+}
 
 type AppView = 'loading' | 'connect' | 'dashboard';
 
@@ -40,11 +98,21 @@ export function App() {
           break;
         }
 
-        // Bridge token loaded — activate GitHub proxy
+        // Bridge token loaded — activate GitHub proxy and refresh credentials
         case 'BRIDGE_TOKEN_LOADED': {
           if (msg.token) {
             setBridgeToken(msg.token);
             setGitHubProxy(BRIDGE_API_URL, msg.token);
+
+            // Always refresh credentials from the dashboard so we use the latest
+            // GitHub token (the user may have updated it on the web).
+            refreshFromBridge(msg.token, credentials).then((fresh) => {
+              if (fresh) {
+                setCredentials(fresh);
+                setConnectionState({ github: 'connected' });
+                setView('dashboard');
+              }
+            });
           }
           break;
         }
