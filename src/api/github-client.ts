@@ -1,4 +1,5 @@
 import { logger } from '../utils/logger';
+import { githubFetch } from './github-fetch';
 
 const GITHUB_API_BASE = 'https://api.github.com';
 
@@ -23,7 +24,7 @@ export async function validateGitHubToken(
   }
 
   try {
-    const response = await fetch(`${GITHUB_API_BASE}/user`, {
+    const response = await githubFetch(`${GITHUB_API_BASE}/user`, {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: 'application/vnd.github.v3+json',
@@ -59,7 +60,7 @@ export async function fetchUserRepos(
   page: number = 1,
   perPage: number = 30
 ): Promise<GitHubRepo[]> {
-  const response = await fetch(
+  const response = await githubFetch(
     `${GITHUB_API_BASE}/user/repos?sort=pushed&per_page=${perPage}&page=${page}`,
     {
       headers: {
@@ -110,7 +111,7 @@ export async function readFileFromRepo(
 ): Promise<{ content: string; sha: string } | null> {
   const url = `${GITHUB_API_BASE}/repos/${owner}/${repo}/contents/${path}?ref=${encodeURIComponent(branch)}`;
 
-  const response = await fetch(url, {
+  const response = await githubFetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: 'application/vnd.github.v3+json',
@@ -164,7 +165,7 @@ export async function writeFileToRepo(
     body.sha = sha;
   }
 
-  const response = await fetch(url, {
+  const response = await githubFetch(url, {
     method: 'PUT',
     headers: {
       Authorization: `Bearer ${token}`,

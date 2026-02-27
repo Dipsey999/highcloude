@@ -2,9 +2,12 @@ import { useState, useEffect, useCallback } from 'preact/hooks';
 import type { ConnectionState, CredentialPayload, CodeMessage, RawExtractionResult } from '../types/messages';
 import { onCodeMessage, sendToCode } from '../utils/ui-message-bus';
 import { validateCredentials } from '../api/auth-manager';
+import { setGitHubProxy, clearGitHubProxy } from '../api/github-fetch';
 import { ConnectView } from './views/ConnectView';
 import { DashboardView } from './views/DashboardView';
 import { ToastContainer, showToast } from './components/Toast';
+
+var BRIDGE_API_URL = 'https://web-pied-iota-65.vercel.app';
 
 type AppView = 'loading' | 'connect' | 'dashboard';
 
@@ -16,6 +19,7 @@ export function App() {
   });
   const [rawData, setRawData] = useState<RawExtractionResult | null>(null);
   const [extractionProgress, setExtractionProgress] = useState<{ stage: string; percent: number } | null>(null);
+  const [bridgeToken, setBridgeToken] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = onCodeMessage((msg: CodeMessage) => {
@@ -34,6 +38,15 @@ export function App() {
             });
           } else {
             setView('connect');
+          }
+          break;
+        }
+
+        // Bridge token loaded — activate GitHub proxy
+        case 'BRIDGE_TOKEN_LOADED': {
+          if (msg.token) {
+            setBridgeToken(msg.token);
+            setGitHubProxy(BRIDGE_API_URL, msg.token);
           }
           break;
         }
@@ -136,6 +149,7 @@ export function App() {
     });
 
     sendToCode({ type: 'LOAD_CREDENTIALS' });
+    sendToCode({ type: 'LOAD_BRIDGE_TOKEN' });
 
     return unsubscribe;
   }, []);
@@ -146,6 +160,7 @@ export function App() {
   }, []);
 
   const handleDisconnect = useCallback(() => {
+    clearGitHubProxy();
     setCredentials(null);
     setConnectionState({ github: 'disconnected' });
     setRawData(null);
@@ -176,6 +191,7 @@ export function App() {
         <ConnectView
           onConnected={handleConnected}
           initialCredentials={credentials}
+          initialBridgeToken={bridgeToken}
         />
       )}
 

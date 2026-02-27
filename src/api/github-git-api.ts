@@ -1,4 +1,5 @@
 import { logger } from '../utils/logger';
+import { githubFetch } from './github-fetch';
 import type { GitHubPRInfo } from '../types/messages';
 
 const GITHUB_API_BASE = 'https://api.github.com';
@@ -25,7 +26,7 @@ export async function getBranchSha(
   branch: string,
 ): Promise<string> {
   const url = `${GITHUB_API_BASE}/repos/${owner}/${repo}/git/ref/heads/${encodeURIComponent(branch)}`;
-  const response = await fetch(url, { headers: headers(token) });
+  const response = await githubFetch(url, { headers: headers(token) });
 
   if (!response.ok) {
     throw new Error(`Failed to get branch SHA for ${branch}: ${response.status}`);
@@ -46,7 +47,7 @@ export async function createBranch(
   baseSha: string,
 ): Promise<void> {
   const url = `${GITHUB_API_BASE}/repos/${owner}/${repo}/git/refs`;
-  const response = await fetch(url, {
+  const response = await githubFetch(url, {
     method: 'POST',
     headers: headers(token),
     body: JSON.stringify({
@@ -89,7 +90,7 @@ export async function commitMultipleFiles(
 
   // 2. Get the tree SHA of the current commit
   const commitUrl = `${GITHUB_API_BASE}/repos/${owner}/${repo}/git/commits/${branchSha}`;
-  const commitResp = await fetch(commitUrl, { headers: headers(token) });
+  const commitResp = await githubFetch(commitUrl, { headers: headers(token) });
   if (!commitResp.ok) throw new Error(`Failed to get commit: ${commitResp.status}`);
   const commitData = (await commitResp.json()) as { tree: { sha: string } };
   const baseTreeSha = commitData.tree.sha;
@@ -104,7 +105,7 @@ export async function commitMultipleFiles(
 
   for (const file of files) {
     const blobUrl = `${GITHUB_API_BASE}/repos/${owner}/${repo}/git/blobs`;
-    const blobResp = await fetch(blobUrl, {
+    const blobResp = await githubFetch(blobUrl, {
       method: 'POST',
       headers: headers(token),
       body: JSON.stringify({
@@ -126,7 +127,7 @@ export async function commitMultipleFiles(
 
   // 4. Create a new tree with all the file entries
   const treeUrl = `${GITHUB_API_BASE}/repos/${owner}/${repo}/git/trees`;
-  const treeResp = await fetch(treeUrl, {
+  const treeResp = await githubFetch(treeUrl, {
     method: 'POST',
     headers: headers(token),
     body: JSON.stringify({
@@ -140,7 +141,7 @@ export async function commitMultipleFiles(
 
   // 5. Create a new commit pointing to the new tree
   const newCommitUrl = `${GITHUB_API_BASE}/repos/${owner}/${repo}/git/commits`;
-  const newCommitResp = await fetch(newCommitUrl, {
+  const newCommitResp = await githubFetch(newCommitUrl, {
     method: 'POST',
     headers: headers(token),
     body: JSON.stringify({
@@ -155,7 +156,7 @@ export async function commitMultipleFiles(
 
   // 6. Update the branch ref to point to the new commit
   const refUrl = `${GITHUB_API_BASE}/repos/${owner}/${repo}/git/refs/heads/${encodeURIComponent(branch)}`;
-  const refResp = await fetch(refUrl, {
+  const refResp = await githubFetch(refUrl, {
     method: 'PATCH',
     headers: headers(token),
     body: JSON.stringify({
@@ -186,7 +187,7 @@ export async function createPullRequest(
   body: string,
 ): Promise<{ number: number; htmlUrl: string }> {
   const url = `${GITHUB_API_BASE}/repos/${owner}/${repo}/pulls`;
-  const response = await fetch(url, {
+  const response = await githubFetch(url, {
     method: 'POST',
     headers: headers(token),
     body: JSON.stringify({ title, body, head, base }),
@@ -212,7 +213,7 @@ export async function listPullRequests(
   headPrefix?: string,
 ): Promise<GitHubPRInfo[]> {
   const url = `${GITHUB_API_BASE}/repos/${owner}/${repo}/pulls?state=open&per_page=30`;
-  const response = await fetch(url, { headers: headers(token) });
+  const response = await githubFetch(url, { headers: headers(token) });
 
   if (!response.ok) {
     throw new Error(`Failed to list PRs: ${response.status}`);
@@ -256,7 +257,7 @@ export async function mergePullRequest(
   mergeMethod: 'merge' | 'squash' | 'rebase' = 'squash',
 ): Promise<{ sha: string; merged: boolean }> {
   const url = `${GITHUB_API_BASE}/repos/${owner}/${repo}/pulls/${pullNumber}/merge`;
-  const response = await fetch(url, {
+  const response = await githubFetch(url, {
     method: 'PUT',
     headers: headers(token),
     body: JSON.stringify({ merge_method: mergeMethod }),
@@ -287,7 +288,7 @@ export async function getFileCommitInfo(
   branch: string,
 ): Promise<{ sha: string; author: string; date: string } | null> {
   const url = `${GITHUB_API_BASE}/repos/${owner}/${repo}/commits?path=${encodeURIComponent(filePath)}&sha=${encodeURIComponent(branch)}&per_page=1`;
-  const response = await fetch(url, { headers: headers(token) });
+  const response = await githubFetch(url, { headers: headers(token) });
 
   if (!response.ok) {
     if (response.status === 404) return null;

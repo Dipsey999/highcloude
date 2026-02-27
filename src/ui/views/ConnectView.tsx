@@ -2,6 +2,7 @@ import { useState, useCallback } from 'preact/hooks';
 import type { ConnectionState, CredentialPayload, SyncConfig, BridgeProject, CodeMessage } from '../../types/messages';
 import { validateGitHubOnly } from '../../api/auth-manager';
 import { fetchUserRepos, type GitHubRepo } from '../../api/github-client';
+import { setGitHubProxy, clearGitHubProxy } from '../../api/github-fetch';
 import { sendToCode, onCodeMessage } from '../../utils/ui-message-bus';
 import { StatusBadge } from '../components/StatusBadge';
 import { SyncConfigPanel } from '../components/SyncConfigPanel';
@@ -76,6 +77,9 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
 
       // Save bridge token to storage
       sendToCode({ type: 'SAVE_BRIDGE_TOKEN', token: bridgeToken });
+
+      // Activate GitHub proxy through bridge so API calls work from iframe
+      setGitHubProxy(BRIDGE_API_URL, bridgeToken);
 
       // Save the credentials from bridge (GitHub token only needed)
       const credentials: CredentialPayload = {
@@ -308,6 +312,7 @@ export function ConnectView({ onConnected, initialCredentials, initialSyncConfig
                 style={{ width: '100%', marginTop: 'var(--spacing-md)' }}
                 onClick={() => {
                   sendToCode({ type: 'CLEAR_BRIDGE_TOKEN' });
+                  clearGitHubProxy();
                   setBridgeConnected(false);
                   setBridgeToken('');
                   setBridgeProjects([]);
