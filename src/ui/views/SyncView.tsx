@@ -9,7 +9,7 @@ import type {
   SyncHistoryChange,
   SyncConfig,
 } from '../../types/messages';
-import { sendToCode, onCodeMessage } from '../../utils/message-bus';
+import { sendToCode, onCodeMessage } from '../../utils/ui-message-bus';
 import { transformToDocument, computeSummary } from '../../core/token-transformer';
 import { readFileFromRepo, writeFileToRepo } from '../../api/github-client';
 import {

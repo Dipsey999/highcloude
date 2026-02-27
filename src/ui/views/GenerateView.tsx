@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
 import type { DesignTokensDocument, DesignSpecNode } from '../../types/messages';
-import { sendToCode, onCodeMessage } from '../../utils/message-bus';
+import { sendToCode, onCodeMessage } from '../../utils/ui-message-bus';
 import { flattenTokensForPrompt, buildSystemPrompt, buildUserMessage } from '../../api/prompt-builder';
 import { generateDesign } from '../../api/claude-client';
 import { showToast } from '../components/Toast';

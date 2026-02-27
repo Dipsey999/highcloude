@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'preact/hooks';
 import type { DTCGToken, DTCGTokenType } from '../../types/messages';
 import { ColorSwatch } from './ColorSwatch';
-import { sendToCode } from '../../utils/message-bus';
+import { sendToCode } from '../../utils/ui-message-bus';
 
 interface TokenTreeNodeProps {
   name: string;

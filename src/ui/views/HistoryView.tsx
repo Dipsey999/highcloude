@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'preact/hooks';
 import type { SyncHistoryEntry } from '../../types/messages';
-import { sendToCode, onCodeMessage } from '../../utils/message-bus';
+import { sendToCode, onCodeMessage } from '../../utils/ui-message-bus';
 import { TimelineEntry } from '../components/TimelineEntry';
 import { showToast } from '../components/Toast';
 

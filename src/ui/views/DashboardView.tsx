@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'preact/hooks';
 import type { ConnectionState, CredentialPayload, RawExtractionResult, DesignTokensDocument, SyncConfig } from '../../types/messages';
-import { sendToCode, onCodeMessage } from '../../utils/message-bus';
+import { sendToCode, onCodeMessage } from '../../utils/ui-message-bus';
 import { transformToDocument } from '../../core/token-transformer';
 import { StatusBadge } from '../components/StatusBadge';
 import { BuildView } from './BuildView';

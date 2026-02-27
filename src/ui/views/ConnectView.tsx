@@ -2,7 +2,7 @@ import { useState, useCallback } from 'preact/hooks';
 import type { ConnectionState, CredentialPayload, SyncConfig, BridgeProject } from '../../types/messages';
 import { validateGitHubOnly } from '../../api/auth-manager';
 import { fetchUserRepos, type GitHubRepo } from '../../api/github-client';
-import { sendToCode } from '../../utils/message-bus';
+import { sendToCode } from '../../utils/ui-message-bus';
 import { StatusBadge } from '../components/StatusBadge';
 import { SyncConfigPanel } from '../components/SyncConfigPanel';
 import { showToast } from '../components/Toast';

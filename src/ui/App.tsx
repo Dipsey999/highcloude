@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'preact/hooks';
 import type { ConnectionState, CredentialPayload, CodeMessage, RawExtractionResult } from '../types/messages';
-import { onCodeMessage, sendToCode } from '../utils/message-bus';
+import { onCodeMessage, sendToCode } from '../utils/ui-message-bus';
 import { validateCredentials } from '../api/auth-manager';
 import { ConnectView } from './views/ConnectView';
 import { DashboardView } from './views/DashboardView';

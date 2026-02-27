@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'preact/hooks';
 import type { CredentialPayload, RawExtractionResult, DesignTokensDocument, RawFigmaVariable, SyncConfig } from '../../types/messages';
-import { sendToCode, onCodeMessage } from '../../utils/message-bus';
+import { sendToCode, onCodeMessage } from '../../utils/ui-message-bus';
 import { SearchInput } from '../components/SearchInput';
 import { TokenTree } from '../components/TokenTree';
 import { BatchActionsMenu } from '../components/BatchActionsMenu';

@@ -10,7 +10,7 @@ import type {
   SyncHistoryEntry,
   SyncHistoryChange,
 } from '../../types/messages';
-import { sendToCode, onCodeMessage } from '../../utils/message-bus';
+import { sendToCode, onCodeMessage } from '../../utils/ui-message-bus';
 import { transformToMultiDocument } from '../../core/token-transformer';
 import { readFileFromRepo } from '../../api/github-client';
 import {

@@ -7,7 +7,7 @@ import type {
   AutoMapPropertyType,
   TokenBindingInstruction,
 } from '../../types/messages';
-import { sendToCode, onCodeMessage } from '../../utils/message-bus';
+import { sendToCode, onCodeMessage } from '../../utils/ui-message-bus';
 import {
   flattenTokensForPrompt,
   buildReverseSyncSystemPrompt,
