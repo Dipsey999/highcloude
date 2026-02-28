@@ -1,7 +1,18 @@
-import { signIn } from '@/lib/auth';
+'use client';
+
+import { useEffect, useState } from 'react';
 import { GitHubIcon, CosmiLogo } from '@/components/Icons';
 
 export default function LoginPage() {
+  const [csrfToken, setCsrfToken] = useState('');
+
+  useEffect(() => {
+    fetch('/api/auth/csrf')
+      .then((res) => res.json())
+      .then((data) => setCsrfToken(data.csrfToken))
+      .catch(console.error);
+  }, []);
+
   return (
     <div
       className="hero-mesh relative flex min-h-[calc(100vh-4rem)] items-center justify-center"
@@ -34,12 +45,10 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <form
-          action={async () => {
-            'use server';
-            await signIn('github', { redirectTo: '/dashboard' });
-          }}
-        >
+        {/* Direct POST to Auth.js signin endpoint — most reliable approach */}
+        <form action="/api/auth/signin/github" method="POST">
+          <input type="hidden" name="csrfToken" value={csrfToken} />
+          <input type="hidden" name="callbackUrl" value="/dashboard" />
           <button
             type="submit"
             className="mt-8 flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200"
