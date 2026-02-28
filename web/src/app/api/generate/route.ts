@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Look up user's stored Gemini API key (optional — falls back to server env var)
+  // Look up user's stored Gemini API key — required for generation
   let geminiApiKey: string | undefined;
   try {
     const apiKeys = await prisma.apiKeys.findUnique({
@@ -37,7 +37,14 @@ export async function POST(req: NextRequest) {
       geminiApiKey = decrypt(apiKeys.geminiApiKeyEnc);
     }
   } catch {
-    // If key lookup fails, proceed with server env var
+    // Decryption or DB lookup failed
+  }
+
+  if (!geminiApiKey) {
+    return NextResponse.json(
+      { error: 'Gemini API key required. Add your free key in Dashboard > API Keys to generate design systems.' },
+      { status: 403 },
+    );
   }
 
   try {
@@ -46,10 +53,16 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('Authenticated generation failed:', message);
-    if (message.includes('GEMINI_API_KEY')) {
+    if (message.includes('API_KEY_INVALID') || message.includes('401') || message.includes('403')) {
       return NextResponse.json(
-        { error: 'Gemini API key not configured. Add your key in Dashboard > API Keys to generate design systems.' },
-        { status: 503 },
+        { error: 'Your Gemini API key is invalid. Please update it in Dashboard > API Keys.' },
+        { status: 403 },
+      );
+    }
+    if (message.includes('429') || message.includes('RESOURCE_EXHAUSTED')) {
+      return NextResponse.json(
+        { error: 'Gemini rate limit reached. Please wait a moment and try again.' },
+        { status: 429 },
       );
     }
     return NextResponse.json(
