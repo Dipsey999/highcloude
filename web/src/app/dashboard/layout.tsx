@@ -2,12 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FolderIcon, KeyIcon, LinkIcon, SparklesIcon, RobotIcon, BookOpenIcon } from '@/components/Icons';
+import { FolderIcon, KeyIcon, LinkIcon, SparklesIcon, RobotIcon, BookOpenIcon, PaletteIcon } from '@/components/Icons';
 
 const mainLinks = [
   { href: '/dashboard', label: 'Projects', icon: FolderIcon },
   { href: '/dashboard/keys', label: 'API Keys', icon: KeyIcon },
   { href: '/dashboard/plugin-token', label: 'Plugin Token', icon: LinkIcon },
+];
+
+const createLinks = [
+  { href: '/dashboard/design-systems', label: 'Design Systems', icon: PaletteIcon },
 ];
 
 const tokenLinks = [
@@ -100,6 +104,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       >
         <nav className="flex flex-col gap-1">
           {mainLinks.map((link) => (
+            <SidebarLink
+              key={link.href}
+              href={link.href}
+              label={link.label}
+              icon={link.icon}
+              isActive={isActive(link.href)}
+            />
+          ))}
+
+          <SidebarSeparator />
+          <SectionLabel>Create</SectionLabel>
+          {createLinks.map((link) => (
             <SidebarLink
               key={link.href}
               href={link.href}
