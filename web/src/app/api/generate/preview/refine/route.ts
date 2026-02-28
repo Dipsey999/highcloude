@@ -32,21 +32,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: { currentSystem?: GeneratedDesignSystem; instruction?: string; claudeApiKey?: string };
+  let body: { currentSystem?: GeneratedDesignSystem; instruction?: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
   }
 
-  const { currentSystem, instruction, claudeApiKey } = body;
-
-  if (!claudeApiKey || !claudeApiKey.startsWith('sk-ant-')) {
-    return NextResponse.json(
-      { error: 'A valid Claude API key is required.' },
-      { status: 400 },
-    );
-  }
+  const { currentSystem, instruction } = body;
 
   if (!currentSystem || !instruction) {
     return NextResponse.json(
@@ -56,18 +49,18 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const result = await refineDesignSystem(currentSystem, instruction, claudeApiKey);
+    const result = await refineDesignSystem(currentSystem, instruction);
     recordUsage(ip);
     return NextResponse.json(result);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
-    if (message.includes('401') || message.includes('invalid_api_key')) {
+    console.error('Pre-signup refinement failed:', message);
+    if (message.includes('GEMINI_API_KEY')) {
       return NextResponse.json(
-        { error: 'Invalid Claude API key.' },
-        { status: 401 },
+        { error: 'AI service is temporarily unavailable. Sign in and add your Gemini API key in Dashboard > API Keys to continue.' },
+        { status: 503 },
       );
     }
-    console.error('Pre-signup refinement failed:', message);
     return NextResponse.json(
       { error: 'Refinement failed. Please try again.' },
       { status: 500 },

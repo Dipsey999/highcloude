@@ -44,7 +44,6 @@ export function CreateFlow({ isAuthenticated, restoreMode }: CreateFlowProps) {
   const [primaryColor, setPrimaryColor] = useState<string | null>(null);
 
   // Generation state (step 5)
-  const [claudeApiKey, setClaudeApiKey] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
 
@@ -135,10 +134,6 @@ export function CreateFlow({ isAuthenticated, restoreMode }: CreateFlowProps) {
         },
       };
 
-      if (!isAuthenticated) {
-        body.claudeApiKey = claudeApiKey;
-      }
-
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -158,7 +153,7 @@ export function CreateFlow({ isAuthenticated, restoreMode }: CreateFlowProps) {
     } finally {
       setIsGenerating(false);
     }
-  }, [isAuthenticated, productDescription, vibe, brandReferences, primaryColor, claudeApiKey]);
+  }, [isAuthenticated, productDescription, vibe, brandReferences, primaryColor]);
 
   // ── Refine design system ──
   const handleRefine = useCallback(async (instruction: string) => {
@@ -171,10 +166,6 @@ export function CreateFlow({ isAuthenticated, restoreMode }: CreateFlowProps) {
         currentSystem: generatedSystem,
         instruction,
       };
-
-      if (!isAuthenticated) {
-        body.claudeApiKey = claudeApiKey;
-      }
 
       const res = await fetch(endpoint, {
         method: 'POST',
@@ -194,7 +185,7 @@ export function CreateFlow({ isAuthenticated, restoreMode }: CreateFlowProps) {
     } finally {
       setIsRefining(false);
     }
-  }, [isAuthenticated, generatedSystem, claudeApiKey]);
+  }, [isAuthenticated, generatedSystem]);
 
   // ── Save design system (authenticated) ──
   const handleSave = useCallback(async () => {
@@ -300,9 +291,6 @@ export function CreateFlow({ isAuthenticated, restoreMode }: CreateFlowProps) {
           <StepGeneration
             isGenerating={isGenerating}
             error={generationError}
-            isAuthenticated={isAuthenticated}
-            claudeApiKey={claudeApiKey}
-            onClaudeApiKeyChange={setClaudeApiKey}
             onGenerate={handleGenerate}
             onBack={goBack}
           />
@@ -322,8 +310,6 @@ export function CreateFlow({ isAuthenticated, restoreMode }: CreateFlowProps) {
         return generatedSystem ? (
           <StepRefinement
             designSystem={generatedSystem}
-            isAuthenticated={isAuthenticated}
-            claudeApiKey={claudeApiKey}
             isRefining={isRefining}
             onRefine={handleRefine}
             onDone={() => setStep(8)}

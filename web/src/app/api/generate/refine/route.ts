@@ -11,24 +11,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const apiKeys = await prisma.apiKeys.findUnique({ where: { userId } });
-  if (!apiKeys?.claudeApiKeyEnc) {
-    return NextResponse.json(
-      { error: 'Claude API key not configured.' },
-      { status: 400 },
-    );
-  }
-
-  let claudeApiKey: string;
-  try {
-    claudeApiKey = decrypt(apiKeys.claudeApiKeyEnc);
-  } catch {
-    return NextResponse.json(
-      { error: 'Failed to decrypt Claude API key.' },
-      { status: 500 },
-    );
-  }
-
   let body: { currentSystem?: GeneratedDesignSystem; instruction?: string };
   try {
     body = await req.json();
@@ -44,12 +26,32 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Look up user's stored Gemini API key (optional — falls back to server env var)
+  let geminiApiKey: string | undefined;
   try {
-    const result = await refineDesignSystem(currentSystem, instruction, claudeApiKey);
+    const apiKeys = await prisma.apiKeys.findUnique({
+      where: { userId },
+      select: { geminiApiKeyEnc: true },
+    });
+    if (apiKeys?.geminiApiKeyEnc) {
+      geminiApiKey = decrypt(apiKeys.geminiApiKeyEnc);
+    }
+  } catch {
+    // If key lookup fails, proceed with server env var
+  }
+
+  try {
+    const result = await refineDesignSystem(currentSystem, instruction, geminiApiKey);
     return NextResponse.json(result);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('Refinement failed:', message);
+    if (message.includes('GEMINI_API_KEY')) {
+      return NextResponse.json(
+        { error: 'Gemini API key not configured. Add your key in Dashboard > API Keys to refine design systems.' },
+        { status: 503 },
+      );
+    }
     return NextResponse.json(
       { error: 'Refinement failed. Please try again.' },
       { status: 500 },

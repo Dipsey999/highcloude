@@ -1,44 +1,14 @@
 /**
- * Handles iterative refinement of an existing design system via Claude AI.
+ * Handles iterative refinement of an existing design system via Gemini AI.
  */
 
 import type { GeneratedDesignSystem, RefinementResult } from './types';
 import { buildRefinementPrompt } from './prompts/refinement';
+import { callGemini } from './gemini-client';
 import { buildDesignSystemConfigFromInput, RADIUS_PRESETS } from '../design-system/config-mapper';
 import type { DesignSystemInput } from '../design-system/config-mapper';
 import { buildTokenDocument, generateDocumentation } from '../design-system/token-builder';
 import { ALL_COMPONENTS } from '../design-system/domain-presets';
-
-// ── Claude API caller (shared with system-generator) ──
-
-async function callClaude(
-  system: string,
-  user: string,
-  apiKey: string,
-): Promise<string> {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 4096,
-      system,
-      messages: [{ role: 'user', content: user }],
-    }),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`Claude API error (${response.status}): ${errorBody}`);
-  }
-
-  const data = await response.json();
-  return data.content[0].text;
-}
 
 function parseResponse(text: string): Record<string, unknown> {
   let cleaned = text.trim();
@@ -75,16 +45,36 @@ const SHADOW_PRESETS: Record<string, { sm: string; md: string; lg: string; xl: s
   },
 };
 
+/** Detect the radius preset name from current radius values */
+function detectCurrentRadius(radius: { sm: number; md: number; lg: number }): string {
+  for (const [name, preset] of Object.entries(RADIUS_PRESETS)) {
+    if (preset.sm === radius.sm && preset.md === radius.md && preset.lg === radius.lg) {
+      return name;
+    }
+  }
+  return 'medium';
+}
+
+/** Detect the shadow intensity preset name from current shadow values */
+function detectCurrentShadowIntensity(shadows: { sm: string; md: string; lg: string; xl: string }): string {
+  for (const [name, preset] of Object.entries(SHADOW_PRESETS)) {
+    if (preset.sm === shadows.sm && preset.md === shadows.md) {
+      return name;
+    }
+  }
+  return 'medium';
+}
+
 export async function refineDesignSystem(
   currentSystem: GeneratedDesignSystem,
   instruction: string,
-  claudeApiKey: string,
+  geminiApiKey?: string,
 ): Promise<RefinementResult> {
   // 1. Build the refinement prompt
   const { system, user } = buildRefinementPrompt(currentSystem, instruction);
 
-  // 2. Call Claude API
-  const responseText = await callClaude(system, user, claudeApiKey);
+  // 2. Call Gemini API
+  const responseText = await callGemini(system, user, geminiApiKey);
 
   // 3. Parse the partial response
   const changes = parseResponse(responseText);
@@ -122,11 +112,15 @@ export async function refineDesignSystem(
 
   const baseSize = (changes.baseSize as number) || current.typography.baseSize;
   const fontWeights = (changes.fontWeights as number[]) || current.typography.weights;
-  const borderRadius = (changes.borderRadius as string) || 'medium';
-  const shadowIntensity = (changes.shadowIntensity as string) || 'medium';
+  // Detect current borderRadius/shadowIntensity from the existing system
+  const currentBorderRadius = detectCurrentRadius(current.radius);
+  const currentShadowIntensity = detectCurrentShadowIntensity(current.shadows);
+
+  const borderRadius = (changes.borderRadius as string) || currentBorderRadius;
+  const shadowIntensity = (changes.shadowIntensity as string) || currentShadowIntensity;
 
   if (changes.borderRadius) {
-    modified.push({ field: 'borderRadius', old: 'medium', new: borderRadius });
+    modified.push({ field: 'borderRadius', old: currentBorderRadius, new: borderRadius });
   }
 
   const name = (changes.name as string) || currentSystem.name;

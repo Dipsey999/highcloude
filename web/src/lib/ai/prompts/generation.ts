@@ -1,5 +1,5 @@
 /**
- * Builds the Claude API prompt for design system generation.
+ * Builds the AI prompt for design system generation.
  */
 
 import type { OnboardingInput, VibeParameters } from '../types';

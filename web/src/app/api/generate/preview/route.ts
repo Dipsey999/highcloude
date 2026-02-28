@@ -27,21 +27,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: { input?: OnboardingInput; claudeApiKey?: string };
+  let body: { input?: OnboardingInput };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
   }
 
-  const { input, claudeApiKey } = body;
-
-  if (!claudeApiKey || !claudeApiKey.startsWith('sk-ant-')) {
-    return NextResponse.json(
-      { error: 'A valid Claude API key is required. Keys start with sk-ant-.' },
-      { status: 400 },
-    );
-  }
+  const { input } = body;
 
   if (!input?.productDescription || input.productDescription.trim().length < 10) {
     return NextResponse.json(
@@ -51,7 +44,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const designSystem = await generateDesignSystem(input, claudeApiKey);
+    const designSystem = await generateDesignSystem(input);
 
     rateLimitMap.set(ip, now);
     if (rateLimitMap.size > 10000) cleanRateLimitMap();
@@ -59,15 +52,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ designSystem });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
-    if (message.includes('401') || message.includes('invalid_api_key') || message.includes('authentication')) {
+    if (message.includes('GEMINI_API_KEY')) {
       return NextResponse.json(
-        { error: 'Invalid Claude API key. Please check your key and try again.' },
-        { status: 401 },
+        { error: 'AI service is temporarily unavailable. Sign in and add your Gemini API key in Dashboard > API Keys to continue.' },
+        { status: 503 },
       );
     }
-    if (message.includes('429') || message.includes('rate_limit')) {
+    if (message.includes('429') || message.includes('RESOURCE_EXHAUSTED')) {
       return NextResponse.json(
-        { error: 'Claude API rate limit reached. Please wait a moment and try again.' },
+        { error: 'AI service rate limit reached. Please wait a moment and try again.' },
         { status: 429 },
       );
     }

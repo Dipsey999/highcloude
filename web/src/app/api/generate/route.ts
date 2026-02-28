@@ -11,24 +11,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const apiKeys = await prisma.apiKeys.findUnique({ where: { userId } });
-  if (!apiKeys?.claudeApiKeyEnc) {
-    return NextResponse.json(
-      { error: 'Claude API key not configured. Add it in Dashboard > API Keys.' },
-      { status: 400 },
-    );
-  }
-
-  let claudeApiKey: string;
-  try {
-    claudeApiKey = decrypt(apiKeys.claudeApiKeyEnc);
-  } catch {
-    return NextResponse.json(
-      { error: 'Failed to decrypt Claude API key. Please re-enter it in API Keys settings.' },
-      { status: 500 },
-    );
-  }
-
   let body: { input?: OnboardingInput };
   try {
     body = await req.json();
@@ -44,18 +26,32 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Look up user's stored Gemini API key (optional — falls back to server env var)
+  let geminiApiKey: string | undefined;
   try {
-    const designSystem = await generateDesignSystem(input, claudeApiKey);
+    const apiKeys = await prisma.apiKeys.findUnique({
+      where: { userId },
+      select: { geminiApiKeyEnc: true },
+    });
+    if (apiKeys?.geminiApiKeyEnc) {
+      geminiApiKey = decrypt(apiKeys.geminiApiKeyEnc);
+    }
+  } catch {
+    // If key lookup fails, proceed with server env var
+  }
+
+  try {
+    const designSystem = await generateDesignSystem(input, geminiApiKey);
     return NextResponse.json({ designSystem });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
-    if (message.includes('401') || message.includes('invalid_api_key')) {
+    console.error('Authenticated generation failed:', message);
+    if (message.includes('GEMINI_API_KEY')) {
       return NextResponse.json(
-        { error: 'Your stored Claude API key is invalid. Please update it in API Keys settings.' },
-        { status: 401 },
+        { error: 'Gemini API key not configured. Add your key in Dashboard > API Keys to generate design systems.' },
+        { status: 503 },
       );
     }
-    console.error('Authenticated generation failed:', message);
     return NextResponse.json(
       { error: 'Design system generation failed. Please try again.' },
       { status: 500 },

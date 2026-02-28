@@ -1,5 +1,5 @@
 /**
- * Builds the Claude API prompt for iterative design system refinement.
+ * Builds the AI prompt for iterative design system refinement.
  */
 
 import type { GeneratedDesignSystem } from '../types';
