@@ -55,15 +55,21 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('Refinement failed:', message);
-    if (message.includes('API_KEY_INVALID') || message.includes('401') || message.includes('403')) {
+    if (message.includes('API_KEY_INVALID') || message.includes('PERMISSION_DENIED')) {
       return NextResponse.json(
-        { error: 'Your Gemini API key is invalid. Please update it in Dashboard > API Keys.' },
+        { error: 'Your Gemini API key is invalid or the Generative Language API is not enabled. Check your key in Dashboard > API Keys and ensure the API is enabled at console.cloud.google.com.' },
+        { status: 403 },
+      );
+    }
+    if (message.includes('401') || message.includes('403')) {
+      return NextResponse.json(
+        { error: 'Your Gemini API key was rejected by Google. Please verify it in Dashboard > API Keys.' },
         { status: 403 },
       );
     }
     if (message.includes('429') || message.includes('RESOURCE_EXHAUSTED')) {
       return NextResponse.json(
-        { error: 'Gemini rate limit reached. Please wait a moment and try again.' },
+        { error: 'Gemini API quota exhausted even after retries. Your free tier limit may have been reached — wait a minute or check your quota at console.cloud.google.com.' },
         { status: 429 },
       );
     }
