@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ project: { id: project.id, name: project.name } }, { status: 201 });
+    return NextResponse.json({ projectId: project.id, projectName: project.name }, { status: 201 });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('Failed to save design system:', message);

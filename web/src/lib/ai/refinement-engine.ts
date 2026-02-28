@@ -75,6 +75,26 @@ const SHADOW_PRESETS: Record<string, { sm: string; md: string; lg: string; xl: s
   },
 };
 
+/** Detect the radius preset name from current radius values */
+function detectCurrentRadius(radius: { sm: number; md: number; lg: number }): string {
+  for (const [name, preset] of Object.entries(RADIUS_PRESETS)) {
+    if (preset.sm === radius.sm && preset.md === radius.md && preset.lg === radius.lg) {
+      return name;
+    }
+  }
+  return 'medium';
+}
+
+/** Detect the shadow intensity preset name from current shadow values */
+function detectCurrentShadowIntensity(shadows: { sm: string; md: string; lg: string; xl: string }): string {
+  for (const [name, preset] of Object.entries(SHADOW_PRESETS)) {
+    if (preset.sm === shadows.sm && preset.md === shadows.md) {
+      return name;
+    }
+  }
+  return 'medium';
+}
+
 export async function refineDesignSystem(
   currentSystem: GeneratedDesignSystem,
   instruction: string,
@@ -122,11 +142,15 @@ export async function refineDesignSystem(
 
   const baseSize = (changes.baseSize as number) || current.typography.baseSize;
   const fontWeights = (changes.fontWeights as number[]) || current.typography.weights;
-  const borderRadius = (changes.borderRadius as string) || 'medium';
-  const shadowIntensity = (changes.shadowIntensity as string) || 'medium';
+  // Detect current borderRadius/shadowIntensity from the existing system
+  const currentBorderRadius = detectCurrentRadius(current.radius);
+  const currentShadowIntensity = detectCurrentShadowIntensity(current.shadows);
+
+  const borderRadius = (changes.borderRadius as string) || currentBorderRadius;
+  const shadowIntensity = (changes.shadowIntensity as string) || currentShadowIntensity;
 
   if (changes.borderRadius) {
-    modified.push({ field: 'borderRadius', old: 'medium', new: borderRadius });
+    modified.push({ field: 'borderRadius', old: currentBorderRadius, new: borderRadius });
   }
 
   const name = (changes.name as string) || currentSystem.name;
