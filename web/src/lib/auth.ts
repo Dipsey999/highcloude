@@ -4,7 +4,7 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from './db';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  debug: process.env.NODE_ENV !== 'production',
+  debug: true,
   trustHost: true,
   adapter: PrismaAdapter(prisma),
   providers: [

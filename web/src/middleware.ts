@@ -1,17 +1,19 @@
 import { NextResponse } from 'next/server';
-import NextAuth from 'next-auth';
-import authConfig from '@/lib/auth.config';
+import type { NextRequest } from 'next/server';
 
 /**
- * Use the edge-compatible auth config (no Prisma adapter) for middleware.
- * The full config with PrismaAdapter only runs in the Node.js runtime
- * (route handler at /api/auth/[...nextauth]).
+ * Middleware for CORS (plugin routes) and auth gating (dashboard routes).
  *
- * Auth.js v5 wraps the middleware function and adds `req.auth` to the request.
+ * IMPORTANT: We use a plain Next.js middleware here instead of the Auth.js
+ * `auth()` wrapper because our auth uses *database* sessions with PrismaAdapter.
+ * The Edge Runtime (where middleware runs) cannot access the database, so
+ * `req.auth` from the Auth.js middleware wrapper would ALWAYS be null.
+ *
+ * Instead, we check for the session cookie *existence* here (cheap edge check),
+ * and the actual session validation happens in server components / API routes
+ * via the full `auth()` call from `@/lib/auth`.
  */
-const { auth } = NextAuth(authConfig);
-
-export default auth((req) => {
+export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // CORS for plugin API routes
@@ -36,15 +38,21 @@ export default auth((req) => {
     return response;
   }
 
-  // Auth check for dashboard routes — redirect to Auth.js sign-in if not authenticated
-  if (!req.auth && pathname.startsWith('/dashboard')) {
-    const signInUrl = new URL('/api/auth/signin', req.nextUrl.origin);
-    signInUrl.searchParams.set('callbackUrl', pathname);
-    return NextResponse.redirect(signInUrl);
+  // Auth check for dashboard routes — redirect to sign-in if no session cookie
+  if (pathname.startsWith('/dashboard')) {
+    const hasSession =
+      req.cookies.has('authjs.session-token') ||
+      req.cookies.has('__Secure-authjs.session-token');
+
+    if (!hasSession) {
+      const signInUrl = new URL('/login', req.nextUrl.origin);
+      signInUrl.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(signInUrl);
+    }
   }
 
   return NextResponse.next();
-}) as any;
+}
 
 export const config = {
   matcher: ['/dashboard/:path*', '/api/plugin/:path*'],

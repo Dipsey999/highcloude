@@ -117,7 +117,7 @@ export function Navbar() {
                 </button>
 
                 <Link
-                  href="/api/auth/signin"
+                  href="/login"
                   className="btn-gradient rounded-lg px-4 py-1.5 text-sm font-medium"
                 >
                   <span className="relative z-10">Sign in</span>
