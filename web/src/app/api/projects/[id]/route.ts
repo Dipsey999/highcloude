@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSessionUserId } from '@/lib/session';
 import { prisma } from '@/lib/db';
 import { normalizeGithubRepo } from '@/lib/parse-repo';
+import { buildTokenDocument, generateDocumentation } from '@/lib/design-system/token-builder';
+import { buildDesignSystemConfigFromInput } from '@/lib/design-system/config-mapper';
 
 // GET /api/projects/:id — get project details
 export async function GET(
@@ -44,23 +46,47 @@ export async function PUT(
   }
 
   const body = await req.json();
-  const { name, githubRepo, githubBranch, githubFilePath, syncMode, pushMode, fileMapping, defaultDirectory } = body;
+  const { name, githubRepo, githubBranch, githubFilePath, syncMode, pushMode, fileMapping, defaultDirectory, designSystem } = body;
 
   // Normalize repo if provided: "https://github.com/owner/repo.git" → "owner/repo"
   const normalizedRepo = githubRepo !== undefined ? normalizeGithubRepo(githubRepo) : undefined;
 
+  // Build update data for base project fields
+  const updateData: Record<string, unknown> = {
+    ...(name !== undefined && { name }),
+    ...(normalizedRepo !== undefined && { githubRepo: normalizedRepo }),
+    ...(githubBranch !== undefined && { githubBranch }),
+    ...(githubFilePath !== undefined && { githubFilePath }),
+    ...(syncMode !== undefined && { syncMode }),
+    ...(pushMode !== undefined && { pushMode }),
+    ...(fileMapping !== undefined && { fileMapping }),
+    ...(defaultDirectory !== undefined && { defaultDirectory }),
+  };
+
+  // Handle optional design system update
+  if (designSystem) {
+    updateData.designSystemName = designSystem.name || name || existing.name;
+    updateData.designSystemSource = designSystem.source;
+    updateData.designSystemDomain = designSystem.domain || 'tech';
+    updateData.themeConfig = designSystem.themeConfig;
+    updateData.typographyConfig = designSystem.typographyConfig;
+    updateData.spacingConfig = designSystem.spacingConfig;
+    updateData.componentConfig = designSystem.componentConfig;
+
+    if (designSystem.source === 'scratch') {
+      const projectName = name || existing.name;
+      const dsConfig = buildDesignSystemConfigFromInput(designSystem, projectName);
+      const generatedTokens = buildTokenDocument(dsConfig);
+      const generatedDocs = generateDocumentation(dsConfig);
+
+      updateData.tokensDocument = generatedTokens;
+      updateData.documentation = generatedDocs;
+    }
+  }
+
   const project = await prisma.project.update({
     where: { id: params.id },
-    data: {
-      ...(name !== undefined && { name }),
-      ...(normalizedRepo !== undefined && { githubRepo: normalizedRepo }),
-      ...(githubBranch !== undefined && { githubBranch }),
-      ...(githubFilePath !== undefined && { githubFilePath }),
-      ...(syncMode !== undefined && { syncMode }),
-      ...(pushMode !== undefined && { pushMode }),
-      ...(fileMapping !== undefined && { fileMapping }),
-      ...(defaultDirectory !== undefined && { defaultDirectory }),
-    },
+    data: updateData as Parameters<typeof prisma.project.update>[0]['data'],
   });
 
   return NextResponse.json({ project });
