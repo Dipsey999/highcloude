@@ -1,17 +1,33 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { GitHubIcon, CosmiLogo } from '@/components/Icons';
 
 export default function LoginPage() {
-  const [csrfToken, setCsrfToken] = useState('');
+  const handleSignIn = async () => {
+    // Fetch CSRF token (also sets the matching cookie in the browser)
+    const res = await fetch('/api/auth/csrf');
+    const { csrfToken } = await res.json();
 
-  useEffect(() => {
-    fetch('/api/auth/csrf')
-      .then((res) => res.json())
-      .then((data) => setCsrfToken(data.csrfToken))
-      .catch(console.error);
-  }, []);
+    // Create and submit a real form — bypasses any Next.js router interception
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/api/auth/signin/github';
+
+    const tokenInput = document.createElement('input');
+    tokenInput.type = 'hidden';
+    tokenInput.name = 'csrfToken';
+    tokenInput.value = csrfToken;
+    form.appendChild(tokenInput);
+
+    const callbackInput = document.createElement('input');
+    callbackInput.type = 'hidden';
+    callbackInput.name = 'callbackUrl';
+    callbackInput.value = '/dashboard';
+    form.appendChild(callbackInput);
+
+    document.body.appendChild(form);
+    form.submit();
+  };
 
   return (
     <div
@@ -26,7 +42,6 @@ export default function LoginPage() {
         }}
       >
         <div className="text-center">
-          {/* Logo */}
           <div className="mx-auto mb-6 flex justify-center">
             <CosmiLogo className="h-12 w-12" />
           </div>
@@ -45,23 +60,18 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Direct POST to Auth.js signin endpoint — most reliable approach */}
-        <form action="/api/auth/signin/github" method="POST">
-          <input type="hidden" name="csrfToken" value={csrfToken} />
-          <input type="hidden" name="callbackUrl" value="/dashboard" />
-          <button
-            type="submit"
-            className="mt-8 flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200"
-            style={{
-              background: 'var(--bg-tertiary)',
-              color: 'var(--text-primary)',
-              border: '1px solid var(--border-primary)',
-            }}
-          >
-            <GitHubIcon className="h-5 w-5" />
-            Continue with GitHub
-          </button>
-        </form>
+        <button
+          onClick={handleSignIn}
+          className="mt-8 flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200"
+          style={{
+            background: 'var(--bg-tertiary)',
+            color: 'var(--text-primary)',
+            border: '1px solid var(--border-primary)',
+          }}
+        >
+          <GitHubIcon className="h-5 w-5" />
+          Continue with GitHub
+        </button>
 
         <p
           className="mt-6 text-center text-xs"
