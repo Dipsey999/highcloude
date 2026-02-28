@@ -6,8 +6,6 @@ import { LivePreviewPanel } from '@/components/create/preview/LivePreviewPanel';
 
 interface StepRefinementProps {
   designSystem: GeneratedDesignSystem;
-  isAuthenticated: boolean;
-  claudeApiKey: string;
   isRefining: boolean;
   onRefine: (instruction: string) => void;
   onDone: () => void;
@@ -32,8 +30,6 @@ const QUICK_CONTROLS = [
 
 export function StepRefinement({
   designSystem,
-  isAuthenticated,
-  claudeApiKey,
   isRefining,
   onRefine,
   onDone,

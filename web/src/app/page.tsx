@@ -248,7 +248,7 @@ export default function LandingPage() {
             </div>
 
             <p className="mt-4 text-xs" style={{ color: 'var(--text-tertiary)' }}>
-              No account required to try. Bring your own Claude API key.
+              No account required. No API key needed. Just describe and go.
             </p>
           </div>
         </div>
@@ -549,7 +549,7 @@ export default function LandingPage() {
             </Link>
           </div>
           <p className="mt-4 text-xs" style={{ color: 'var(--text-tertiary)' }}>
-            Free to try. No sign-up required. Bring your own Claude API key.
+            Free to try. No sign-up required. No API key needed.
           </p>
         </div>
       </section>

@@ -1,44 +1,14 @@
 /**
- * Handles iterative refinement of an existing design system via Claude AI.
+ * Handles iterative refinement of an existing design system via Gemini AI.
  */
 
 import type { GeneratedDesignSystem, RefinementResult } from './types';
 import { buildRefinementPrompt } from './prompts/refinement';
+import { callGemini } from './gemini-client';
 import { buildDesignSystemConfigFromInput, RADIUS_PRESETS } from '../design-system/config-mapper';
 import type { DesignSystemInput } from '../design-system/config-mapper';
 import { buildTokenDocument, generateDocumentation } from '../design-system/token-builder';
 import { ALL_COMPONENTS } from '../design-system/domain-presets';
-
-// ── Claude API caller (shared with system-generator) ──
-
-async function callClaude(
-  system: string,
-  user: string,
-  apiKey: string,
-): Promise<string> {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 4096,
-      system,
-      messages: [{ role: 'user', content: user }],
-    }),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`Claude API error (${response.status}): ${errorBody}`);
-  }
-
-  const data = await response.json();
-  return data.content[0].text;
-}
 
 function parseResponse(text: string): Record<string, unknown> {
   let cleaned = text.trim();
@@ -98,13 +68,12 @@ function detectCurrentShadowIntensity(shadows: { sm: string; md: string; lg: str
 export async function refineDesignSystem(
   currentSystem: GeneratedDesignSystem,
   instruction: string,
-  claudeApiKey: string,
 ): Promise<RefinementResult> {
   // 1. Build the refinement prompt
   const { system, user } = buildRefinementPrompt(currentSystem, instruction);
 
-  // 2. Call Claude API
-  const responseText = await callClaude(system, user, claudeApiKey);
+  // 2. Call Gemini API
+  const responseText = await callGemini(system, user);
 
   // 3. Parse the partial response
   const changes = parseResponse(responseText);

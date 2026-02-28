@@ -1,14 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { ApiKeyInput } from '@/components/create/ApiKeyInput';
 
 interface StepGenerationProps {
   isGenerating: boolean;
   error: string | null;
-  isAuthenticated: boolean;
-  claudeApiKey: string;
-  onClaudeApiKeyChange: (key: string) => void;
   onGenerate: () => void;
   onBack: () => void;
 }
@@ -23,9 +19,6 @@ const PROGRESS_STEPS = [
 export function StepGeneration({
   isGenerating,
   error,
-  isAuthenticated,
-  claudeApiKey,
-  onClaudeApiKeyChange,
   onGenerate,
   onBack,
 }: StepGenerationProps) {
@@ -55,9 +48,6 @@ export function StepGeneration({
       timersRef.current.forEach(clearTimeout);
     };
   }, [isGenerating]);
-
-  const isApiKeyValid = claudeApiKey && claudeApiKey.startsWith('sk-ant-');
-  const canGenerate = isAuthenticated || isApiKeyValid;
 
   // --- Generating state ---
   if (isGenerating) {
@@ -245,17 +235,9 @@ export function StepGeneration({
         We have everything we need. Let the AI create your custom design system.
       </p>
 
-      {/* API key input for unauthenticated users */}
-      {!isAuthenticated && (
-        <div className="text-left mb-6">
-          <ApiKeyInput value={claudeApiKey} onChange={onClaudeApiKeyChange} />
-        </div>
-      )}
-
       <button
         onClick={onGenerate}
-        disabled={!canGenerate}
-        className="btn-gradient rounded-xl px-10 py-3.5 text-base font-medium disabled:opacity-40 disabled:cursor-not-allowed w-full sm:w-auto"
+        className="btn-gradient rounded-xl px-10 py-3.5 text-base font-medium w-full sm:w-auto"
       >
         <span className="relative z-10">Generate Design System</span>
       </button>
