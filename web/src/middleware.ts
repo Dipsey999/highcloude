@@ -1,7 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { NextResponse } from 'next/server';
+import NextAuth from 'next-auth';
+import authConfig from '@/lib/auth.config';
 
-export default async function middleware(req: NextRequest) {
+/**
+ * Use the edge-compatible auth config (no Prisma adapter) for middleware.
+ * The full config with PrismaAdapter only runs in the Node.js runtime
+ * (route handler at /api/auth/[...nextauth]).
+ *
+ * Auth.js v5 wraps the middleware function and adds `req.auth` to the request.
+ */
+const { auth } = NextAuth(authConfig);
+
+export default auth((req) => {
   const { pathname } = req.nextUrl;
 
   // CORS for plugin API routes
@@ -18,7 +28,7 @@ export default async function middleware(req: NextRequest) {
       });
     }
 
-    // For actual requests, continue to the handler and add CORS headers to response
+    // For actual requests, continue and add CORS headers
     const response = NextResponse.next();
     response.headers.set('Access-Control-Allow-Origin', '*');
     response.headers.set('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
@@ -26,9 +36,15 @@ export default async function middleware(req: NextRequest) {
     return response;
   }
 
-  // Auth middleware for dashboard routes
-  return (auth as any)(req);
-}
+  // Auth check for dashboard routes — redirect to login if not authenticated
+  if (!req.auth && pathname.startsWith('/dashboard')) {
+    const loginUrl = new URL('/login', req.nextUrl.origin);
+    loginUrl.searchParams.set('callbackUrl', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  return NextResponse.next();
+}) as any;
 
 export const config = {
   matcher: ['/dashboard/:path*', '/api/plugin/:path*'],
