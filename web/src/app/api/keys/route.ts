@@ -18,24 +18,32 @@ export async function GET() {
     return NextResponse.json({
       hasKeys: false,
       githubHint: null,
-      claudeHint: null,
-      hasClaudeKey: false,
+      groqHint: null,
+      hasGroqKey: false,
       geminiHint: null,
       hasGeminiKey: false,
+      openaiHint: null,
+      hasOpenaiKey: false,
+      claudeHint: null,
+      hasClaudeKey: false,
     });
   }
 
   return NextResponse.json({
     hasKeys: true,
     githubHint: apiKeys.githubTokenHint,
-    claudeHint: apiKeys.claudeApiKeyHint ?? null,
-    hasClaudeKey: !!apiKeys.claudeApiKeyEnc,
+    groqHint: apiKeys.groqApiKeyHint ?? null,
+    hasGroqKey: !!apiKeys.groqApiKeyEnc,
     geminiHint: apiKeys.geminiApiKeyHint ?? null,
     hasGeminiKey: !!apiKeys.geminiApiKeyEnc,
+    openaiHint: apiKeys.openaiApiKeyHint ?? null,
+    hasOpenaiKey: !!apiKeys.openaiApiKeyEnc,
+    claudeHint: apiKeys.claudeApiKeyHint ?? null,
+    hasClaudeKey: !!apiKeys.claudeApiKeyEnc,
   });
 }
 
-// POST /api/keys — save encrypted keys (GitHub token and/or Claude API key)
+// POST /api/keys — save encrypted keys
 export async function POST(req: NextRequest) {
   const userId = await getSessionUserId();
   if (!userId) {
@@ -43,9 +51,9 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { githubToken, claudeApiKey, geminiApiKey } = body;
+  const { githubToken, groqApiKey, geminiApiKey, openaiApiKey, claudeApiKey } = body;
 
-  if (!githubToken && !claudeApiKey && !geminiApiKey) {
+  if (!githubToken && !groqApiKey && !geminiApiKey && !openaiApiKey && !claudeApiKey) {
     return NextResponse.json({ error: 'At least one key is required' }, { status: 400 });
   }
 
@@ -55,15 +63,21 @@ export async function POST(req: NextRequest) {
     updateData.githubTokenEnc = encrypt(githubToken);
     updateData.githubTokenHint = getHint(githubToken);
   }
-
-  if (claudeApiKey) {
-    updateData.claudeApiKeyEnc = encrypt(claudeApiKey);
-    updateData.claudeApiKeyHint = getHint(claudeApiKey);
+  if (groqApiKey) {
+    updateData.groqApiKeyEnc = encrypt(groqApiKey);
+    updateData.groqApiKeyHint = getHint(groqApiKey);
   }
-
   if (geminiApiKey) {
     updateData.geminiApiKeyEnc = encrypt(geminiApiKey);
     updateData.geminiApiKeyHint = getHint(geminiApiKey);
+  }
+  if (openaiApiKey) {
+    updateData.openaiApiKeyEnc = encrypt(openaiApiKey);
+    updateData.openaiApiKeyHint = getHint(openaiApiKey);
+  }
+  if (claudeApiKey) {
+    updateData.claudeApiKeyEnc = encrypt(claudeApiKey);
+    updateData.claudeApiKeyHint = getHint(claudeApiKey);
   }
 
   await prisma.apiKeys.upsert({
@@ -73,10 +87,14 @@ export async function POST(req: NextRequest) {
       userId,
       githubTokenEnc: updateData.githubTokenEnc ?? '',
       githubTokenHint: updateData.githubTokenHint,
-      claudeApiKeyEnc: updateData.claudeApiKeyEnc,
-      claudeApiKeyHint: updateData.claudeApiKeyHint,
+      groqApiKeyEnc: updateData.groqApiKeyEnc,
+      groqApiKeyHint: updateData.groqApiKeyHint,
       geminiApiKeyEnc: updateData.geminiApiKeyEnc,
       geminiApiKeyHint: updateData.geminiApiKeyHint,
+      openaiApiKeyEnc: updateData.openaiApiKeyEnc,
+      openaiApiKeyHint: updateData.openaiApiKeyHint,
+      claudeApiKeyEnc: updateData.claudeApiKeyEnc,
+      claudeApiKeyHint: updateData.claudeApiKeyHint,
     },
   });
 
@@ -84,9 +102,6 @@ export async function POST(req: NextRequest) {
 }
 
 // DELETE /api/keys — remove keys (all or specific)
-// ?key=claude — delete only Claude API key
-// ?key=github — delete only GitHub token
-// no param — delete entire record
 export async function DELETE(req: NextRequest) {
   const userId = await getSessionUserId();
   if (!userId) {
@@ -95,15 +110,25 @@ export async function DELETE(req: NextRequest) {
 
   const keyType = req.nextUrl.searchParams.get('key');
 
-  if (keyType === 'claude') {
+  if (keyType === 'groq') {
     await prisma.apiKeys.update({
       where: { userId },
-      data: { claudeApiKeyEnc: null, claudeApiKeyHint: null },
+      data: { groqApiKeyEnc: null, groqApiKeyHint: null },
     });
   } else if (keyType === 'gemini') {
     await prisma.apiKeys.update({
       where: { userId },
       data: { geminiApiKeyEnc: null, geminiApiKeyHint: null },
+    });
+  } else if (keyType === 'openai') {
+    await prisma.apiKeys.update({
+      where: { userId },
+      data: { openaiApiKeyEnc: null, openaiApiKeyHint: null },
+    });
+  } else if (keyType === 'claude') {
+    await prisma.apiKeys.update({
+      where: { userId },
+      data: { claudeApiKeyEnc: null, claudeApiKeyHint: null },
     });
   } else if (keyType === 'github') {
     await prisma.apiKeys.update({

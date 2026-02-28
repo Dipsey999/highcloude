@@ -8,7 +8,8 @@
 import type { OnboardingInput, AIDesignDecisions, GeneratedDesignSystem } from './types';
 import { mapVibeToParameters, getVibeDefaultColor } from './vibe-mapper';
 import { buildGenerationPrompt } from './prompts/generation';
-import { callGemini } from './gemini-client';
+import { callAI } from './ai-caller';
+import type { AICredentials } from './ai-caller';
 import { buildDesignSystemConfigFromInput, RADIUS_PRESETS } from '../design-system/config-mapper';
 import type { DesignSystemInput } from '../design-system/config-mapper';
 import { buildTokenDocument, generateDocumentation } from '../design-system/token-builder';
@@ -86,7 +87,7 @@ function detectDomain(description: string, primaryColor: string): string {
 
 export async function generateDesignSystem(
   input: OnboardingInput,
-  geminiApiKey?: string,
+  credentials: AICredentials,
 ): Promise<GeneratedDesignSystem> {
   // 1. Map vibe to default parameters
   const vibeParams = mapVibeToParameters(input.vibe);
@@ -94,8 +95,8 @@ export async function generateDesignSystem(
   // 2. Build the generation prompt
   const { system, user } = buildGenerationPrompt(input, vibeParams);
 
-  // 3. Call Gemini API
-  const responseText = await callGemini(system, user, geminiApiKey);
+  // 3. Call AI provider
+  const responseText = await callAI(system, user, credentials);
 
   // 4. Parse AI response
   const decisions = parseAIResponse(responseText);
