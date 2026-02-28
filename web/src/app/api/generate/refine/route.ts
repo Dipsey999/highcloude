@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionUserId } from '@/lib/session';
+import { prisma } from '@/lib/db';
+import { decrypt } from '@/lib/encryption';
 import { refineDesignSystem } from '@/lib/ai/refinement-engine';
 import type { GeneratedDesignSystem } from '@/lib/ai/types';
 
@@ -24,8 +26,22 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Look up user's stored Gemini API key (optional — falls back to server env var)
+  let geminiApiKey: string | undefined;
   try {
-    const result = await refineDesignSystem(currentSystem, instruction);
+    const apiKeys = await prisma.apiKeys.findUnique({
+      where: { userId },
+      select: { geminiApiKeyEnc: true },
+    });
+    if (apiKeys?.geminiApiKeyEnc) {
+      geminiApiKey = decrypt(apiKeys.geminiApiKeyEnc);
+    }
+  } catch {
+    // If key lookup fails, proceed with server env var
+  }
+
+  try {
+    const result = await refineDesignSystem(currentSystem, instruction, geminiApiKey);
     return NextResponse.json(result);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';

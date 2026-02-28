@@ -9,8 +9,9 @@ const GEMINI_ENDPOINT =
 export async function callGemini(
   systemPrompt: string,
   userMessage: string,
+  apiKeyOverride?: string,
 ): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = apiKeyOverride || process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error(
       'GEMINI_API_KEY environment variable is not configured.',

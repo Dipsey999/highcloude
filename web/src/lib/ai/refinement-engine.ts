@@ -68,12 +68,13 @@ function detectCurrentShadowIntensity(shadows: { sm: string; md: string; lg: str
 export async function refineDesignSystem(
   currentSystem: GeneratedDesignSystem,
   instruction: string,
+  geminiApiKey?: string,
 ): Promise<RefinementResult> {
   // 1. Build the refinement prompt
   const { system, user } = buildRefinementPrompt(currentSystem, instruction);
 
   // 2. Call Gemini API
-  const responseText = await callGemini(system, user);
+  const responseText = await callGemini(system, user, geminiApiKey);
 
   // 3. Parse the partial response
   const changes = parseResponse(responseText);

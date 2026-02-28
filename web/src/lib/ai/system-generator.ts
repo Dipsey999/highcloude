@@ -86,6 +86,7 @@ function detectDomain(description: string, primaryColor: string): string {
 
 export async function generateDesignSystem(
   input: OnboardingInput,
+  geminiApiKey?: string,
 ): Promise<GeneratedDesignSystem> {
   // 1. Map vibe to default parameters
   const vibeParams = mapVibeToParameters(input.vibe);
@@ -94,7 +95,7 @@ export async function generateDesignSystem(
   const { system, user } = buildGenerationPrompt(input, vibeParams);
 
   // 3. Call Gemini API
-  const responseText = await callGemini(system, user);
+  const responseText = await callGemini(system, user, geminiApiKey);
 
   // 4. Parse AI response
   const decisions = parseAIResponse(responseText);

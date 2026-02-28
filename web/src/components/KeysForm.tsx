@@ -6,6 +6,8 @@ import { SparklesIcon, ShieldIcon, ChevronDownIcon, InfoCircleIcon, ExternalLink
 interface KeysData {
   hasKeys: boolean;
   githubHint: string | null;
+  geminiHint: string | null;
+  hasGeminiKey: boolean;
 }
 
 function StepGuide({
@@ -92,8 +94,11 @@ function StatusBadge({ saved, hint }: { saved: boolean; hint: string | null }) {
 export function KeysForm() {
   const [keysData, setKeysData] = useState<KeysData | null>(null);
   const [githubToken, setGithubToken] = useState('');
+  const [geminiApiKey, setGeminiApiKey] = useState('');
   const [saving, setSaving] = useState(false);
+  const [savingGemini, setSavingGemini] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [geminiMessage, setGeminiMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -140,12 +145,49 @@ export function KeysForm() {
   async function handleDelete() {
     if (!confirm('Are you sure you want to delete your GitHub token? Syncing will stop until you add a new one.')) return;
     try {
-      const res = await fetch('/api/keys', { method: 'DELETE' });
+      const res = await fetch('/api/keys?key=github', { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete');
       setMessage({ type: 'success', text: 'Token deleted' });
-      setKeysData({ hasKeys: false, githubHint: null });
+      setKeysData((prev) => prev ? { ...prev, hasKeys: false, githubHint: null } : null);
     } catch {
       setMessage({ type: 'error', text: 'Failed to delete token' });
+    }
+  }
+
+  async function handleSaveGemini(e: React.FormEvent) {
+    e.preventDefault();
+    if (!geminiApiKey) {
+      setGeminiMessage({ type: 'error', text: 'Enter your Gemini API key' });
+      return;
+    }
+    setSavingGemini(true);
+    setGeminiMessage(null);
+    try {
+      const res = await fetch('/api/keys', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ geminiApiKey }),
+      });
+      if (!res.ok) throw new Error('Failed to save');
+      setGeminiMessage({ type: 'success', text: 'Gemini API key saved and encrypted successfully' });
+      setGeminiApiKey('');
+      fetchKeys();
+    } catch {
+      setGeminiMessage({ type: 'error', text: 'Failed to save Gemini API key' });
+    } finally {
+      setSavingGemini(false);
+    }
+  }
+
+  async function handleDeleteGemini() {
+    if (!confirm('Are you sure you want to delete your Gemini API key? Generation will fall back to the shared key.')) return;
+    try {
+      const res = await fetch('/api/keys?key=gemini', { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete');
+      setGeminiMessage({ type: 'success', text: 'Gemini API key deleted' });
+      setKeysData((prev) => prev ? { ...prev, geminiHint: null, hasGeminiKey: false } : null);
+    } catch {
+      setGeminiMessage({ type: 'error', text: 'Failed to delete Gemini API key' });
     }
   }
 
@@ -276,6 +318,101 @@ export function KeysForm() {
             </span>
           ) : (
             'Save Token'
+          )}
+        </button>
+      </form>
+
+      {/* Gemini API Key Section */}
+      <form onSubmit={handleSaveGemini} className="rounded-2xl border p-6" style={{ borderColor: 'var(--border-primary)', background: 'var(--bg-elevated)' }}>
+        <div className="flex items-start justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <label htmlFor="geminiApiKey" className="block text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+              Gemini API Key
+            </label>
+            <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium" style={{ background: 'var(--bg-tertiary)', color: 'var(--text-tertiary)' }}>
+              Optional
+            </span>
+          </div>
+          <StatusBadge saved={!!keysData?.hasGeminiKey} hint={keysData?.geminiHint ?? null} />
+        </div>
+        <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
+          Your own key for AI design system generation. A shared key is used by default.
+        </p>
+
+        {/* Saved Gemini Key Status */}
+        {keysData?.hasGeminiKey && keysData.geminiHint && (
+          <div className="flex items-center justify-between mb-4 rounded-xl p-3" style={{ background: 'var(--bg-tertiary)' }}>
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Current key: <span className="font-mono">{keysData.geminiHint}</span></span>
+            <button
+              type="button"
+              onClick={handleDeleteGemini}
+              className="text-sm font-medium transition-colors duration-200"
+              style={{ color: 'var(--error)' }}
+            >
+              Delete
+            </button>
+          </div>
+        )}
+
+        <StepGuide
+          title="How to get a Gemini API key (1 minute)"
+          defaultOpen={!keysData?.hasGeminiKey}
+          steps={[
+            { text: 'Go to Google AI Studio and sign in with your Google account.', link: { url: 'https://aistudio.google.com/apikey', label: 'Open AI Studio' } },
+            { text: 'Click "Create API Key" and select or create a Google Cloud project.' },
+            { text: 'Copy the generated API key and paste it below.' },
+          ]}
+        />
+
+        <div className="mt-4">
+          <input
+            id="geminiApiKey"
+            type="password"
+            value={geminiApiKey}
+            onChange={(e) => setGeminiApiKey(e.target.value)}
+            placeholder="AIzaSy..."
+            className="input w-full rounded-xl px-3.5 py-2.5 text-sm font-mono"
+          />
+        </div>
+
+        {/* Security Note */}
+        <div className="flex items-start gap-2.5 mt-4 rounded-xl p-3" style={{ background: 'var(--bg-tertiary)' }}>
+          <ShieldIcon className="h-4 w-4 flex-shrink-0 mt-0.5" style={{ color: 'var(--text-tertiary)' }} />
+          <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+            Your key is encrypted with AES-256-GCM before storage and used only for AI generation requests.
+          </p>
+        </div>
+
+        {/* Message */}
+        {geminiMessage && (
+          <div
+            className="mt-4 rounded-xl px-4 py-3 text-sm border-l-4"
+            style={{
+              background: geminiMessage.type === 'success' ? 'var(--success-subtle)' : 'var(--error-subtle)',
+              color: geminiMessage.type === 'success' ? 'var(--success)' : 'var(--error)',
+              borderLeftColor: geminiMessage.type === 'success' ? 'var(--success)' : 'var(--error)',
+            }}
+          >
+            {geminiMessage.type === 'success' ? '\u2713 ' : '\u2717 '}{geminiMessage.text}
+          </div>
+        )}
+
+        {/* Save Button */}
+        <button
+          type="submit"
+          disabled={savingGemini || !geminiApiKey}
+          className="btn-gradient mt-4 w-full rounded-xl px-4 py-3 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {savingGemini ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              Encrypting &amp; Saving...
+            </span>
+          ) : (
+            'Save Gemini Key'
           )}
         </button>
       </form>

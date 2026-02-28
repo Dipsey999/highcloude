@@ -20,6 +20,8 @@ export async function GET() {
       githubHint: null,
       claudeHint: null,
       hasClaudeKey: false,
+      geminiHint: null,
+      hasGeminiKey: false,
     });
   }
 
@@ -28,6 +30,8 @@ export async function GET() {
     githubHint: apiKeys.githubTokenHint,
     claudeHint: apiKeys.claudeApiKeyHint ?? null,
     hasClaudeKey: !!apiKeys.claudeApiKeyEnc,
+    geminiHint: apiKeys.geminiApiKeyHint ?? null,
+    hasGeminiKey: !!apiKeys.geminiApiKeyEnc,
   });
 }
 
@@ -39,9 +43,9 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { githubToken, claudeApiKey } = body;
+  const { githubToken, claudeApiKey, geminiApiKey } = body;
 
-  if (!githubToken && !claudeApiKey) {
+  if (!githubToken && !claudeApiKey && !geminiApiKey) {
     return NextResponse.json({ error: 'At least one key is required' }, { status: 400 });
   }
 
@@ -57,6 +61,11 @@ export async function POST(req: NextRequest) {
     updateData.claudeApiKeyHint = getHint(claudeApiKey);
   }
 
+  if (geminiApiKey) {
+    updateData.geminiApiKeyEnc = encrypt(geminiApiKey);
+    updateData.geminiApiKeyHint = getHint(geminiApiKey);
+  }
+
   await prisma.apiKeys.upsert({
     where: { userId },
     update: updateData,
@@ -66,6 +75,8 @@ export async function POST(req: NextRequest) {
       githubTokenHint: updateData.githubTokenHint,
       claudeApiKeyEnc: updateData.claudeApiKeyEnc,
       claudeApiKeyHint: updateData.claudeApiKeyHint,
+      geminiApiKeyEnc: updateData.geminiApiKeyEnc,
+      geminiApiKeyHint: updateData.geminiApiKeyHint,
     },
   });
 
@@ -88,6 +99,11 @@ export async function DELETE(req: NextRequest) {
     await prisma.apiKeys.update({
       where: { userId },
       data: { claudeApiKeyEnc: null, claudeApiKeyHint: null },
+    });
+  } else if (keyType === 'gemini') {
+    await prisma.apiKeys.update({
+      where: { userId },
+      data: { geminiApiKeyEnc: null, geminiApiKeyHint: null },
     });
   } else if (keyType === 'github') {
     await prisma.apiKeys.update({
