@@ -55,6 +55,12 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('Pre-signup refinement failed:', message);
+    if (message.includes('GEMINI_API_KEY')) {
+      return NextResponse.json(
+        { error: 'AI service is temporarily unavailable. Sign in and add your Gemini API key in Dashboard > API Keys to continue.' },
+        { status: 503 },
+      );
+    }
     return NextResponse.json(
       { error: 'Refinement failed. Please try again.' },
       { status: 500 },

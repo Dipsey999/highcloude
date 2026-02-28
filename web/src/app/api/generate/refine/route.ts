@@ -46,6 +46,12 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('Refinement failed:', message);
+    if (message.includes('GEMINI_API_KEY')) {
+      return NextResponse.json(
+        { error: 'Gemini API key not configured. Add your key in Dashboard > API Keys to refine design systems.' },
+        { status: 503 },
+      );
+    }
     return NextResponse.json(
       { error: 'Refinement failed. Please try again.' },
       { status: 500 },

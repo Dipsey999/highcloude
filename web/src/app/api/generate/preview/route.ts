@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     if (message.includes('GEMINI_API_KEY')) {
       return NextResponse.json(
-        { error: 'AI service is not configured. Please try again later.' },
+        { error: 'AI service is temporarily unavailable. Sign in and add your Gemini API key in Dashboard > API Keys to continue.' },
         { status: 503 },
       );
     }

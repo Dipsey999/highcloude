@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     console.error('Authenticated generation failed:', message);
     if (message.includes('GEMINI_API_KEY')) {
       return NextResponse.json(
-        { error: 'AI service is not configured. Please contact the administrator.' },
+        { error: 'Gemini API key not configured. Add your key in Dashboard > API Keys to generate design systems.' },
         { status: 503 },
       );
     }
