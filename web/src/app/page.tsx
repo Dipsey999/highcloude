@@ -163,7 +163,7 @@ export default function LandingPage() {
 
             <div className="mt-10 flex items-center justify-center gap-4 flex-wrap">
               <Link
-                href="/api/auth/signin"
+                href="/login"
                 className="btn-gradient inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold sm:px-8 sm:py-3.5 sm:text-base"
               >
                 <span className="relative z-10 flex items-center gap-2">
@@ -323,7 +323,7 @@ export default function LandingPage() {
 
                 {feature.highlight && (
                   <Link
-                    href="/api/auth/signin"
+                    href="/login"
                     className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-white/90 hover:text-white transition-colors"
                   >
                     Try it now
@@ -399,7 +399,7 @@ export default function LandingPage() {
 
           <div className="mt-14 text-center">
             <Link
-              href="/api/auth/signin"
+              href="/login"
               className="btn-gradient inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold sm:px-8 sm:py-3.5 sm:text-base"
             >
               <span className="relative z-10 flex items-center gap-2">
@@ -430,7 +430,7 @@ export default function LandingPage() {
           </p>
           <div className="mt-8 flex items-center justify-center gap-4 flex-wrap">
             <Link
-              href="/api/auth/signin"
+              href="/login"
               className="btn-gradient inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold sm:px-8 sm:py-3.5 sm:text-base"
             >
               <span className="relative z-10 flex items-center gap-2">

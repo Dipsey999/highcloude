@@ -1,34 +1,7 @@
-'use client';
-
+import { signIn } from '@/lib/auth';
 import { GitHubIcon, CosmiLogo } from '@/components/Icons';
 
 export default function LoginPage() {
-  const handleSignIn = async () => {
-    // Fetch CSRF token (also sets the matching cookie in the browser)
-    const res = await fetch('/api/auth/csrf');
-    const { csrfToken } = await res.json();
-
-    // Create and submit a real form — bypasses any Next.js router interception
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/api/auth/signin/github';
-
-    const tokenInput = document.createElement('input');
-    tokenInput.type = 'hidden';
-    tokenInput.name = 'csrfToken';
-    tokenInput.value = csrfToken;
-    form.appendChild(tokenInput);
-
-    const callbackInput = document.createElement('input');
-    callbackInput.type = 'hidden';
-    callbackInput.name = 'callbackUrl';
-    callbackInput.value = '/dashboard';
-    form.appendChild(callbackInput);
-
-    document.body.appendChild(form);
-    form.submit();
-  };
-
   return (
     <div
       className="hero-mesh relative flex min-h-[calc(100vh-4rem)] items-center justify-center"
@@ -60,18 +33,25 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <button
-          onClick={handleSignIn}
-          className="mt-8 flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200"
-          style={{
-            background: 'var(--bg-tertiary)',
-            color: 'var(--text-primary)',
-            border: '1px solid var(--border-primary)',
+        <form
+          action={async () => {
+            'use server';
+            await signIn('github', { redirectTo: '/dashboard' });
           }}
         >
-          <GitHubIcon className="h-5 w-5" />
-          Continue with GitHub
-        </button>
+          <button
+            type="submit"
+            className="mt-8 flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 hover:brightness-110"
+            style={{
+              background: 'var(--bg-tertiary)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border-primary)',
+            }}
+          >
+            <GitHubIcon className="h-5 w-5" />
+            Continue with GitHub
+          </button>
+        </form>
 
         <p
           className="mt-6 text-center text-xs"

@@ -14,4 +14,8 @@ export default {
       clientSecret: process.env.AUTH_GITHUB_SECRET!,
     }),
   ],
+  callbacks: {
+    // Always allow — actual auth gating is handled in our middleware callback
+    authorized: () => true,
+  },
 } satisfies NextAuthConfig;
