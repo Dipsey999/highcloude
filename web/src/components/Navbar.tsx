@@ -4,7 +4,7 @@ import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/components/ThemeProvider';
-import { SunIcon, MoonIcon, ArrowLeftIcon, CosmiLogo } from '@/components/Icons';
+import { SunIcon, MoonIcon, ArrowLeftIcon, FigmaIcon, DownloadIcon, CosmiLogo } from '@/components/Icons';
 
 export function Navbar() {
   const { data: session } = useSession();
@@ -44,6 +44,15 @@ export function Navbar() {
                 >
                   <span className="hidden sm:inline">+ Create New</span>
                   <span className="sm:hidden">+</span>
+                </Link>
+
+                <Link
+                  href="/dashboard/plugin-token"
+                  className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm transition-colors duration-200"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  <FigmaIcon className="h-4 w-4" />
+                  <span className="hidden sm:inline">Plugin</span>
                 </Link>
 
                 {isDashboard ? (
@@ -106,6 +115,15 @@ export function Navbar() {
                   style={{ color: 'var(--brand)' }}
                 >
                   Create
+                </Link>
+
+                <Link
+                  href="/download"
+                  className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm transition-colors duration-200"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  <DownloadIcon className="h-4 w-4" />
+                  <span className="hidden sm:inline">Plugin</span>
                 </Link>
 
                 <button

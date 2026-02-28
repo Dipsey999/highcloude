@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FolderIcon, KeyIcon, LinkIcon, RobotIcon, BookOpenIcon } from '@/components/Icons';
+import { FolderIcon, KeyIcon, FigmaIcon, RobotIcon, BookOpenIcon } from '@/components/Icons';
 
 const mainLinks = [
   { href: '/dashboard', label: 'Projects', icon: FolderIcon },
   { href: '/dashboard/keys', label: 'API Keys', icon: KeyIcon },
-  { href: '/dashboard/plugin-token', label: 'Plugin Token', icon: LinkIcon },
+  { href: '/dashboard/plugin-token', label: 'Figma Plugin', icon: FigmaIcon },
 ];
 
 const aiLinks = [
