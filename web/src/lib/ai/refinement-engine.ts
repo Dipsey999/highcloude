@@ -1,10 +1,11 @@
 /**
- * Handles iterative refinement of an existing design system via Gemini AI.
+ * Handles iterative refinement of an existing design system via AI.
  */
 
 import type { GeneratedDesignSystem, RefinementResult } from './types';
 import { buildRefinementPrompt } from './prompts/refinement';
-import { callGemini } from './gemini-client';
+import { callAI } from './ai-caller';
+import type { AICredentials } from './ai-caller';
 import { buildDesignSystemConfigFromInput, RADIUS_PRESETS } from '../design-system/config-mapper';
 import type { DesignSystemInput } from '../design-system/config-mapper';
 import { buildTokenDocument, generateDocumentation } from '../design-system/token-builder';
@@ -68,13 +69,13 @@ function detectCurrentShadowIntensity(shadows: { sm: string; md: string; lg: str
 export async function refineDesignSystem(
   currentSystem: GeneratedDesignSystem,
   instruction: string,
-  geminiApiKey?: string,
+  credentials: AICredentials,
 ): Promise<RefinementResult> {
   // 1. Build the refinement prompt
   const { system, user } = buildRefinementPrompt(currentSystem, instruction);
 
-  // 2. Call Gemini API
-  const responseText = await callGemini(system, user, geminiApiKey);
+  // 2. Call AI provider
+  const responseText = await callAI(system, user, credentials);
 
   // 3. Parse the partial response
   const changes = parseResponse(responseText);
