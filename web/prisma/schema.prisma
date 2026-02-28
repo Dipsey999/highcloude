@@ -105,7 +105,7 @@ model Project {
 
   // Design System (embedded, optional — at most one per project)
   designSystemName   String?
-  designSystemSource String?  // "scratch" | "figma-import" | null
+  designSystemSource String?  // "scratch" | "figma-import" | "ai-generated" | null
   designSystemDomain String?  // tech | healthcare | finance | education | ecommerce | creative | enterprise
   themeConfig        Json?    // { accentColor, grayColor, paletteMode, radius, scaling, appearance }
   typographyConfig   Json?    // { fontFamily, headingFont, baseSize, scale, weights }
@@ -113,6 +113,16 @@ model Project {
   componentConfig    Json?    // { selectedComponents: string[] }
   tokensDocument     Json?    // Full generated DTCG token document
   documentation      Json?    // Auto-generated docs
+
+  // AI-generation context (populated by /create onboarding flow)
+  productDescription  String?
+  productDomain       String?   // AI-detected: "fintech", "project-management", etc.
+  productVibe         String?   // "clean-minimal" | "professional-trustworthy" | etc.
+  brandReferences     String?
+  designPhilosophy    String?   @db.Text
+  designPrinciples    Json?     // string[]
+  layoutConfig        Json?     // { suggestedLayouts, navigationStyle, contentDensity }
+  version             Int       @default(1)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

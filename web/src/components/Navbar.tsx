@@ -4,7 +4,7 @@ import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/components/ThemeProvider';
-import { SunIcon, MoonIcon, DownloadIcon, ArrowLeftIcon, CosmiLogo } from '@/components/Icons';
+import { SunIcon, MoonIcon, ArrowLeftIcon, CosmiLogo } from '@/components/Icons';
 
 export function Navbar() {
   const { data: session } = useSession();
@@ -35,17 +35,17 @@ export function Navbar() {
 
           {/* Right side */}
           <div className="flex items-center gap-1.5">
-            <Link
-              href="/download"
-              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm transition-colors duration-200"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              <DownloadIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">Download</span>
-            </Link>
-
             {session?.user ? (
               <>
+                <Link
+                  href="/create"
+                  className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200"
+                  style={{ color: 'var(--brand)' }}
+                >
+                  <span className="hidden sm:inline">+ Create New</span>
+                  <span className="sm:hidden">+</span>
+                </Link>
+
                 {isDashboard ? (
                   <Link
                     href="/"
@@ -100,6 +100,14 @@ export function Navbar() {
               </>
             ) : (
               <>
+                <Link
+                  href="/create"
+                  className="rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200"
+                  style={{ color: 'var(--brand)' }}
+                >
+                  Create
+                </Link>
+
                 <button
                   onClick={toggleTheme}
                   className="flex h-8 w-8 items-center justify-center rounded-lg border transition-colors duration-200"
@@ -118,9 +126,10 @@ export function Navbar() {
 
                 <Link
                   href="/login"
-                  className="btn-gradient rounded-lg px-4 py-1.5 text-sm font-medium"
+                  className="rounded-lg px-3 py-2 text-sm transition-colors duration-200"
+                  style={{ color: 'var(--text-secondary)' }}
                 >
-                  <span className="relative z-10">Sign in</span>
+                  Sign in
                 </Link>
               </>
             )}
