@@ -4,24 +4,38 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from './db';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  debug: process.env.NODE_ENV !== 'production',
   trustHost: true,
   adapter: PrismaAdapter(prisma),
   providers: [
     GitHub({
       clientId: process.env.AUTH_GITHUB_ID!,
       clientSecret: process.env.AUTH_GITHUB_SECRET!,
-      profile(profile) {
-        return {
-          id: profile.id.toString(),
-          name: profile.name ?? profile.login,
-          email: profile.email,
-          image: profile.avatar_url,
-          githubId: profile.id.toString(),
-          username: profile.login,
-        };
-      },
     }),
   ],
+  events: {
+    async createUser({ user }) {
+      // After Auth.js creates the user, update with GitHub-specific fields
+      if (user.id) {
+        try {
+          const account = await prisma.account.findFirst({
+            where: { userId: user.id, provider: 'github' },
+          });
+          if (account) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: {
+                githubId: account.providerAccountId,
+                username: user.name ?? undefined,
+              },
+            });
+          }
+        } catch (e) {
+          console.error('[auth] Failed to update GitHub fields:', e);
+        }
+      }
+    },
+  },
   callbacks: {
     session({ session, user }) {
       if (session.user) {
