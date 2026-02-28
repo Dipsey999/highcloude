@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
       );
     }
     return NextResponse.json(
-      { error: 'Refinement failed. Please try again.' },
+      { error: `Refinement failed: ${message}` },
       { status: 500 },
     );
   }
