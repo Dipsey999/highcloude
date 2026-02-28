@@ -278,6 +278,14 @@ export function ArrowRightIcon({ className = 'h-5 w-5', style }: IconProps) {
  * A 4-pointed sparkle (cosmic) with orbital nodes (AI neural network).
  * Supports gradient fill via CSS variables.
  */
+export function WandIcon({ className = 'h-5 w-5', style }: IconProps) {
+  return (
+    <svg className={className} style={style} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+    </svg>
+  );
+}
+
 export function CosmiLogo({ className = 'h-8 w-8', style, showNodes = true }: IconProps & { showNodes?: boolean }) {
   return (
     <svg className={className} style={style} viewBox="0 0 32 32" fill="none">
