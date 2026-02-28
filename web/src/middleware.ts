@@ -36,11 +36,11 @@ export default auth((req) => {
     return response;
   }
 
-  // Auth check for dashboard routes — redirect to login if not authenticated
+  // Auth check for dashboard routes — redirect to Auth.js sign-in if not authenticated
   if (!req.auth && pathname.startsWith('/dashboard')) {
-    const loginUrl = new URL('/login', req.nextUrl.origin);
-    loginUrl.searchParams.set('callbackUrl', pathname);
-    return NextResponse.redirect(loginUrl);
+    const signInUrl = new URL('/api/auth/signin', req.nextUrl.origin);
+    signInUrl.searchParams.set('callbackUrl', pathname);
+    return NextResponse.redirect(signInUrl);
   }
 
   return NextResponse.next();
