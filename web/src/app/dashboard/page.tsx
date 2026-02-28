@@ -19,7 +19,7 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Projects</h1>
           <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
-            Manage your design token sync configurations.
+            Manage your projects and design systems.
           </p>
         </div>
         {projects.length > 0 && (
@@ -43,17 +43,23 @@ export default async function DashboardPage() {
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              id={project.id}
-              name={project.name}
-              githubRepo={project.githubRepo}
-              githubBranch={project.githubBranch}
-              syncMode={project.syncMode}
-              updatedAt={project.updatedAt.toISOString()}
-            />
-          ))}
+          {projects.map((project) => {
+            const themeConfig = project.themeConfig as Record<string, any> | null;
+            return (
+              <ProjectCard
+                key={project.id}
+                id={project.id}
+                name={project.name}
+                githubRepo={project.githubRepo}
+                githubBranch={project.githubBranch}
+                syncMode={project.syncMode}
+                updatedAt={project.updatedAt.toISOString()}
+                hasDesignSystem={!!project.designSystemSource}
+                accentColor={themeConfig?.accentColor ?? null}
+                designSystemName={project.designSystemName}
+              />
+            );
+          })}
         </div>
       )}
     </div>

@@ -1,16 +1,14 @@
 import { requireSession } from '@/lib/session';
 import { prisma } from '@/lib/db';
 import { notFound } from 'next/navigation';
-import { ProjectDetail } from './ProjectDetail';
-import { FigmaStatusCard } from '@/components/FigmaStatusCard';
-import { TokenStatusCard } from '@/components/TokenStatusCard';
-import { PluginStatusBadge } from '@/components/PluginStatusBadge';
+import { ProjectTabs } from './ProjectTabs';
 
 interface Props {
   params: { id: string };
+  searchParams: { tab?: string; setup?: string };
 }
 
-export default async function ProjectPage({ params }: Props) {
+export default async function ProjectPage({ params, searchParams }: Props) {
   const session = await requireSession();
   const userId = session.user?.id;
 
@@ -22,42 +20,39 @@ export default async function ProjectPage({ params }: Props) {
     notFound();
   }
 
+  // Serialize the project data for the client component
+  const serializedProject = {
+    id: project.id,
+    name: project.name,
+    githubRepo: project.githubRepo,
+    githubBranch: project.githubBranch,
+    githubFilePath: project.githubFilePath,
+    syncMode: project.syncMode,
+    pushMode: project.pushMode,
+    defaultDirectory: project.defaultDirectory,
+    updatedAt: project.updatedAt.toISOString(),
+    createdAt: project.createdAt.toISOString(),
+    // Design system fields
+    designSystemName: project.designSystemName,
+    designSystemSource: project.designSystemSource,
+    designSystemDomain: project.designSystemDomain,
+    themeConfig: project.themeConfig as Record<string, any> | null,
+    typographyConfig: project.typographyConfig as Record<string, any> | null,
+    spacingConfig: project.spacingConfig as Record<string, any> | null,
+    componentConfig: project.componentConfig as Record<string, any> | null,
+    tokensDocument: project.tokensDocument as Record<string, any> | null,
+    documentation: project.documentation as Record<string, any> | null,
+    // Figma
+    figmaSnapshot: project.figmaSnapshot ? true : false,
+    figmaSnapshotAt: project.figmaSnapshotAt?.toISOString() ?? null,
+    figmaFileName: project.figmaFileName,
+  };
+
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{project.name}</h1>
-        <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>{project.githubRepo}</p>
-      </div>
-
-      {/* Plugin Status Banner */}
-      <div className="mb-6">
-        <PluginStatusBadge projectId={project.id} />
-      </div>
-
-      {/* 2-Column Layout */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Column 1: Project Config */}
-        <div>
-          <ProjectDetail
-            project={{
-              id: project.id,
-              name: project.name,
-              githubRepo: project.githubRepo,
-              githubBranch: project.githubBranch,
-              githubFilePath: project.githubFilePath,
-              syncMode: project.syncMode,
-              pushMode: project.pushMode,
-              defaultDirectory: project.defaultDirectory,
-            }}
-          />
-        </div>
-
-        {/* Column 2: Status Cards */}
-        <div className="space-y-6">
-          <FigmaStatusCard projectId={project.id} />
-          <TokenStatusCard projectId={project.id} />
-        </div>
-      </div>
-    </div>
+    <ProjectTabs
+      project={serializedProject}
+      initialTab={searchParams.tab || 'overview'}
+      setup={searchParams.setup}
+    />
   );
 }

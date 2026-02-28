@@ -103,9 +103,23 @@ model Project {
   pluginFigmaFileName String?
   pluginProjectId     String?
 
+  // Design System (embedded, optional — at most one per project)
+  designSystemName   String?
+  designSystemSource String?  // "scratch" | "figma-import" | null
+  designSystemDomain String?  // tech | healthcare | finance | education | ecommerce | creative | enterprise
+  themeConfig        Json?    // { accentColor, grayColor, paletteMode, radius, scaling, appearance }
+  typographyConfig   Json?    // { fontFamily, headingFont, baseSize, scale, weights }
+  spacingConfig      Json?    // { baseUnit, scale }
+  componentConfig    Json?    // { selectedComponents: string[] }
+  tokensDocument     Json?    // Full generated DTCG token document
+  documentation      Json?    // Auto-generated docs
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+// NOTE: DesignSystem model kept temporarily for migration.
+// Existing data will not be migrated (only test records).
+// Remove in a future cleanup PR.
 model DesignSystem {
   id               String   @id @default(cuid())
   userId           String

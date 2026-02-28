@@ -15,9 +15,13 @@ interface ProjectFormProps {
     defaultDirectory: string;
   };
   mode: 'create' | 'edit';
+  /** Called after successful project creation (step 1 of 2-step flow) */
+  onProjectCreated?: (project: { id: string; name: string }) => void;
+  /** Skip router.push('/dashboard') after save — used in 2-step flow */
+  skipRedirect?: boolean;
 }
 
-export function ProjectForm({ initialData, mode }: ProjectFormProps) {
+export function ProjectForm({ initialData, mode, onProjectCreated, skipRedirect }: ProjectFormProps) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,8 +56,18 @@ export function ProjectForm({ initialData, mode }: ProjectFormProps) {
         throw new Error(data.error || 'Failed to save project');
       }
 
-      router.push('/dashboard');
-      router.refresh();
+      const result = await res.json();
+
+      // In 2-step create flow, call onProjectCreated instead of redirecting
+      if (mode === 'create' && onProjectCreated && result.project) {
+        onProjectCreated({ id: result.project.id, name: result.project.name });
+        return;
+      }
+
+      if (!skipRedirect) {
+        router.push('/dashboard');
+        router.refresh();
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -219,7 +233,7 @@ export function ProjectForm({ initialData, mode }: ProjectFormProps) {
           disabled={saving}
           className="btn-gradient flex-1 rounded-xl px-4 py-2.5 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {saving ? 'Saving...' : mode === 'create' ? 'Create Project' : 'Save Changes'}
+          {saving ? 'Saving...' : mode === 'create' ? (onProjectCreated ? 'Continue' : 'Create Project') : 'Save Changes'}
         </button>
         <button
           type="button"
