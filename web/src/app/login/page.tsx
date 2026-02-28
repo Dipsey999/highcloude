@@ -1,6 +1,4 @@
-'use client';
-
-import { signIn } from 'next-auth/react';
+import { signIn } from '@/lib/auth';
 import { GitHubIcon, CosmiLogo } from '@/components/Icons';
 
 export default function LoginPage() {
@@ -36,18 +34,25 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <button
-          onClick={() => signIn('github', { callbackUrl: '/dashboard' })}
-          className="mt-8 flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200"
-          style={{
-            background: 'var(--bg-tertiary)',
-            color: 'var(--text-primary)',
-            border: '1px solid var(--border-primary)',
+        <form
+          action={async () => {
+            'use server';
+            await signIn('github', { redirectTo: '/dashboard' });
           }}
         >
-          <GitHubIcon className="h-5 w-5" />
-          Continue with GitHub
-        </button>
+          <button
+            type="submit"
+            className="mt-8 flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200"
+            style={{
+              background: 'var(--bg-tertiary)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border-primary)',
+            }}
+          >
+            <GitHubIcon className="h-5 w-5" />
+            Continue with GitHub
+          </button>
+        </form>
 
         <p
           className="mt-6 text-center text-xs"
