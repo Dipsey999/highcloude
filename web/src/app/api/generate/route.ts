@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
       );
     }
     return NextResponse.json(
-      { error: 'Design system generation failed. Please try again.' },
+      { error: `Generation failed: ${message}` },
       { status: 500 },
     );
   }
