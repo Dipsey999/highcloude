@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
 
   // Look up user's stored Gemini API key — required for refinement
   let geminiApiKey: string | undefined;
+  let keyLookupError: string | null = null;
   try {
     const apiKeys = await prisma.apiKeys.findUnique({
       where: { userId },
@@ -36,15 +37,16 @@ export async function POST(req: NextRequest) {
     if (apiKeys?.geminiApiKeyEnc) {
       geminiApiKey = decrypt(apiKeys.geminiApiKeyEnc);
     }
-  } catch {
-    // Decryption or DB lookup failed
+  } catch (err) {
+    keyLookupError = err instanceof Error ? err.message : 'Unknown error';
+    console.error('Failed to retrieve/decrypt Gemini API key:', keyLookupError);
   }
 
   if (!geminiApiKey) {
-    return NextResponse.json(
-      { error: 'Gemini API key required. Add your free key in Dashboard > API Keys to refine design systems.' },
-      { status: 403 },
-    );
+    const error = keyLookupError
+      ? 'Failed to decrypt your Gemini API key. Please re-save it in Dashboard > API Keys.'
+      : 'Gemini API key required. Add your free key in Dashboard > API Keys to refine design systems.';
+    return NextResponse.json({ error }, { status: 403 });
   }
 
   try {

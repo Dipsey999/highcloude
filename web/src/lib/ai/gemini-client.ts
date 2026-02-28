@@ -1,6 +1,7 @@
 /**
  * Google Gemini 2.0 Flash API client for design system generation.
- * Uses the server-side GEMINI_API_KEY env var — no user API key needed.
+ * Users provide their own Gemini API key (stored encrypted in the database).
+ * Falls back to GEMINI_API_KEY env var only for development/testing.
  */
 
 const GEMINI_ENDPOINT =
@@ -14,7 +15,7 @@ export async function callGemini(
   const apiKey = apiKeyOverride || process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error(
-      'GEMINI_API_KEY environment variable is not configured.',
+      'No Gemini API key provided. Add your key in Dashboard > API Keys.',
     );
   }
 
