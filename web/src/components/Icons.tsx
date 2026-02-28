@@ -273,6 +273,18 @@ export function ArrowRightIcon({ className = 'h-5 w-5', style }: IconProps) {
   );
 }
 
+export function FigmaIcon({ className = 'h-5 w-5', style }: IconProps) {
+  return (
+    <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2H8.5A3.5 3.5 0 0 0 5 5.5v0A3.5 3.5 0 0 0 8.5 9H12V2Z" />
+      <path d="M12 9H8.5A3.5 3.5 0 0 0 5 12.5v0A3.5 3.5 0 0 0 8.5 16H12V9Z" />
+      <path d="M12 16H8.5A3.5 3.5 0 0 0 5 19.5v0A3.5 3.5 0 0 0 8.5 23v0A3.5 3.5 0 0 0 12 19.5V16Z" />
+      <path d="M12 2h3.5A3.5 3.5 0 0 1 19 5.5v0A3.5 3.5 0 0 1 15.5 9H12V2Z" />
+      <circle cx="15.5" cy="12.5" r="3.5" />
+    </svg>
+  );
+}
+
 /**
  * Cosmikit Brand Logo — AI constellation star.
  * A 4-pointed sparkle (cosmic) with orbital nodes (AI neural network).
